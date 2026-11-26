@@ -16,8 +16,8 @@ export const SHIPS: ShipClass[] = [
   },
   {
     id: "nebula", name: "Nebula", faction: "Federation", era: "TNG", type: "Light Explorer", category: "cruiser", combatRole: "primary",
-    tags: [], availability: "Rare", status: "Frontline",
-    ratings: { firepower: 7, defense: 7, speed: 6, agility: 5, sensors: 9, science: 9, endurance: 7, logistics: 7, presence: 8 },
+    tags: [], availability: "Uncommon", status: "Frontline",
+    ratings: { firepower: 6, defense: 7, speed: 6, agility: 5, sensors: 9, science: 8, endurance: 6, logistics: 7, presence: 6 },
     serviceEntry: 2357, lengthM: 442.23, crew: 750, evacuation: 9800, maxWarp: 9.4,
     weapons: "8× Type X phaser array; 2× burst-fire photon torpedo launcher", auxiliaryCraft: "12 shuttlecraft",
     summary: "A compact multi-mission cousin of the Galaxy class, built from many of the same components, with the secondary hull tucked under the saucer and a swappable mission pod above it.",
@@ -83,8 +83,8 @@ export const SHIPS: ShipClass[] = [
   {
     id: "ambassador", name: "Ambassador", faction: "Federation", era: "TNG", type: "Explorer", category: "capital", combatRole: "primary",
     tags: ["capital"], availability: "Rare", status: "Second-line",
-    ratings: { firepower: 6, defense: 7, speed: 5, agility: 4, sensors: 8, science: 8, endurance: 8, logistics: 7, presence: 7 },
-    serviceEntry: 2330, lengthM: 526, crew: 700, evacuation: 8000, maxWarp: 9.2,
+    ratings: { firepower: 7, defense: 8, speed: 5, agility: 4, sensors: 8, science: 8, endurance: 8, logistics: 8, presence: 8 },
+    serviceEntry: 2330, lengthM: 526, crew: 700, evacuation: 10000, maxWarp: 9.2,
     weapons: "10× Type IX phaser array; 2× burst-fire photon torpedo launcher (fore, aft)", auxiliaryCraft: "10 shuttlecraft",
     summary: "The heavy cruiser generation between the Excelsior and Galaxy classes; the Enterprise-C was one. Still in service in the 2360s, though aging.",
     strengths: ["Large, capable all-rounder"],
