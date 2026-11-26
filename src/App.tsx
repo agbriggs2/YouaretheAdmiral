@@ -3,6 +3,7 @@ import { sectorAlpha } from "./scenarios/sectorAlpha";
 import { SHIPS, SHIPS_BY_ID } from "./data/ships";
 import { SectorMap } from "./components/SectorMap";
 import { FleetRequest } from "./components/FleetRequest";
+import { StageView } from "./components/StageView";
 import { AssignedFleet } from "./components/AssignedFleet";
 import type { GameState, Transmission } from "./engine/state";
 import { allocateFleet, applyEffects, checkAssignments, checkRequest, newGame, postureTriggered, standingLabel } from "./engine/state";
@@ -12,6 +13,13 @@ import { loadGame, saveLocal, saveRemote } from "./engine/storage";
 const S = sectorAlpha;
 const RULES = S.resources.fleet!;
 const CATALOGUE = SHIPS.filter((c) => c.era === S.era && (c.serviceEntry ?? 0) <= S.year);
+/** A stage is playable once every prompt kind it uses is supported by the stage engine. */
+const playable = (i: number) => {
+  const st = S.stages[i];
+  if (!st) return false;
+  const kinds = [...(st.prompts ?? []), ...(st.events ?? []).flatMap((e) => e.prompts)].map((p) => p.kind);
+  return kinds.every((k) => k === "free-text" || k === "choice");
+};
 const ORBIT_LABEL: Record<string, string> = { "planet-orbit": "In planetary orbit", "star-orbit": "In orbit of the star", "open-space": "In open space" };
 
 export default function App() {
@@ -94,14 +102,17 @@ export default function App() {
     }
   };
 
-  const continueToQ2 = () => {
+  const advance = () => {
     setState((s) => {
-      const q2 = S.stages[1];
-      const next = applyEffects(s, q2.onEnter, "q2", SHIPS_BY_ID);
-      return { ...next, stageIndex: 1 };
+      const i = s.stageIndex + 1;
+      const st = S.stages[i];
+      if (!st) return s;
+      const next = applyEffects(s, st.onEnter, st.id, SHIPS_BY_ID);
+      return { ...next, stageIndex: i };
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const continueToQ2 = advance;
 
   const reset = () => {
     setState(newGame(S));
@@ -255,22 +266,16 @@ export default function App() {
             </>
           ) : (
             <>
-              <section className="card briefing">
-                <h2>{stage.title}</h2>
-                <p className="lead">{stage.briefing}</p>
-                {state.departed.length > 0 && (
-                  <div className="departed">
-                    <h3 className="sub">Reassigned</h3>
-                    <ul>{state.departed.map((d) => <li key={d.uid}><b>{d.name}</b> ({SHIPS_BY_ID[d.classId]?.name} class) · {d.reason}</li>)}</ul>
-                  </div>
-                )}
-              </section>
-              <section className="card">
-                <h2><span className="step">1</span>Redeployment</h2>
-                <p>{(S.stages[1].prompts![0] as { text: string }).text}</p>
-                <textarea rows={6} value={state.answers["q2-redeploy"] ?? ""} onChange={(e) => setAnswer("q2-redeploy", e.target.value)} aria-label="Redeployment" />
-                <p className="muted small-text">Question Two's crises (the piracy surge, the Kestu mobilization and the probe in the nebula) come in the next build. Your answer here is saved.</p>
-              </section>
+              <StageView
+                scenario={S}
+                stage={stage}
+                state={state}
+                byId={SHIPS_BY_ID}
+                setState={setState}
+                onContinue={advance}
+                nextLabel={S.stages[state.stageIndex + 1] ? `Continue to ${S.stages[state.stageIndex + 1].title.split(":")[0]}` : "Scenario complete"}
+                nextReady={playable(state.stageIndex + 1)}
+              />
               {reply && (
                 <details className="card">
                   <summary>Starfleet Command's reply to your plan</summary>

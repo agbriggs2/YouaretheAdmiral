@@ -32,10 +32,11 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 
 ## Status
 - Sector Alpha encoded in full (`src/scenarios/sectorAlpha.ts`).
-- Question One playable, with the fleet request and allocation system; moving to Question Two applies the scripted reassignment.
+- Question One playable, with the fleet request and allocation system.
+- Questions Two and Three playable through a shared stage engine: the player answers each prompt and crisis, the AI GM picks one authored outcome and writes the in-character reply in a single call, and the outcome's effects (standing changes, flags) apply and are shown. Hidden truths are never sent to the GM until revealed; it only sees what characters currently believe.
 
 ## Next steps
-1. Make Question Two's three crises playable (event → GM picks outcome → standing changes).
-2. Questions Three and Four.
+1. Question Four: reinforcements chosen by request, the patrol-ship loss, the buoy reveal and the handover.
+2. A "load test game" option for replaying from saved fixtures.
 3. Import the ship catalogue from the spreadsheet automatically instead of by hand.
 4. Encode Sector Beta to exercise branching.

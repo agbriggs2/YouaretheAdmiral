@@ -1,4 +1,4 @@
-import type { Outcome, Scenario, Stage } from "./scenarioTypes";
+import type { GameEvent, Outcome, Prompt, Scenario, Stage } from "./scenarioTypes";
 import type { ShipClass } from "./shipTypes";
 import type { GameState, Transmission } from "./state";
 import { standingLabel } from "./state";
@@ -135,6 +135,89 @@ Respond with only a JSON object: {"subject": "<short message subject>", "body": 
   return {
     ...base,
     subject: typeof data?.subject === "string" ? data.subject : stage.title,
+    body: typeof data?.body === "string" ? data.body : res.text,
+  };
+}
+
+// ── Later stages: one call picks the outcome and writes the reply ──
+
+function campaignSoFar(s: Scenario, state: GameState, byId: ById): string {
+  const sb = s.locations.find((l) => l.id === state.starbase.locationId);
+  const fleet = state.fleet.map((f) => {
+    const c = byId[f.classId];
+    const r = c?.ratings;
+    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; firepower ${r?.firepower}, defense ${r?.defense}, speed ${r?.speed}, sensors ${r?.sensors}, science ${r?.science}, logistics ${r?.logistics}). Duty: ${f.assignment || "none"}. Mission: ${f.mission || "none"}.`;
+  }).join("\n");
+  const departed = state.departed.map((d) => `- ${d.name} (${byId[d.classId]?.name ?? d.classId} class): ${d.reason}`).join("\n");
+  const history = state.transmissions.map((t) => `- ${t.subject} (from ${t.from}): outcome "${t.outcomeLabel}"`).join("\n");
+  const priorities = (state.answers["q1-priorities"] ?? "").slice(0, 1200);
+  return `THE CAMPAIGN SO FAR
+Admiral's stated priorities (from the first stage): ${priorities || "(none)"}
+Starbase: ${sb ? sb.name : "none"}${state.starbase.orbit ? `, ${state.starbase.orbit.replace("-", " ")}` : ""}.
+Current fleet (only these ships exist; orders naming other ships cannot be carried out):
+${fleet || "(none)"}
+${departed ? `Ships no longer available:\n${departed}\n` : ""}Earlier results:
+${history || "(none)"}`;
+}
+
+function secretsText(s: Scenario, state: GameState): string {
+  const all = s.stages.flatMap((st) => st.secrets ?? []);
+  if (!all.length) return "";
+  const lines = all.map((x) => state.revealed.includes(x.id)
+    ? `- REVEALED, may be discussed: ${x.truth}`
+    : x.coverStory ? `- What everyone currently believes (keep to this; nothing more is known): ${x.coverStory}` : "").filter(Boolean);
+  return lines.length ? `KNOWN SITUATION\n${lines.join("\n")}` : "";
+}
+
+export interface ResolveInput {
+  stage: Stage;
+  event?: GameEvent;
+  from: string;
+  title: string;
+  situation: string;
+  prompts: Prompt[];
+  outcomes: Outcome[];
+  defaultOutcomeId: string;
+  gmNotes?: string;
+}
+
+/** Pick one authored outcome for the player's orders and write the in-character reply. */
+export async function resolve(s: Scenario, state: GameState, byId: ById, inp: ResolveInput): Promise<{ outcome: Outcome; subject: string; body: string; offline?: boolean }> {
+  const def = inp.outcomes.find((o) => o.id === inp.defaultOutcomeId) ?? inp.outcomes[0];
+  const sample = await getSample();
+  if (!sample) {
+    return { outcome: def, subject: inp.title, body: `Admiral, your orders have been received and are being carried out.`, offline: true };
+  }
+  const orders = inp.prompts.map((p) => `${p.text}\n${state.answers[p.id] || "(no answer)"}`).join("\n\n");
+  const prompt = `${header(s, state, [inp.gmNotes ?? ""].filter(Boolean))}
+
+${campaignSoFar(s, state, byId)}
+
+${secretsText(s, state)}
+
+CURRENT STAGE: ${inp.stage.title}
+${inp.stage.briefing}
+
+SITUATION: ${inp.title}${inp.from ? ` (reported by ${inp.from})` : ""}
+${inp.situation}
+
+THE ADMIRAL'S ORDERS
+${orders}
+
+YOUR TASK
+1. Decide which one outcome below best fits the admiral's orders. Judge the reasoning and whether the ships named can plausibly do what is asked, given their duties and capabilities. Be fair but discerning.
+2. Write the in-character reply from ${inp.from || "the relevant party"} (or the captain carrying out the orders, if more fitting), addressed to the admiral, showing how events unfold under that outcome. Refer to specific ships and details from the orders. Do not state any standing changes or game terms. Under 250 words, plain text, short paragraphs, no headings or bullet points.
+
+OUTCOMES
+${inp.outcomes.map((o) => `- id "${o.id}" (${o.label}): ${o.criteria} How characters react: ${o.reactions ?? ""}`).join("\n")}
+
+Respond with only a JSON object: {"outcomeId": "<one id from the list>", "subject": "<short message subject>", "body": "<the in-character message>"}`;
+  const res = await sample(prompt, { modelTier: "default", cache: false });
+  const data = parseJson(res.text);
+  const outcome = inp.outcomes.find((o) => o.id === data?.outcomeId) ?? def;
+  return {
+    outcome,
+    subject: typeof data?.subject === "string" ? data.subject : inp.title,
     body: typeof data?.body === "string" ? data.body : res.text,
   };
 }

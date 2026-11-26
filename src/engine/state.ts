@@ -1,4 +1,4 @@
-import type { Availability, Effect, FleetRules, Scenario, ShipSelector } from "./scenarioTypes";
+import type { Availability, Condition, Effect, FleetRules, Scenario, ShipSelector } from "./scenarioTypes";
 import type { ShipClass } from "./shipTypes";
 import { totalRating } from "./shipTypes";
 
@@ -29,12 +29,15 @@ export interface FleetRequest {
 
 export interface Transmission {
   stageId: string;
+  eventId?: string;              // absent for a stage's own review
   outcomeId: string;
   outcomeLabel: string;
   from: string;
   subject: string;
   body: string;
   offline?: boolean;
+  changes?: { factionId: string; from: number; to: number }[];
+  shipsLost?: string[];
 }
 
 export interface LogEntry { stageId: string; text: string }
@@ -290,6 +293,26 @@ export function applyEffects(state: GameState, effects: Effect[] | undefined, st
     }
   }
   return s;
+}
+
+// ── Conditions ─────────────────────────────────────────
+
+export function conditionsMet(state: GameState, conds: Condition[] | undefined, byId: Record<string, ShipClass>): boolean {
+  return (conds ?? []).every((c) => {
+    if ("flag" in c) return state.flags[c.flag] === c.equals;
+    if ("standing" in c) {
+      const v = state.standings[c.standing] ?? 0;
+      return (c.atLeast === undefined || v >= c.atLeast) && (c.atMost === undefined || v <= c.atMost);
+    }
+    return state.fleet.some((f) => byId[f.classId]?.tags.includes(c.fleetHasTag));
+  });
+}
+
+/** Standing changes between two states, for display. */
+export function standingChanges(before: GameState, after: GameState): { factionId: string; from: number; to: number }[] {
+  return Object.keys(after.standings)
+    .filter((k) => (before.standings[k] ?? 0) !== after.standings[k])
+    .map((k) => ({ factionId: k, from: before.standings[k] ?? 0, to: after.standings[k] }));
 }
 
 export function standingLabel(n: number): string {
