@@ -123,6 +123,8 @@ export interface FleetCategory {
    * a ship from this fallback category instead.
    */
   fallbackCategory?: string;
+  /** Extra weight by status when picking the fallback ship, e.g. { Frontline: 3 }. */
+  fallbackStatusFactor?: Record<string, number>;
 }
 
 // ── Hidden information ─────────────────────────────────

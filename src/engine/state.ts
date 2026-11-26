@@ -202,8 +202,8 @@ export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: S
       let pick: ShipClass | undefined;
       if (pref && rand() < grantChance(rules, pref, tierShift, copies[pref.id] ?? 0)) pick = pref;
       const cat = rules.categories.find((c) => c.id === line.category);
-      const weighted = (list: ShipClass[]) => {
-        const w = (c: ShipClass) => (WEIGHT[c.availability] ?? 1) * sectorFactor(rules, c) * repeatFactor(rules, c, copies[c.id] ?? 0);
+      const weighted = (list: ShipClass[], extra: (c: ShipClass) => number = () => 1) => {
+        const w = (c: ShipClass) => (WEIGHT[c.availability] ?? 1) * sectorFactor(rules, c) * repeatFactor(rules, c, copies[c.id] ?? 0) * extra(c);
         const total = list.reduce((n, c) => n + w(c), 0);
         let r = rand() * total;
         return list.find((c) => (r -= w(c)) < 0) ?? list[list.length - 1];
@@ -214,7 +214,8 @@ export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: S
         pick = others.find((c) => rand() < grantChance(rules, c, tierShift, copies[c.id] ?? 0));
         if (!pick) {
           const fb = catalogue.filter((c) => c.category === cat.fallbackCategory);
-          if (fb.length) pick = weighted(fb);
+          const boost = (c: ShipClass) => cat.fallbackStatusFactor?.[c.status] ?? 1;
+          if (fb.length) pick = weighted(fb, boost);
         }
       }
       if (!pick) {

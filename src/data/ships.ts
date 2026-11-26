@@ -92,7 +92,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A substantial, respected ship, though no longer Starfleet's newest.", sourceTier: "beta",
   },
   {
-    id: "steamrunner", name: "Steamrunner", faction: "Federation", era: "TNG", type: "Light Cruiser", category: "cruiser", combatRole: "primary",
+    id: "steamrunner", name: "Steamrunner", faction: "Federation", era: "TNG", type: "Light Cruiser", category: "light-cruiser", combatRole: "primary",
     tags: [], availability: "Uncommon", status: "Frontline",
     ratings: { firepower: 4, defense: 5, speed: 7, agility: 7, sensors: 5, science: 4, endurance: 4, logistics: 4, presence: 4 },
     serviceEntry: 2371, lengthM: 244, crew: 185, evacuation: 1500, maxWarp: 9.5,
