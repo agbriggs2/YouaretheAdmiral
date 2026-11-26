@@ -158,7 +158,7 @@ export interface StageReview {
 }
 
 export type Prompt =
-  | { id: string; kind: "free-text"; text: string; guidance?: string }
+  | { id: string; kind: "free-text"; text: string; guidance?: string; short?: boolean }  // short: answerable in a few sentences
   | { id: string; kind: "fleet-builder"; text: string; mode: "initial" | "add"; addRules?: AddRules }
   | { id: string; kind: "fleet-request"; text: string }
   | { id: string; kind: "starbase-placement"; text: string }

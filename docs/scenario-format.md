@@ -1,4 +1,4 @@
-# Scenario Format — v0.3
+# Scenario Format — v0.4
 
 ## Principles
 - **Scenarios are authored, not improvised.** During play the AI GM reads the player's orders, picks one of the authored **outcomes** for each event, applies that outcome's **effects**, and writes in-character replies.
@@ -61,6 +61,11 @@ Repeat example (approved plan): Istanbul 33% → 16.5% → 8%; Galaxy 14% → 2%
 Resulting odds of getting a first preferred class (approved / commended / concerns): Galaxy, Nebula and Akira 14% / 24% / 5%; Ambassador 24% / 40% / 8%; Excelsior 80% / 95% / 50%; New Orleans 40% / 64% / 24%; Saber 38% / 46% / 24%; Miranda 95% / 95% / 63%.
 
 The grading criteria also count balance: a warship-heavy request is graded down in Sector Alpha.
+
+## Scenes and continuity (v0.4)
+- A free-text prompt can be marked `short`: the player sees a smaller box with a "A few sentences" hint, and the GM replies in under 140 words as a live exchange, without jumping ahead.
+- For each answer the GM also sees the earlier scenes of the same stage (the admiral's answers and the replies), so a run of scenes reads as one continuous story.
+- Secrets are only shown to the GM from the stage that introduces them, and only as their cover story until revealed. A secret with no cover story is never sent; its scene's text and GM notes carry what the GM needs.
 
 ## Schema (TypeScript)
 ```ts
@@ -183,6 +188,14 @@ export interface FleetCategory {
   description: string;
   nonCombat?: boolean;           // counts toward the non-combat minimum
   capital?: boolean;             // counts toward the capital limit
+  /**
+   * For scarce categories: if the preferred class misses, other classes in this
+   * category must each win their own grant roll; failing that, Starfleet sends
+   * a ship from this fallback category instead.
+   */
+  fallbackCategory?: string;
+  /** Extra weight by status when picking the fallback ship, e.g. { Frontline: 3 }. */
+  fallbackStatusFactor?: Record<string, number>;
 }
 
 // ── Hidden information ─────────────────────────────────
@@ -216,7 +229,7 @@ export interface StageReview {
 }
 
 export type Prompt =
-  | { id: string; kind: "free-text"; text: string; guidance?: string }
+  | { id: string; kind: "free-text"; text: string; guidance?: string; short?: boolean }  // short: answerable in a few sentences
   | { id: string; kind: "fleet-builder"; text: string; mode: "initial" | "add"; addRules?: AddRules }
   | { id: string; kind: "fleet-request"; text: string }
   | { id: string; kind: "starbase-placement"; text: string }

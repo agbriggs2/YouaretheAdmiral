@@ -174,7 +174,7 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
                     ))}
                   </div>
                 ) : (
-                  <textarea rows={5} value={state.answers[p.id] ?? ""} disabled={done || busy === u.key} onChange={(e) => setState((s) => ({ ...s, answers: { ...s.answers, [p.id]: e.target.value } }))} aria-label={p.text} />
+                  <textarea rows={"short" in p && p.short ? 3 : 5} placeholder={"short" in p && p.short ? "A few sentences" : undefined} value={state.answers[p.id] ?? ""} disabled={done || busy === u.key} onChange={(e) => setState((s) => ({ ...s, answers: { ...s.answers, [p.id]: e.target.value } }))} aria-label={p.text} />
                 )}
               </div>
             ))}

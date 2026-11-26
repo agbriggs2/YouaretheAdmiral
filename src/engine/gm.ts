@@ -161,7 +161,8 @@ ${history || "(none)"}`;
 }
 
 function secretsText(s: Scenario, state: GameState): string {
-  const all = s.stages.flatMap((st) => st.secrets ?? []);
+  // Only secrets introduced up to the current stage; later ones don't exist yet.
+  const all = s.stages.slice(0, state.stageIndex + 1).flatMap((st) => st.secrets ?? []);
   if (!all.length) return "";
   const lines = all.map((x) => state.revealed.includes(x.id)
     ? `- REVEALED, may be discussed: ${x.truth}`
@@ -189,6 +190,14 @@ export async function resolve(s: Scenario, state: GameState, byId: ById, inp: Re
     return { outcome: def, subject: inp.title, body: `Admiral, your orders have been received and are being carried out.`, offline: true };
   }
   const orders = inp.prompts.map((p) => `${p.text}\n${state.answers[p.id] || "(no answer)"}`).join("\n\n");
+  const brief = inp.prompts.some((p) => p.kind === "free-text" && p.short);
+  // Continuity: earlier scenes of this stage, with the admiral's answers and the replies.
+  const earlier = state.transmissions.filter((t) => t.stageId === inp.stage.id).map((t) => {
+    const ev = inp.stage.events?.find((e) => e.id === t.eventId);
+    const ps = ev ? ev.prompts : (inp.stage.prompts ?? []);
+    const ans = ps.map((p) => state.answers[p.id]).filter(Boolean).join(" / ");
+    return `- ${ev?.title ?? "Stage orders"}. Admiral: ${ans.slice(0, 500)}\n  Reply from ${t.from}: ${t.body.slice(0, 700)}`;
+  }).join("\n");
   const prompt = `${header(s, state, [inp.gmNotes ?? ""].filter(Boolean))}
 
 ${campaignSoFar(s, state, byId)}
@@ -197,7 +206,7 @@ ${secretsText(s, state)}
 
 CURRENT STAGE: ${inp.stage.title}
 ${inp.stage.briefing}
-
+${earlier ? `\nEARLIER IN THIS STAGE (stay consistent with these)\n${earlier}\n` : ""}
 SITUATION: ${inp.title}${inp.from ? ` (reported by ${inp.from})` : ""}
 ${inp.situation}
 
@@ -206,7 +215,7 @@ ${orders}
 
 YOUR TASK
 1. Decide which one outcome below best fits the admiral's orders. Judge the reasoning and whether the ships named can plausibly do what is asked, given their duties and capabilities. Be fair but discerning.
-2. Write the in-character reply from ${inp.from || "the relevant party"} (or the captain carrying out the orders, if more fitting), addressed to the admiral, showing how events unfold under that outcome. Refer to specific ships and details from the orders. Do not state any standing changes or game terms. Under 250 words, plain text, short paragraphs, no headings or bullet points.
+2. Write the in-character reply from ${inp.from || "the relevant party"} (or the captain carrying out the orders, if more fitting), addressed to the admiral, showing how events unfold under that outcome. Refer to specific ships and details from the orders. Do not state any standing changes or game terms. ${brief ? "This is one scene in a fast-moving sequence and the admiral's orders are brief: reply in under 140 words, as a live exchange, and do not jump ahead to later events." : "Under 250 words."} Plain text, short paragraphs, no headings or bullet points.
 
 OUTCOMES
 ${inp.outcomes.map((o) => `- id "${o.id}" (${o.label}): ${o.criteria} How characters react: ${o.reactions ?? ""}`).join("\n")}

@@ -18,6 +18,12 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 - **Platform/stack:** TypeScript + React + Vite, single-file build published as a claude.ai artifact (AI GM via Claude's in-page capability; saves in the artifact database).
 - **Parked:** Campaign continuity across sectors (career mode).
 
+## Authoring rules
+- **In-universe presentation.** From Question Three on, stages unfold as scenes reported by named characters (duty officers, ambassadors, ministers, rival commanders), not an out-of-character narrator. Named characters help immersion and may be added freely.
+- **Short-answer scenes.** Later stages break big questions into more, smaller prompts that can be fully answered in a few sentences, for a sense of back-and-forth. No hard length limits.
+- **No hypotheticals** ("what would you do if…"). Any such question needs in-narrative backing, i.e. it becomes a real development.
+- **Responsive developments stay narrative for now.** New scenes may add colour and consequences (flags, standing changes) but don't change the plot; branching comes after Sector Alpha.
+
 ## Fleet allocation
 - Players request ships by **category** (capital, cruiser, frigate, scout, science, transport) with counts, optional preferred class and purposes; they don't pick exact ships.
 - The **engine** fills every slot. A preferred class is granted with odds from its **availability**, the plan's **grade**, the sector's **status** and **combat-role** factors, and a **repeat penalty** for multiples of scarce classes (Ubiquitous none, Common small, Uncommon moderate, Rare steep). Otherwise a substitute from the same category is sent, weighted the same way.
@@ -33,6 +39,7 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 ## Status
 - Sector Alpha encoded in full (`src/scenarios/sectorAlpha.ts`).
 - Question One playable, with the fleet request and allocation system.
+- Question Three rewritten as ten in-universe scenes with a named cast (Ambassador Rhiannon Okafor, Minister Hadrin Toma, Fleet Commander Drevak Sul, Commander Ysolde Hart and others; the five Lysaran nations Caldre, Imrath, Voss, Thale and Orvane). The original's hypothetical is replaced by three real developments: stranded merchants, a Kestu deconfliction proposal, and intelligence that Kestu ships left home two days before the assassination (never confirmed either way).
 - Questions Two and Three playable through a shared stage engine: the player answers each prompt and crisis, the AI GM picks one authored outcome and writes the in-character reply in a single call, and the outcome's effects (standing changes, flags) apply and are shown. Hidden truths are never sent to the GM until revealed; it only sees what characters currently believe.
 
 ## Next steps
