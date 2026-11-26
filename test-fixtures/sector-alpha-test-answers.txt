@@ -1,0 +1,52 @@
+SECTOR ALPHA - TEST ANSWERS (Question One)
+==========================================
+
+1. PRIORITIES
+-------------
+Starfleet's mission in this sector should align with the following priorities, intended to successfully establish a long-term, durable, and welcome Federation presence in this part of space. This sector has been through a hard time of it, with Tekanan, in particular still reeling from the mass slaughter of a majority of its population (my estimate is they lost two thirds or more of their people to invasion by the cross-border power).
+1. Assist Tekanan with any remaining rebuilding needs. While their population has not yet recovered, Federation technology and expertise can help mitigate some of the lasting effects of the invasion. As a potential new Federation member, Starfleet should assist in ensuring they are prepared for that responsibility (similar to our role on Bajor following the Cardassian withdrawal).
+2. Improve the sector's commercial ties and infrastructure - all three inhabitants of the sector have specifically requested this assistance, and it aligns with the Federation's goals. Stronger commercial ties can serve as a basis for improved relations among the three species, particularly with the Kestu, who have had prior, poor relations with the other two worlds.
+3. Gather intelligence on the Lysaran's and Kestu. The Kestu appear to be an obvious potential threat to peaceful harmony in the sector. Their fleet is impressive in terms of tonnage and tactical capability. A world run by a totalitarian regime with poor relations with its neighbors is a clear threat to sector-wide stability. The Kestu should be approached proactively and with open arms, but the old adage of "walk softly and carry a big stick" may apply to our dealings with them.
+The Lysarans are more of an enigma. Our initial interactions with them have been positive thus far, but federated, monarchical government could be a potential source of instability. Our relations with Lysara may benefit from a permanent diplomatic presence large and capable enough to not only engage with the ruling monarch, but with the constituent states as well.
+4. Ascertain the current posture of the border power. Despite having not been heard from for several decades, the border power, in the not too distant past, harbored apparently genocidal intent towards Tekanan III. If they return, Starfleet could have a fight on its hands. Vigilance is key.
+5. Survey and exploration. The Federation is new to this region of space, and our mandate to explore strange new worlds must never be far from mind. The Class-L planet (provided that exploring it will not antagonize the cross-border power), and the nebula will likely be worth surveying once the sector has been stabilized.
+
+2. STARBASE
+-----------
+Location: Tekanan III, in planetary orbit
+
+Why here?
+As a potential Federation member and our closest ally in this region, I feel strongly that Tekanan III is a natural location for Starfleet's permanent presence in this region. A Starbase in orbit of their world demonstrates our commitment, not only to defend them from harm, but also to provide immediate assistance to aid their ongoing recovery. Starbase facilities can supplement what was lost to the invasion, from commercial docks, to industrial capacity, to defensive installations.
+
+While there may be some pros to alternative placement, such as open space or at the border, I do not think these locations are as beneficial for several reasons:
+1. A deep space starbase becomes another location that must be actively defended in an unstable sector, with two potential threat actors.
+2. A deep space starbase is less able to assist with commercial development, as it would actually detract from the commercial benefits by syphoning traffic away from one of the inhabited worlds.
+
+3. FLEET REQUEST
+----------------
+What does your fleet need to be able to do?
+While I appreciate Starfleet's initial assessment that this sector is on the frontier and currently quiet, I am hesitant to dismiss the presence of two potential serious threat actors. Based on recent intelligence, the Kestu have as many as 20 Nebula-class equivalent vessels. Given the sector's out of the way position, a deployment lacking tactical capability could quickly be swamped, without prospect of rapid reinforcement. Furthermore, the border power has already shown in recent history that they are potentially genocidal, and may certainly end up being hostile to our presence here. A strong deployment is a strong deterrent against trouble coming from across the border.
+
+Additionally, Starfleet's task force in this sector should be geared towards supporting the priorities identified above, with sufficient transport capacity to supplement available trade tonnage, scientific capabilities to begin surveys of the nebula and L-class planet, and diplomatic facilities to engage with the Lysarans and Kestu. Lastly, while there is currently no indication of piracy in this region, that will come with increased commercial activity, so sufficient small hulls for trade protection and patrol will be important.
+
+Ship requests:
+  1. Capital ship x 1  (preferred: Ambassador)
+     What are they for? Flagship, diplomatic facilities, fleet tonnage if threat arises from the Kestu or border power.
+  2. Cruiser x 1  (preferred: Akira)
+     What are they for? Primary tactical combatant, assignment sends a strong signal to potential hostiles
+  3. Cruiser x 2  (preferred: No preference)
+     What are they for? General duties, supplementing the flagship on diplomatic assignments, primarily responsible for any scientific missions to be undertaken, additional fleet tonnage in the event of hostilities.
+  4. Frigate x 4  (preferred: No preference)
+     What are they for? Trade protection, supplemental scientific and survey capacity.
+  5. Transport x 2  (preferred: No preference)
+     What are they for? Add transport tonnage to supplement commercial activity.
+
+4. DUTIES ASSIGNED LAST TIME (by class)
+---------------------------------------
+  Akira: Border watch
+  Excelsior: Science and survey
+  Saber, New Orleans: Patrol
+  Mirandas: Reserve
+  Sydneys: Transport and logistics
+  Galaxy (later reassigned): Diplomacy
+  Nebula (later reassigned): Science and survey
