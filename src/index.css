@@ -1,0 +1,193 @@
+/*
+VOICE: an admiral's working console — terse, confident, all business.
+IDEA: a Starfleet command padd beside a tactical plot: orders on the left, the sector on the right.
+PICTURE: the schematic sector map, dark like space, with the starbase marker you place.
+COLOUR and TYPE: command crimson band, white working surface, teal for the starbase and science; Barlow Condensed over Barlow.
+LAYOUT: crimson header with stage pills and faction standings; two columns, prompts and a sticky map; stacks below 900px with the map first.
+*/
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap");
+
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#ffffff, #111418);
+  --surface: light-dark(#f4f4f2, #1a1e24);
+  --line: light-dark(#dcdcd7, #2c323a);
+  --ink: light-dark(#15181c, #ebedef);
+  --ink-soft: light-dark(#5a6068, #9aa2ab);
+  --crimson: #8e1a24;
+  --crimson-ink: #fff4f2;
+  --accent: light-dark(#b3202c, #ff6b5e);
+  --teal: #2bb3c0;
+  --teal-ink: light-dark(#126b74, #6fd6df);
+  --space: #12161b;
+  --grid: rgba(255, 255, 255, 0.05);
+  --lane: rgba(255, 255, 255, 0.28);
+  --nebula: #8f6bd6;
+  --star: #ffd27a;
+  --planet-light: #9fd3e6;
+  --planet-dark: #2d5f78;
+  --hostile-field: rgba(255, 107, 94, 0.08);
+  --ok: light-dark(#1d7a4a, #5fd394);
+  --focus: light-dark(#126b74, #6fd6df);
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+* { box-sizing: border-box; min-width: 0; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 Barlow, system-ui, sans-serif; overflow-x: clip; }
+h1, h2, h3 { font-family: "Barlow Condensed", Barlow, sans-serif; line-height: 1.05; text-wrap: balance; margin: 0; }
+p { margin: 0 0 0.75em; }
+a { color: var(--teal-ink); }
+.band { padding: clamp(20px, 3.5vw, 48px) max(5vw, 16px); }
+.muted { color: var(--ink-soft); }
+.small-text { font-size: 14px; }
+
+/* Header */
+.top { background: var(--crimson); color: var(--crimson-ink); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 40px; align-items: end; }
+.kicker { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 18px; opacity: 0.85; margin: 0 0 4px; }
+.top h1 { font-size: clamp(40px, 6vw, 60px); font-weight: 700; }
+.role { margin: 6px 0 16px; opacity: 0.9; }
+.stages { display: flex; flex-wrap: wrap; gap: 8px; }
+.stage-pill { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 16px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid rgba(255, 244, 242, 0.45); opacity: 0.7; }
+.stage-pill.now { background: var(--crimson-ink); color: var(--crimson); opacity: 1; border-color: var(--crimson-ink); }
+.stage-pill.done { opacity: 1; }
+.stage-pill.done::before { content: "✓ "; }
+.standings { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-width: 280px; }
+.standings li { display: grid; grid-template-columns: 9.5em auto 1fr; gap: 10px; align-items: center; font-size: 14px; }
+.f-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f-meter { display: flex; gap: 3px; }
+.f-meter i { width: 10px; height: 10px; border-radius: 2px; background: rgba(255, 244, 242, 0.2); }
+.f-meter i.on { background: var(--crimson-ink); }
+.f-label { opacity: 0.85; white-space: nowrap; }
+
+/* Main layout */
+.main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 40px); max-width: 1320px; margin: 0 auto; align-items: start; }
+.col-prompts { display: grid; gap: 20px; }
+.side-sticky { position: sticky; top: 16px; display: grid; gap: 16px; }
+.card { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: clamp(18px, 2.4vw, 28px); }
+.card h2 { font-size: 30px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+.step { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--crimson); color: var(--crimson-ink); font-size: 18px; flex: none; }
+.lead { font-size: 17px; }
+.sub { font-size: 20px; font-weight: 600; margin: 18px 0 10px; }
+details { margin-top: 10px; }
+details > summary { cursor: pointer; font-weight: 600; color: var(--teal-ink); padding: 6px 0; }
+details ul { padding-left: 1.2em; }
+details li { margin-bottom: 6px; }
+
+/* Inputs */
+textarea, input, select { width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+textarea { resize: vertical; }
+textarea:disabled, input:disabled, select:disabled { opacity: 0.75; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.field { display: grid; gap: 6px; margin-top: 14px; }
+.field > span, .ship-fields label > span { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+.btn { font: 600 17px "Barlow Condensed", sans-serif; letter-spacing: 0.02em; min-height: 44px; padding: 10px 20px; border-radius: 8px; border: 1.5px solid var(--ink); background: var(--bg); color: var(--ink); cursor: pointer; }
+.btn.small { min-height: 36px; padding: 6px 14px; font-size: 15px; }
+.btn.primary { background: var(--crimson); color: var(--crimson-ink); border-color: var(--crimson); width: 100%; font-size: 19px; }
+.btn.ghost { border-color: var(--line); }
+.btn.danger { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Starbase */
+.loc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 8px; margin-top: 10px; }
+.loc-btn { text-align: left; font: 500 16px Barlow, sans-serif; min-height: 44px; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.loc-btn.on { border-color: var(--teal); background: color-mix(in srgb, var(--teal) 14%, var(--bg)); }
+.orbit { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.radio { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 8px; cursor: pointer; }
+.radio.on { border-color: var(--teal); }
+.radio input { width: auto; }
+
+/* Fleet builder */
+.catalogue { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.class-card { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: var(--surface); }
+.class-head { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+.class-head strong { font: 700 21px "Barlow Condensed", sans-serif; }
+.badges { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+.badge { font-size: 13px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); }
+.badge.role-primary { border-color: var(--accent); color: var(--accent); }
+.badge.role-none { border-color: var(--teal); color: var(--teal-ink); }
+.badge.capital { background: var(--crimson); color: var(--crimson-ink); border-color: var(--crimson); }
+.ratings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; }
+.rating { display: grid; gap: 2px; font-size: 13px; }
+.r-top { display: flex; justify-content: space-between; gap: 4px; color: var(--ink-soft); }
+.r-top .num { color: var(--ink); font-weight: 600; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--teal); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.fleet { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; counter-reset: ship; }
+.ship-row { border: 1px solid var(--line); border-left: 4px solid var(--crimson); border-radius: 8px; padding: 12px; }
+.ship-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ship-name { width: auto; flex: 1 1 180px; font: 700 20px "Barlow Condensed", sans-serif; }
+.ship-fields { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 10px; margin-top: 10px; }
+.ship-fields label { display: grid; gap: 4px; }
+.ship-fields .full { grid-column: 1 / -1; }
+.empty { color: var(--ink-soft); font-style: italic; }
+
+/* Transmit and reply */
+.checklist { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 6px; }
+.checklist li::before { content: "○"; display: inline-block; width: 1.4em; color: var(--ink-soft); }
+.checklist li.ok::before { content: "✓"; color: var(--ok); font-weight: 700; }
+.error { color: var(--accent); margin-top: 10px; }
+.transmission { border: 2px solid var(--teal); background: color-mix(in srgb, var(--teal) 7%, var(--bg)); }
+.tx-meta { font: 600 16px "Barlow Condensed", sans-serif; color: var(--teal-ink); margin-bottom: 6px; }
+.transmission .btn { margin-top: 10px; }
+.departed ul { padding-left: 1.2em; }
+.reset-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* Map and roster */
+.map-wrap { background: var(--space); border-radius: 10px; overflow: hidden; color: #e8ecef; }
+.map { display: block; width: 100%; height: auto; }
+.map-label { fill: #c9d1d9; font: 500 21px Barlow, sans-serif; }
+.map-label.on { fill: #fff; font-weight: 600; }
+.map-region { fill: #ff8b80; font: 600 21px "Barlow Condensed", sans-serif; }
+.loc.pickable { cursor: pointer; }
+.map-cap { margin: 0; padding: 10px 14px 12px; font-size: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.roster { border: 1px solid var(--line); border-radius: 10px; padding: 4px 16px 12px; }
+.roster ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.roster li { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.r-name { font-weight: 600; white-space: nowrap; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line); max-width: 1320px; margin: 0 auto; }
+.foot p { margin: 0; }
+
+/* Worlds table */
+table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--ink-soft); }
+
+@media (max-width: 900px) {
+  .top { grid-template-columns: minmax(0, 1fr); }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .col-side { order: -1; }
+  .side-sticky { position: static; }
+}
+@media (max-width: 600px) {
+  .ship-fields { grid-template-columns: minmax(0, 1fr); }
+  .standings li { grid-template-columns: 8em auto 1fr; }
+  table { font-size: 13px; }
+  .stack thead { display: none; }
+  .stack tr { display: grid; padding-block: 10px; }
+  .stack td { display: flow-root; border: 0; padding: 3px 0; padding-inline-start: 8em; text-align: start; }
+  .stack td::before { content: attr(data-l); float: inline-start; width: 7.5em; margin-inline-start: -8em; white-space: normal; color: var(--ink-soft); }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* Fleet request */
+.req-lines { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 10px; }
+.req-line { border: 1px solid var(--line); border-left: 4px solid var(--teal); border-radius: 8px; padding: 12px; }
+.req-top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.req-cat { font: 700 21px "Barlow Condensed", sans-serif; flex: 1 1 auto; }
+.stepper { display: flex; align-items: center; gap: 6px; }
+.stepper .btn { min-width: 40px; padding: 4px 0; font-size: 20px; }
+.count { min-width: 1.6em; text-align: center; font: 700 20px "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
+.req-fields { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
+.req-fields label { display: grid; gap: 4px; }
+.req-fields label > span { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+.add-cats { display: flex; flex-wrap: wrap; gap: 8px; }
+.classes-ref { margin-top: 18px; }
+.ref-cat h4 { font: 600 18px "Barlow Condensed", sans-serif; margin: 14px 0 8px; }
+.ship-class { font-weight: 600; }
+.requested { margin: 6px 0 0; color: var(--ink-soft); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.badge.subst { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.ship-row.sub { border-left-color: var(--accent); }
+@media (max-width: 600px) { .req-fields { grid-template-columns: minmax(0, 1fr); } }
+.sector-note { border-left: 4px solid var(--crimson); background: var(--surface); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+.repeat-note { margin: 8px 0 0; color: var(--accent); }
