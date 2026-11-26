@@ -201,12 +201,25 @@ export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: S
     for (let i = 0; i < line.count; i++) {
       let pick: ShipClass | undefined;
       if (pref && rand() < grantChance(rules, pref, tierShift, copies[pref.id] ?? 0)) pick = pref;
+      const cat = rules.categories.find((c) => c.id === line.category);
+      const weighted = (list: ShipClass[]) => {
+        const w = (c: ShipClass) => (WEIGHT[c.availability] ?? 1) * sectorFactor(rules, c) * repeatFactor(rules, c, copies[c.id] ?? 0);
+        const total = list.reduce((n, c) => n + w(c), 0);
+        let r = rand() * total;
+        return list.find((c) => (r -= w(c)) < 0) ?? list[list.length - 1];
+      };
+      if (!pick && cat?.fallbackCategory) {
+        // Scarce category: other classes must win their own roll, else a fallback-category ship.
+        const others = pool.filter((c) => c.id !== pref?.id).sort(() => rand() - 0.5);
+        pick = others.find((c) => rand() < grantChance(rules, c, tierShift, copies[c.id] ?? 0));
+        if (!pick) {
+          const fb = catalogue.filter((c) => c.category === cat.fallbackCategory);
+          if (fb.length) pick = weighted(fb);
+        }
+      }
       if (!pick) {
         const others = pref && pool.length > 1 ? pool.filter((c) => c.id !== pref.id) : pool;
-        const w = (c: ShipClass) => (WEIGHT[c.availability] ?? 1) * sectorFactor(rules, c) * repeatFactor(rules, c, copies[c.id] ?? 0);
-        const total = others.reduce((n, c) => n + w(c), 0);
-        let r = rand() * total;
-        pick = others.find((c) => (r -= w(c)) < 0) ?? others[others.length - 1];
+        pick = weighted(others);
       }
       copies[pick.id] = (copies[pick.id] ?? 0) + 1;
       out.push({
@@ -218,7 +231,7 @@ export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: S
         justification: line.purpose,
         addedIn: promptId,
         requested: `${label}${pref ? ` (${pref.name} preferred)` : ""}`,
-        substituted: !!pref && pick.id !== pref.id,
+        substituted: pref ? pick.id !== pref.id : pick.category !== line.category,
       });
     }
   }

@@ -115,7 +115,7 @@ export const sectorAlpha: Scenario = {
       justificationRequired: ["capital", "non-combat"],
       assignments: ["Patrol", "Escort", "Border watch", "Science and survey", "Diplomacy", "Transport and logistics", "Starbase defense", "Reserve"],
       categories: [
-        { id: "capital", label: "Capital ship", description: "Galaxy, Sovereign or Ambassador class. At most one.", capital: true },
+        { id: "capital", label: "Capital ship", description: "Galaxy, Sovereign or Ambassador class. At most one, and hard to get: if Starfleet can't spare one, it sends a cruiser.", capital: true, fallbackCategory: "cruiser" },
         { id: "cruiser", label: "Cruiser", description: "Mid-to-large multi-role ships: explorers, cruisers, heavy cruisers." },
         { id: "frigate", label: "Frigate", description: "Smaller combat ships for patrol and escort." },
         { id: "scout", label: "Scout", description: "Long-range reconnaissance and survey." },

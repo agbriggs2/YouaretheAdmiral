@@ -117,6 +117,12 @@ export interface FleetCategory {
   description: string;
   nonCombat?: boolean;           // counts toward the non-combat minimum
   capital?: boolean;             // counts toward the capital limit
+  /**
+   * For scarce categories: if the preferred class misses, other classes in this
+   * category must each win their own grant roll; failing that, Starfleet sends
+   * a ship from this fallback category instead.
+   */
+  fallbackCategory?: string;
 }
 
 // ── Hidden information ─────────────────────────────────
