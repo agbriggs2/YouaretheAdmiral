@@ -1,4 +1,4 @@
-# Scenario Format — v0.4
+# Scenario Format — v0.5
 
 ## Principles
 - **Scenarios are authored, not improvised.** During play the AI GM reads the player's orders, picks one of the authored **outcomes** for each event, applies that outcome's **effects**, and writes in-character replies.
@@ -9,7 +9,7 @@
 ## Structure
 - **Scenario**: id, title, complexity, era and in-universe year (the year limits which ship classes exist), the player's role, the setting, factions, locations, player resources and GM guidance.
 - **Stage**: one of the original "Questions". Has a briefing, prompts and events.
-- **Prompt**: something the player answers. Kinds: free text, fleet request, fleet builder (adding specific ships), starbase placement, multiple choice.
+- **Prompt**: something the player answers. Kinds: free text, fleet request, reinforcement request, fleet builder (adding specific ships), starbase placement, multiple choice, ship choice.
 - **Event**: a crisis or development. Optional **conditions** decide whether it happens. Has prompts for the player's orders, a list of outcomes, a default outcome and private GM notes.
 - **Outcome**: a label, criteria telling the GM which responses fall here, effects, and direction on how characters react.
 - **Effect**: set a flag, adjust a faction's standing (−3 to +3), remove ships (by a defined selector), reveal a secret, or add a log line.

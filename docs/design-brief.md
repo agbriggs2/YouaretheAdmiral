@@ -1,4 +1,4 @@
-# Interactive YatA — Design Brief (v0.4, 2026-11-26)
+# Interactive YatA — Design Brief (v0.5, 2026-11-26)
 
 ## Concept
 A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admiral!" (archived at st-minutiae.com/articles/admiral/). The player commands a Starfleet sector; an AI GM delivers events and answers in character. Faithful to Star Trek canon (personal use only).
