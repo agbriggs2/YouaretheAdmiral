@@ -495,7 +495,7 @@ export const sectorAlpha: Scenario = {
           title: "Mutual destruction",
           from: "Captain Mara Lindqvist, your chief of staff",
           text: "Lindqvist doesn't sit down. \"Admiral, the Lysaran and Kestu fleets met near the inner star an hour ago. They destroyed each other.\" Fleet Commander Sul's flagship is among the wrecks; the hotline is silent. In the crossfire, {lost} was destroyed along with the Tekanan transport Haveth's Promise it was escorting. There were no survivors from either ship.",
-          onEnter: [{ type: "remove-ships", selector: { assignment: "Patrol" }, count: 1, reason: "Destroyed in the crossfire while escorting the Tekanan transport Haveth's Promise" }],
+          onEnter: [{ type: "remove-ships", selector: { assignment: "Patrol" }, count: 1, reason: "Destroyed in the crossfire while escorting the Tekanan transport Haveth's Promise", fate: "destroyed" }],
           prompts: [{ id: "q4-disaster-orders", kind: "free-text", short: true, text: "What are your first orders?" }],
           defaultOutcomeId: "steady",
           gmNotes: "Treat the loss with weight. Do not suggest the loss could have been avoided or assign blame for the crossfire.",

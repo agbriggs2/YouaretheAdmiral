@@ -14,6 +14,7 @@ export interface FleetShip {
   substituted?: boolean;         // true if Starfleet sent something other than the preference
   captain?: string;              // assigned with the ship; cosmetic for now
   location?: string;             // a scenario location id, or "transit"
+  condition?: "operational" | "damaged";  // shown on the ship board
   task?: string;                 // what the ship is doing right now
 }
 
@@ -55,7 +56,7 @@ export interface GameState {
   starbase: { locationId: string; orbit: string; reasoning: string };
   fleetRequest: FleetRequest;
   fleet: FleetShip[];
-  departed: (FleetShip & { reason: string; lostIn?: string })[];
+  departed: (FleetShip & { reason: string; lostIn?: string; fate?: "destroyed" | "reassigned" })[];
   standings: Record<string, number>;
   flags: Record<string, string | number | boolean>;
   revealed: string[];
@@ -125,7 +126,8 @@ export function migrate(s: Scenario, state: GameState): GameState {
     for (const m of t.body.matchAll(/Captain ([A-Z][a-z]+ [A-Z][a-z'-]+)(?:,| of the| of) (USS [A-Z][A-Za-z]+(?: [A-Z][a-z]+)?)/g)) named[m[2]] ??= m[1];
   }
   const fleet = st.fleet.map((f) => ({ ...f, captain: f.captain ?? named[f.name], task: f.task ?? (f.assignment || undefined) }));
-  return { ...st, fleet: crewShips(s, { ...st, fleet }, fleet) };
+  const departed = st.departed.map((d) => ({ ...d, fate: d.fate ?? (/destroyed|lost with all hands/i.test(d.reason) ? "destroyed" as const : "reassigned" as const) }));
+  return { ...st, departed, fleet: crewShips(s, { ...st, fleet }, fleet) };
 }
 
 /** Authored cast whose scene has opened, plus everyone the GM has introduced. */
@@ -142,6 +144,16 @@ export function castSeen(s: Scenario, state: GameState): { name: string; role: s
 /** Factions still relevant: one can drop out once a secret about it is revealed. */
 export function activeFactions(s: Scenario, state: GameState) {
   return s.factions.filter((f) => !(f.retiredBy && state.revealed.includes(f.retiredBy)));
+}
+
+/** Ships for the board: strongest first, then destroyed ships, greyed out. */
+export function boardShips(state: GameState, byId: Record<string, ShipClass>) {
+  const power = (f: FleetShip) => (byId[f.classId] ? totalRating(byId[f.classId]) : 0);
+  const order = (a: FleetShip, b: FleetShip) => power(b) - power(a) || a.name.localeCompare(b.name);
+  return [
+    ...[...state.fleet].sort(order).map((f) => ({ ship: f, destroyed: false, reason: "" })),
+    ...state.departed.filter((d) => d.fate === "destroyed").sort(order).map((d) => ({ ship: d as FleetShip, destroyed: true, reason: d.reason })),
+  ];
 }
 
 export const TRANSIT = "transit";
@@ -357,7 +369,7 @@ export function applyEffects(state: GameState, effects: Effect[] | undefined, st
         s = {
           ...s,
           fleet: s.fleet.filter((f) => !ids.has(f.uid)),
-          departed: [...s.departed, ...gone.map((g) => ({ ...g, reason: e.reason, lostIn: sourceKey }))],
+          departed: [...s.departed, ...gone.map((g) => ({ ...g, reason: e.reason, lostIn: sourceKey, fate: e.fate ?? "reassigned" }))],
           log: [...s.log, ...gone.map((g) => ({ stageId, text: `${g.name} (${byId[g.classId]?.name ?? g.classId} class): ${e.reason}.` }))],
         };
         break;

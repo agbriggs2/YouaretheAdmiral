@@ -222,7 +222,7 @@ export interface Outcome {
 export type Effect =
   | { type: "set-flag"; flag: string; value: string | number | boolean }
   | { type: "adjust-standing"; factionId: string; delta: number }
-  | { type: "remove-ships"; selector: ShipSelector; count: number; reason: string }
+  | { type: "remove-ships"; selector: ShipSelector; count: number; reason: string; fate?: "destroyed" | "reassigned" }
   | { type: "reveal"; secretId: string }
   | { type: "log"; text: string };
 

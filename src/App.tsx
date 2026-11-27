@@ -6,7 +6,7 @@ import { FleetRequest } from "./components/FleetRequest";
 import { StageView } from "./components/StageView";
 import { AssignedFleet } from "./components/AssignedFleet";
 import type { GameState, Transmission } from "./engine/state";
-import { activeFactions, allocateFleet, applyEffects, castSeen, checkAssignments, checkRequest, crewShips, locationName, migrate, newGame, postureTriggered, standingLabel } from "./engine/state";
+import { activeFactions, allocateFleet, applyEffects, boardShips, castSeen, checkAssignments, checkRequest, crewShips, locationName, migrate, newGame, postureTriggered, standingLabel } from "./engine/state";
 import { isDev, toggleDev } from "./engine/dev";
 import { campaignHtml, campaignText } from "./engine/exportCampaign";
 import { getSample, gradeStage, writeReply } from "./engine/gm";
@@ -34,6 +34,8 @@ export default function App() {
   const [mapFocus, setMapFocus] = useState("");
   const replyRef = useRef<HTMLDivElement>(null);
   const [dev, setDev] = useState(isDev);
+  const [boardOpen, setBoardOpen] = useState(() => { try { return localStorage.getItem("yata-board") !== "closed"; } catch { return true; } });
+  const toggleBoard = () => setBoardOpen((o) => { try { localStorage.setItem("yata-board", o ? "closed" : "open"); } catch { /* unavailable */ } return !o; });
   const [exportNote, setExportNote] = useState("");
 
   // Testing aids stay hidden unless switched on with Alt+Shift+D.
@@ -343,14 +345,19 @@ export default function App() {
               </p>
             </div>
             <div className="roster">
-              <h3 className="sub">Ship board</h3>
-              {state.fleet.length === 0 ? <p className="empty">{state.fleetRequest.lines.length ? `${state.fleetRequest.lines.reduce((n, l) => n + l.count, 0)} ships requested. Awaiting assignment.` : "No ships assigned."}</p> : (
+              <h3 className="sub board-head">
+                <button type="button" className="disclose" aria-expanded={boardOpen} onClick={toggleBoard}>
+                  <span className="arrow" aria-hidden="true">{boardOpen ? "▾" : "▸"}</span> Ship board
+                  {state.fleet.length > 0 && <span className="muted count"> · {state.fleet.length} ships</span>}
+                </button>
+              </h3>
+              {!boardOpen ? null : state.fleet.length === 0 ? <p className="empty">{state.fleetRequest.lines.length ? `${state.fleetRequest.lines.reduce((n, l) => n + l.count, 0)} ships requested. Awaiting assignment.` : "No ships assigned."}</p> : (
                 <ul className="board">
-                  {state.fleet.map((f) => (
-                    <li key={f.uid}>
-                      <span className="r-name">{f.name}</span>
+                  {boardShips(state, SHIPS_BY_ID).map(({ ship: f, destroyed, reason }) => (
+                    <li key={f.uid} className={destroyed ? "destroyed" : f.condition === "damaged" ? "damaged" : undefined}>
+                      <span className="r-name">{f.name}{destroyed && <span className="tag lost">Destroyed</span>}{!destroyed && f.condition === "damaged" && <span className="tag hurt">Damaged</span>}</span>
                       <span className="muted">{SHIPS_BY_ID[f.classId]?.name} · Capt. {f.captain ?? "unassigned"}</span>
-                      <span className="r-pos"><b>{locationName(S, f.location)}</b>{f.task ? ` · ${f.task}` : ""}</span>
+                      <span className="r-pos">{destroyed ? reason : <><b>{locationName(S, f.location)}</b>{f.task ? ` · ${f.task}` : ""}</>}</span>
                     </li>
                   ))}
                 </ul>

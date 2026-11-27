@@ -32,7 +32,7 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 - A Galaxy should be hard to get in a normal scenario; scarce logistics ships (e.g. Istanbul) likewise.
 
 ## Play aids
-- **Ship board.** Every ship has a captain, a current location and a current task. Captains are assigned with the ships (cosmetic for now; traits could come later). After each order the GM proposes position and task updates, which the engine validates, and the GM always sees where each ship is.
+- **Ship board.** Ships are listed strongest first (by total rating), so new arrivals fall into place; destroyed ships stay on the board, greyed out and tagged, with a "damaged" tag ready for later. The board collapses, and the sidebar scrolls separately from the scenario. Every ship has a captain, a current location and a current task. Captains are assigned with the ships (cosmetic for now; traits could come later). After each order the GM proposes position and task updates, which the engine validates, and the GM always sees where each ship is.
 - **Cast list and Who's who.** Authored characters, places and nations appear in Who's who once their scene opens; people the GM introduces are recorded too. The GM is sent the list so names and roles stay consistent.
 - **End-of-sector review.** When the scenario ends, the GM writes a review of the whole posting from the player's superior: strengths, decisions Starfleet would question, and how the sector stands.
 - **Export.** The campaign can be exported as a readable record (an HTML file, or copied as text).

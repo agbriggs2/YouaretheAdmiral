@@ -219,3 +219,18 @@ th { font-weight: 600; color: var(--ink-soft); }
 .export { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .btn.dev, .badge.dev { border-style: dashed; }
 .review h2 { margin-top: 4px; }
+/* The sidebar scrolls on its own, beside the scenario. */
+@media (min-width: 901px) {
+  .side-sticky { max-height: calc(100vh - 32px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; scrollbar-gutter: stable; }
+}
+.board-head { margin-bottom: 4px; }
+.disclose { all: unset; cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px; }
+.disclose:focus-visible { outline: 2px solid var(--teal, #1f7a7a); outline-offset: 2px; border-radius: 4px; }
+.disclose .arrow { display: inline-block; width: 1em; }
+.disclose .count { font-weight: 400; font-size: 0.85rem; }
+.board li.destroyed { opacity: 0.55; }
+.board li.destroyed .r-name { text-decoration: line-through; }
+.tag { display: inline-block; margin-left: 8px; padding: 0 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; vertical-align: middle; text-decoration: none; }
+.board li.destroyed .tag { text-decoration: none; }
+.tag.lost { background: #8b1a1a; color: #fff; }
+.tag.hurt { background: #c98a14; color: #fff; }
