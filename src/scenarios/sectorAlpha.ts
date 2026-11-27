@@ -265,7 +265,7 @@ export const sectorAlpha: Scenario = {
           text: "An object has entered the Really Big Nebula. Its warp signature matches the alien ships that attacked Tekanan III, and sensors show what may be weapons signatures. All three worlds have confirmed the readings and stepped up patrols. Tekanan III demands a Starfleet response.",
           prompts: [{ id: "q2-probe-orders", kind: "free-text", text: "Which ship responds, what do you do, and what diplomatic steps do you take?" }],
           defaultOutcomeId: "cautious",
-          gmNotes: "Do not reveal the probe-truth secret. Readings stay ambiguous. If the player destroys the object, its transmissions have already been recorded and can still be analysed later.",
+          gmNotes: "Do not reveal the probe-truth secret. Readings stay ambiguous. If the player destroys the object, that does not change what happens later; do not mention any signal from it.",
           outcomes: [
             { id: "cautious", label: "Careful investigation", criteria: "Investigates with care, reassures Tekanan, avoids firing first.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: 1 }, { type: "set-flag", flag: "probe-handling", value: "investigated" }], reactions: "Tekanan is reassured that Starfleet takes the threat seriously." },
             { id: "destroyed", label: "Destroyed", criteria: "Destroys or disables the object on sight.", effects: [{ type: "set-flag", flag: "probe-handling", value: "destroyed" }], reactions: "Tekanan is relieved; Starfleet science staff grumble about lost data." },
@@ -562,11 +562,11 @@ export const sectorAlpha: Scenario = {
           id: "q4-buoy",
           title: "The buoy's message",
           from: "Lt. Commander Ama Osei, starbase science officer",
-          text: "Lt. Commander Osei's team has finally decoded the signal the object in the nebula was transmitting, working from the sensor logs gathered since it was first detected. It is not a weapon. It is an automated distress buoy. Its message tells of the Saalit, a resource-hungry empire that occupied Tekanan III until a plague struck them. They withdrew, collapsed into anarchy, and a last democratic government launched distress buoys before the Saalit died out. \"Admiral, the people who did that to Tekanan are gone.\"",
+          text: "The starbase has just received a signal from the nebula, carrying the same warp signature as the object found there. Lt. Commander Osei's team has decoded it. The object is not a weapon. It is an automated distress buoy. Its message tells of the Saalit, a resource-hungry empire that occupied Tekanan III until a plague struck them. They withdrew, collapsed into anarchy, and a last democratic government launched distress buoys before the Saalit died out. \"Admiral, the people who did that to Tekanan are gone.\"",
           onEnter: [{ type: "reveal", secretId: "probe-truth" }],
           prompts: [{ id: "q4-buoy-orders", kind: "free-text", short: true, text: "Who should be told, and in what order?" }],
           defaultOutcomeId: "careful",
-          gmNotes: "No one has recovered the buoy; the message was decoded from its recorded transmissions. Whether it is still out in the nebula depends on how the admiral handled it earlier.",
+          gmNotes: "The signal has only just been received; nothing earlier established that the object was transmitting, and no one has recovered it. Do not explain how a destroyed object could transmit; simply report the signal.",
           outcomes: [
             { id: "careful", label: "Careful disclosure", criteria: "Tells Tekanan sensitively and early, briefs Starfleet, and considers the plague risk.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: 1 }], reactions: "Toma receives the news with grief and relief." },
             { id: "careless", label: "Careless disclosure", criteria: "Overlooks Tekanan or ignores the plague risk.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: -1 }], reactions: "Tekanan learns the truth secondhand and is hurt." },
