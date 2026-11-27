@@ -370,8 +370,7 @@ export const sectorAlpha: Scenario = {
           outcomes: [
             { id: "negotiated", label: "Negotiated passage", criteria: "Secures passage by talking to the Kestu commander, or escorts openly in a way that avoids confrontation.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "freed" }], reactions: "The merchant ships leave orbit under escort; Corrin is effusive." },
             { id: "forced", label: "Forced through", criteria: "Runs the cordon or threatens the Kestu ships.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "forced" }, { type: "adjust-standing", factionId: "kestu", delta: -1 }], reactions: "The ships get out, but a Kestu warship powers weapons before backing off. Ruusk lodges a protest." },
-            { id: "sustained", label: "Sustained and negotiating", criteria: "Doesn't escort, but keeps the crews supplied and presses Kestu to clear the ships.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "supplied" }], reactions: "Corrin is frustrated but grateful for the supplies; the crews wait it out in reasonable comfort while talks continue." },
-            { id: "declined", label: "Declined", criteria: "Offers neither escort nor real help; leaves the merchants where they are.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "stranded" }], reactions: "Corrin is bitter; the crews wait it out on half rations." },
+            { id: "declined", label: "Declined", criteria: "Leaves the merchants where they are.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "stranded" }], reactions: "Corrin is bitter; the crews wait it out on half rations." },
           ],
         },
         {
