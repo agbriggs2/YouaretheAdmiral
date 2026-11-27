@@ -2,10 +2,10 @@
 VOICE: an admiral's working console — terse, confident, all business.
 IDEA: a Starfleet command padd beside a tactical plot: orders on the left, the sector on the right.
 PICTURE: the schematic sector map, dark like space, with the starbase marker you place.
-COLOUR and TYPE: command crimson band, white working surface, teal for the starbase and science; Barlow Condensed over Barlow.
-LAYOUT: crimson header with stage pills and faction standings; two columns, prompts and a sticky map; stacks below 900px with the map first.
+COLOUR and TYPE: an LCARS-style console (TNG era): black ground, elbow-framed panels and pill controls in peach, orange, lilac and blue; Antonio uppercase for labels and headings, Barlow for reading. The LCARS layer is at the end of this file.
+LAYOUT: an elbow-framed header with stage pills and faction standings; two columns, prompts and a sticky map; stacks below 900px with the map first.
 */
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Antonio:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap");
 
 :root {
   color-scheme: light dark;
@@ -234,3 +234,145 @@ th { font-weight: 600; color: var(--ink-soft); }
 .board li.destroyed .tag { text-decoration: none; }
 .tag.lost { background: #8b1a1a; color: #fff; }
 .tag.hurt { background: #c98a14; color: #fff; }
+
+/* ═══════════════════════════════════════════════════════
+   LCARS layer: an LCARS-style console look, layered over the base styles.
+   ═══════════════════════════════════════════════════════ */
+:root {
+  color-scheme: dark;
+  --lc-orange: #ff9c00;
+  --lc-peach: #ff9966;
+  --lc-gold: #ffcc66;
+  --lc-tan: #ffcc99;
+  --lc-lilac: #cc99cc;
+  --lc-violet: #9999cc;
+  --lc-blue: #99ccff;
+  --lc-red: #cc6666;
+  --lc-rose: #cc6699;
+  --bg: #000000;
+  --surface: #0d0d16;
+  --line: #2a2a3a;
+  --ink: #f2e6d8;
+  --ink-soft: #a9a1b8;
+  --crimson: var(--lc-orange);
+  --crimson-ink: #000000;
+  --accent: var(--lc-red);
+  --teal: var(--lc-blue);
+  --teal-ink: var(--lc-blue);
+  --ok: #99dd88;
+  --focus: var(--lc-gold);
+  --space: #000000;
+  --lc-font: Antonio, "Barlow Condensed", sans-serif;
+}
+body { background: #000; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; }
+
+/* Header: an elbow frame with the title inside. */
+.top {
+  background: #000; color: var(--ink);
+  position: relative;
+  margin: 16px max(5vw, 16px) 0; padding: 22px 28px 26px 32px;
+  border-left: 120px solid var(--lc-peach); border-top: 18px solid var(--lc-peach); border-bottom: 10px solid var(--lc-violet);
+  border-top-left-radius: 70px; border-bottom-left-radius: 46px;
+}
+.top::before {
+  content: "SECTOR COMMAND"; position: absolute; left: -116px; top: 8px; width: 108px;
+  font: 600 14px var(--lc-font); letter-spacing: 0.08em; color: #000; text-align: right;
+}
+.top::after {
+  content: "47-2372"; position: absolute; left: -116px; bottom: 10px; width: 108px;
+  font: 600 14px var(--lc-font); color: #000; text-align: right;
+}
+.kicker { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.12em; color: var(--lc-lilac); opacity: 1; font-size: 17px; }
+.top h1 { font-family: var(--lc-font); color: var(--lc-orange); font-size: clamp(42px, 6vw, 68px); font-weight: 700; letter-spacing: 0.04em; }
+.role { color: var(--lc-tan); opacity: 1; font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.06em; }
+.stage-pill { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.06em; border: 0; background: var(--lc-violet); color: #000; opacity: 0.55; border-radius: 999px; padding: 6px 16px; }
+.stage-pill.done { background: var(--lc-lilac); opacity: 1; }
+.stage-pill.now { background: var(--lc-orange); color: #000; opacity: 1; }
+.standings li { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.04em; font-size: 15px; }
+.f-name { color: var(--lc-tan); }
+.f-meter i { width: 14px; height: 12px; border-radius: 3px; background: #2a2a3a; }
+.f-meter i.on { background: var(--lc-gold); }
+.f-label { color: var(--lc-blue); }
+
+/* Panels: elbow frames. */
+.card {
+  background: #000; border: 0; border-radius: 0;
+  border-left: 16px solid var(--lc-orange); border-top: 10px solid var(--lc-orange);
+  border-top-left-radius: 40px; padding: 20px 4px 22px 24px;
+}
+.card h2 { color: var(--lc-orange); font-size: 30px; }
+.card h3, .sub { color: var(--lc-gold); }
+.step { background: var(--lc-orange); color: #000; font-family: var(--lc-font); }
+.transmission, .reply { background: #000; border: 0; border-left: 16px solid var(--lc-violet); border-top: 10px solid var(--lc-violet); border-top-left-radius: 40px; }
+.reply { padding: 16px 4px 16px 22px; }
+.transmission h2, .reply h2 { color: var(--lc-lilac); }
+.tx-meta { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.06em; color: var(--lc-blue); }
+.event.resolved { border-color: var(--lc-lilac); }
+.review { border-color: var(--lc-gold); }
+.review h2 { color: var(--lc-gold); }
+.sector-note { background: #0d0d16; border-left: 8px solid var(--lc-peach); border-radius: 0 18px 18px 0; }
+
+/* Controls: pills. */
+.btn { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.06em; border-radius: 999px; border: 0; background: var(--lc-violet); color: #000; padding: 10px 22px; }
+.btn.primary { background: var(--lc-orange); color: #000; }
+.btn.ghost { background: var(--lc-lilac); color: #000; }
+.btn.danger { background: var(--lc-red); color: #000; }
+.btn:hover:not(:disabled) { filter: brightness(1.12); }
+.btn.dev, .badge.dev { background: transparent; color: var(--lc-gold); border: 1.5px dashed var(--lc-gold); }
+textarea, input, select { background: #0d0d16; color: var(--ink); border: 1px solid #3a3a52; border-left: 6px solid var(--lc-violet); border-radius: 0 12px 12px 0; }
+textarea:focus, input:focus, select:focus { border-left-color: var(--lc-orange); }
+.field > span, .ship-fields label > span, .req-fields label > span { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.05em; color: var(--lc-tan); }
+.event .field > span { color: var(--lc-tan); font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.04em; }
+.loc-btn, .radio { background: #0d0d16; border: 0; border-left: 6px solid var(--lc-violet); border-radius: 0 999px 999px 0; color: var(--ink); }
+.loc-btn.on, .radio.on { border-left-color: var(--lc-orange); background: #1f1608; }
+details > summary { color: var(--lc-blue); font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Chips and badges. */
+.unit-steps li, .changes li, .badge { border-radius: 999px; font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.04em; }
+.unit-steps li { border: 0; background: #1c1c2a; color: var(--ink-soft); }
+.unit-steps li.now { background: var(--lc-orange); color: #000; }
+.unit-steps li.done { background: var(--lc-lilac); color: #000; }
+.unit-steps li.done::before { content: ""; }
+.changes li.up { background: #10220d; }
+.changes li.down { background: #2a1010; }
+.badge { background: #0d0d16; }
+.badge.capital { background: var(--lc-gold); color: #000; border-color: var(--lc-gold); }
+.bar > span { background: var(--lc-blue); }
+.ship-row, .req-line { background: #000; border: 1px solid #2a2a3a; border-left: 8px solid var(--lc-peach); border-radius: 0 16px 16px 0; }
+.ship-row.sub { border-left-color: var(--lc-red); }
+.req-line { border-left-color: var(--lc-blue); }
+.class-card { background: #0d0d16; border-color: #2a2a3a; }
+.class-head strong, .req-cat, .ship-name, .count { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.03em; }
+
+/* Sidebar: map and ship board in frames. */
+.map-wrap { border-radius: 0 0 0 34px; border-left: 14px solid var(--lc-blue); border-bottom: 8px solid var(--lc-blue); background: #000; }
+.map-cap { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.04em; color: var(--lc-tan); border-top: 0; }
+.map-label { font-family: Antonio, sans-serif; text-transform: uppercase; fill: var(--lc-tan); }
+.map-region { fill: var(--lc-red); font-family: Antonio, sans-serif; }
+.roster { border: 0; border-left: 14px solid var(--lc-lilac); border-top: 8px solid var(--lc-lilac); border-top-left-radius: 34px; border-radius: 34px 0 0 0; padding: 6px 4px 10px 16px; }
+.board-head .disclose { color: var(--lc-lilac); font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.05em; }
+.board li { border-bottom: 1px solid #22222f; }
+.board .r-name { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.04em; color: var(--lc-gold); font-size: 17px; font-weight: 600; }
+.board .reg { color: var(--lc-blue); font-size: 14px; font-weight: 400; letter-spacing: 0.06em; }
+.board .r-pos b { color: var(--lc-tan); font-weight: 600; }
+.tag { font-family: var(--lc-font); border-radius: 999px; padding: 0 8px; }
+.tag.lost { background: var(--lc-red); color: #000; }
+.tag.hurt { background: var(--lc-gold); color: #000; }
+.who { border-left: 14px solid var(--lc-violet); border-bottom: 8px solid var(--lc-violet); border-bottom-left-radius: 34px; padding: 4px 4px 12px 16px; }
+.who summary { color: var(--lc-violet); font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.05em; }
+.who h4 { color: var(--lc-peach); font-family: var(--lc-font); }
+.who b { color: var(--lc-tan); }
+
+/* Footer: an LCARS bar. */
+.foot { border-top: 0; position: relative; padding-top: 28px; }
+.foot::before { content: ""; position: absolute; left: max(5vw, 16px); right: max(5vw, 16px); top: 8px; height: 10px; border-radius: 999px;
+  background: linear-gradient(90deg, var(--lc-peach) 0 30%, #000 30% 31%, var(--lc-lilac) 31% 55%, #000 55% 56%, var(--lc-blue) 56% 80%, #000 80% 81%, var(--lc-gold) 81%); }
+th { color: var(--lc-tan); font-family: var(--lc-font); text-transform: uppercase; }
+::selection { background: var(--lc-orange); color: #000; }
+
+@media (max-width: 900px) {
+  .top { padding-left: 24px; border-left-width: 36px; margin-inline: 12px; }
+  .top::before, .top::after { display: none; }
+}
+.map-label, .map-region { text-transform: none; }

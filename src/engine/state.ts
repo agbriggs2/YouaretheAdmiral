@@ -13,6 +13,7 @@ export interface FleetShip {
   requested?: string;            // what the player asked for, e.g. "Frigate (New Orleans preferred)"
   substituted?: boolean;         // true if Starfleet sent something other than the preference
   captain?: string;              // assigned with the ship; cosmetic for now
+  registry?: string;             // "NCC-62497"
   location?: string;             // a scenario location id, or "transit"
   condition?: "operational" | "damaged";  // shown on the ship board
   task?: string;                 // what the ship is doing right now
@@ -102,23 +103,37 @@ export function newCaptain(taken: Iterable<string>, rand: () => number = Math.ra
   return `${pick(firsts, FIRST)} ${pick(lasts, LAST)}`;
 }
 
+/** An unused registry from the class's range. */
+export function newRegistry(c: ShipClass | undefined, taken: Set<string>, rand: () => number = Math.random): string | undefined {
+  if (!c?.registryRange) return undefined;
+  const [lo, hi] = c.registryRange;
+  for (let i = 0; i < 500; i++) {
+    const r = `NCC-${lo + Math.floor(rand() * (hi - lo + 1))}`;
+    if (!taken.has(r)) return r;
+  }
+  return undefined;
+}
+
 /** Every name already in the story: authored cast, GM-introduced people and captains. */
 export function takenNames(s: Scenario, state: GameState): string[] {
   return [...(s.cast ?? []).map((c) => c.name), ...state.cast.map((c) => c.name), ...[...state.fleet, ...state.departed].map((f) => f.captain ?? "").filter(Boolean)];
 }
 
 /** Give newly assigned ships a captain and put them at the starbase awaiting orders. */
-export function crewShips(s: Scenario, state: GameState, ships: FleetShip[]): FleetShip[] {
+export function crewShips(s: Scenario, state: GameState, ships: FleetShip[], byId?: Record<string, ShipClass>): FleetShip[] {
   const taken = takenNames(s, state);
+  const regs = new Set([...state.fleet, ...state.departed, ...ships].map((f) => f.registry ?? "").filter(Boolean));
   return ships.map((f) => {
     const captain = f.captain ?? newCaptain(taken);
     taken.push(captain);
-    return { ...f, captain, location: f.location ?? (state.starbase.locationId || undefined), task: f.task ?? "Arriving; awaiting orders" };
+    const registry = f.registry ?? newRegistry(byId?.[f.classId], regs);
+    if (registry) regs.add(registry);
+    return { ...f, captain, registry, location: f.location ?? (state.starbase.locationId || undefined), task: f.task ?? "Arriving; awaiting orders" };
   });
 }
 
 /** Bring an older save up to date: cast list, captains and positions. */
-export function migrate(s: Scenario, state: GameState): GameState {
+export function migrate(s: Scenario, state: GameState, byId?: Record<string, ShipClass>): GameState {
   const st: GameState = { ...state, cast: state.cast ?? [] };
   // Reuse captains the GM already named in replies ("Captain Maren Doyle, USS Zephyr").
   const named: Record<string, string> = {};
@@ -127,7 +142,9 @@ export function migrate(s: Scenario, state: GameState): GameState {
   }
   const fleet = st.fleet.map((f) => ({ ...f, captain: f.captain ?? named[f.name], task: f.task ?? (f.assignment || undefined) }));
   const departed = st.departed.map((d) => ({ ...d, fate: d.fate ?? (/destroyed|lost with all hands/i.test(d.reason) ? "destroyed" as const : "reassigned" as const) }));
-  return { ...st, departed, fleet: crewShips(s, { ...st, fleet }, fleet) };
+  const regs = new Set([...fleet, ...departed].map((f) => f.registry ?? "").filter(Boolean));
+  const departedReg = departed.map((d) => { const r = d.registry ?? newRegistry(byId?.[d.classId], regs); if (r) regs.add(r); return { ...d, registry: r }; });
+  return { ...st, departed: departedReg, fleet: crewShips(s, { ...st, fleet, departed: departedReg }, fleet, byId) };
 }
 
 /** Authored cast whose scene has opened, plus everyone the GM has introduced. */

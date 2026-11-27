@@ -62,7 +62,7 @@ ${it.scene ? paras(it.scene) : ""}
 ${it.orders.filter((o) => o.a.trim()).map((o) => `<div class="orders"><p class="q">${esc(o.q)}</p>${paras(o.a)}</div>`).join("")}
 ${it.reply ? `<div class="reply"><p class="meta">${esc(it.reply.from)} · ${esc(it.reply.subject)}</p>${paras(it.reply.body)}</div>` : ""}
 </section>`).join("")}`).join("");
-  const fleet = state.fleet.map((f) => `<li><b>${esc(f.name)}</b>, ${esc(byId[f.classId]?.name ?? "")} class, Captain ${esc(f.captain ?? "")}: ${esc(locationName(s, f.location))}, ${esc(f.task ?? "")}</li>`).join("");
+  const fleet = state.fleet.map((f) => `<li><b>${esc(f.name)}</b> (${esc(f.registry ?? "")}), ${esc(byId[f.classId]?.name ?? "")} class, Captain ${esc(f.captain ?? "")}: ${esc(locationName(s, f.location))}, ${esc(f.task ?? "")}</li>`).join("");
   const lost = state.departed.map((d) => `<li><b>${esc(d.name)}</b>: ${esc(d.reason)}</li>`).join("");
   const standings = activeFactions(s, state).map((f) => `<li>${esc(f.name)}: ${esc(standingLabel(state.standings[f.id] ?? 0))}</li>`).join("");
   return `<!DOCTYPE html>

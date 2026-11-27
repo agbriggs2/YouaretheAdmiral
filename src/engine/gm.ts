@@ -62,7 +62,7 @@ function answersText(s: Scenario, stage: Stage, state: GameState, byId: ById): s
 function fleetText(state: GameState, byId: ById): string {
   return state.fleet.map((f) => {
     const c = byId[f.classId];
-    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; ${c?.status ?? ""}), commanded by Captain ${f.captain ?? "(unnamed)"}. Requested as: ${f.requested ?? "n/a"}.${f.substituted ? " SUBSTITUTE: the preferred class could not be spared." : ""}`;
+    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; ${c?.status ?? ""}), registry ${f.registry ?? "unassigned"}, commanded by Captain ${f.captain ?? "(unnamed)"}. Requested as: ${f.requested ?? "n/a"}.${f.substituted ? " SUBSTITUTE: the preferred class could not be spared." : ""}`;
   }).join("\n");
 }
 
@@ -147,7 +147,7 @@ function campaignSoFar(s: Scenario, state: GameState, byId: ById): string {
   const fleet = state.fleet.map((f) => {
     const c = byId[f.classId];
     const r = c?.ratings;
-    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; firepower ${r?.firepower}, defense ${r?.defense}, speed ${r?.speed}, sensors ${r?.sensors}, science ${r?.science}, logistics ${r?.logistics}). Captain ${f.captain ?? "(unnamed)"}. Duty: ${f.assignment || "none"}. Mission: ${f.mission || "none"}. NOW AT: ${locationName(s, f.location)}. CURRENT TASK: ${f.task || "none"}.`;
+    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; firepower ${r?.firepower}, defense ${r?.defense}, speed ${r?.speed}, sensors ${r?.sensors}, science ${r?.science}, logistics ${r?.logistics}). Registry ${f.registry ?? "unassigned"}. Captain ${f.captain ?? "(unnamed)"}. Duty: ${f.assignment || "none"}. Mission: ${f.mission || "none"}. NOW AT: ${locationName(s, f.location)}. CURRENT TASK: ${f.task || "none"}.`;
   }).join("\n");
   const departed = state.departed.map((d) => `- ${d.name} (${byId[d.classId]?.name ?? d.classId} class): ${d.reason}`).join("\n");
   const history = state.transmissions.map((t) => `- ${t.subject} (from ${t.from}): outcome "${t.outcomeLabel}"`).join("\n");

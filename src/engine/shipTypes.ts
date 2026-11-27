@@ -33,6 +33,8 @@ export interface ShipClass {
   availability: string;
   status: string;
   ratings: Ratings;
+  /** Range of NCC registry numbers this class is drawn from (roughly chronological; canon examples where they exist). */
+  registryRange?: [number, number];
   serviceEntry?: number;
   lengthM?: number;
   crew?: number;

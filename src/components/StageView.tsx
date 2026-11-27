@@ -154,7 +154,7 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
       if (rp && !state.submitted[`${u.key}:alloc`]) {
         const allocated = allocateFleet(rules, { disposition: "", lines: readLines(state, rp.id) }, catalogue, rp.id, 0, Math.random, [...state.fleet, ...state.departed])
           .map((f) => ({ ...f, uid: uid(), assignment: "" }));
-        const newShips = crewShips(scenario, state, allocated);
+        const newShips = crewShips(scenario, state, allocated, byId);
         working = { ...working, fleet: [...working.fleet, ...newShips], submitted: { ...working.submitted, [`${u.key}:alloc`]: true } };
         const w = working;
         setState(() => w);

@@ -79,7 +79,7 @@ export default function App() {
 
   useEffect(() => {
     loadGame(S.id).then((g) => {
-      if (g && g.scenarioId === S.id) setState(migrate(S, { ...newGame(S), ...g }));
+      if (g && g.scenarioId === S.id) setState(migrate(S, { ...newGame(S), ...g }, SHIPS_BY_ID));
       setLoaded(true);
     });
     getSample().then((s) => setGmAvailable(!!s));
@@ -125,7 +125,7 @@ export default function App() {
       if (!working.submitted.q1alloc) {
         const graded = await gradeStage(S, q1, working, SHIPS_BY_ID);
         const shift = RULES.allocation?.gradeTierShift?.[graded.id] ?? 0;
-        const fleet = crewShips(S, working, allocateFleet(RULES, working.fleetRequest, CATALOGUE, "q1-fleet", shift));
+        const fleet = crewShips(S, working, allocateFleet(RULES, working.fleetRequest, CATALOGUE, "q1-fleet", shift), SHIPS_BY_ID);
         working = applyEffects({ ...working, fleet }, graded.effects, "q1", SHIPS_BY_ID);
         if (RULES.posture && postureTriggered(RULES, fleet, SHIPS_BY_ID)) {
           working = applyEffects(working, [...RULES.posture.effects, { type: "set-flag", flag: RULES.posture.flag, value: "heavy" }], "q1", SHIPS_BY_ID);
@@ -355,7 +355,7 @@ export default function App() {
                 <ul className="board">
                   {boardShips(state, SHIPS_BY_ID).map(({ ship: f, destroyed, reason }) => (
                     <li key={f.uid} className={destroyed ? "destroyed" : f.condition === "damaged" ? "damaged" : undefined}>
-                      <span className="r-name">{f.name}{destroyed && <span className="tag lost">Destroyed</span>}{!destroyed && f.condition === "damaged" && <span className="tag hurt">Damaged</span>}</span>
+                      <span className="r-name">{f.name}{f.registry && <span className="reg"> {f.registry}</span>}{destroyed && <span className="tag lost">Destroyed</span>}{!destroyed && f.condition === "damaged" && <span className="tag hurt">Damaged</span>}</span>
                       <span className="muted">{SHIPS_BY_ID[f.classId]?.name} · Capt. {f.captain ?? "unassigned"}</span>
                       <span className="r-pos">{destroyed ? reason : <><b>{locationName(S, f.location)}</b>{f.task ? ` · ${f.task}` : ""}</>}</span>
                     </li>
