@@ -35,9 +35,12 @@ export const CANON_NAMES: Record<string, { name: string; registry: string }[]> =
     { name: "Excalibur", registry: "NCC-26517" }, { name: "Zhukov", registry: "NCC-26136" },
     { name: "Yamaguchi", registry: "NCC-26510" }, { name: "Adelphi", registry: "NCC-26849" },
   ],
-  nebula: [{ name: "Endeavour", registry: "NCC-71805" }, { name: "Lexington", registry: "NCC-61832" }, { name: "Merrimac", registry: "NCC-61827" }],
+  nebula: [
+    { name: "Endeavour", registry: "NCC-71805" }, { name: "Lexington", registry: "NCC-61832" }, { name: "Merrimac", registry: "NCC-61827" },
+    { name: "Phoenix", registry: "NCC-65420" }, { name: "Sutherland", registry: "NCC-72015" }, { name: "Bellerophon", registry: "NCC-62048" },
+  ],
   excelsior: [
-    { name: "Hood", registry: "NCC-42296" }, { name: "Fearless", registry: "NCC-14598" }, { name: "Repulse", registry: "NCC-2544" },
+    { name: "Hood", registry: "NCC-42296" }, { name: "Lakota", registry: "NCC-42768" }, { name: "Fearless", registry: "NCC-14598" }, { name: "Repulse", registry: "NCC-2544" },
     { name: "Charleston", registry: "NCC-42285" }, { name: "Crazy Horse", registry: "NCC-50446" }, { name: "Cairo", registry: "NCC-42136" },
     { name: "Okinawa", registry: "NCC-13958" },
   ],
@@ -53,8 +56,8 @@ export const CANON_NAMES: Record<string, { name: string; registry: string }[]> =
 /** Never used as a default name: hero ships, famous plot ships, and class names. */
 export const BANNED_NAMES = new Set([
   "Enterprise", "Defiant", "Voyager", "Discovery", "Titan", "Cerritos", "Stargazer", "Protostar", "Equinox",
-  "Reliant", "Saratoga", "Grissom", "Pegasus", "Yamato", "Odyssey", "Lantree", "Brattain", "Tsiolkovsky", "Phoenix",
-  "Lakota", "Sutherland", "Bellerophon", "Horatio", "Kyushu", "Honshu", "Jenolan",
+  "Reliant", "Saratoga", "Grissom", "Pegasus", "Yamato", "Odyssey", "Lantree", "Brattain", "Tsiolkovsky",
+  "Horatio", "Kyushu", "Honshu", "Jenolan",
   "Galaxy", "Nebula", "Excelsior", "Akira", "Miranda", "New Orleans", "Cheyenne", "Ambassador", "Steamrunner", "Saber",
   "Istanbul", "Oberth", "Sydney", "Constitution", "Sovereign", "Intrepid", "Prometheus", "Nova", "Norway", "Springfield",
 ]);
