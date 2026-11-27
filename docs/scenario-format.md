@@ -1,4 +1,4 @@
-# Scenario Format — v0.5
+# Scenario Format — v0.6
 
 ## Principles
 - **Scenarios are authored, not improvised.** During play the AI GM reads the player's orders, picks one of the authored **outcomes** for each event, applies that outcome's **effects**, and writes in-character replies.
@@ -75,6 +75,13 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 - An event can carry `conditionalNotes`: GM notes that apply only when their conditions hold. The scene and its outcomes stay the same; only the GM's reading changes (e.g. whether the Caldrean and Imrathi merchant ships count as Federation clients depends on what the admiral told their envoys).
 - After the last scene of the last stage, a closing screen shows final standings.
 
+## Ship board, cast and review (v0.6)
+- **Ships** carry a captain (assigned with the ship), a location (a scenario location id, or `transit`) and a current task. New ships start at the starbase, awaiting orders.
+- **The GM's reply** may include `shipUpdates` (ship, location, task) for ships whose position or task its orders changed, and `newCharacters` (name, role) for named people it introduces. The engine keeps only updates naming real ships and real locations, and only new names.
+- **Cast:** `cast` lists authored people, places and nations, each with the scene (or stage) that introduces it. The GM is sent everyone introduced so far, plus GM-introduced people and the captains, and told to reuse names and roles.
+- **Debrief:** `debrief` names who writes the end-of-sector review and what to weigh.
+- **Retired factions:** a faction with `retiredBy` drops out of the standings and the GM's picture once that secret is revealed.
+
 ## Schema (TypeScript)
 ```ts
 /**
@@ -107,6 +114,15 @@ export interface Scenario {
   stages: Stage[];
   checkpoints?: Checkpoint[];
   gm: GmGuidance;
+  cast?: CastEntry[];            // named people and places, listed once their scene opens
+  debrief?: { from: string; gmNotes?: string };  // who writes the end-of-sector review
+}
+
+export interface CastEntry {
+  name: string;
+  role: string;
+  group?: string;                // "People" (default), "Places", "Lysaran nations"…
+  introducedIn: string;          // a stage id, or a scene key "q3:q3-alert"
 }
 
 // ── Setting ────────────────────────────────────────────
@@ -128,6 +144,7 @@ export interface Faction {
   resources?: string;
   traits?: string[];             // what the GM should know about how they behave
   startingStanding: number;      // -3 (hostile) … +3 (close ally)
+  retiredBy?: string;            // drops out of standings once this secret is revealed
 }
 
 export interface ForceEntry {

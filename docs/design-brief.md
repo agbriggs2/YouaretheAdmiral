@@ -1,4 +1,4 @@
-# Interactive YatA — Design Brief (v0.5, 2026-11-26)
+# Interactive YatA — Design Brief (v0.6, 2026-11-27)
 
 ## Concept
 A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admiral!" (archived at st-minutiae.com/articles/admiral/). The player commands a Starfleet sector; an AI GM delivers events and answers in character. Faithful to Star Trek canon (personal use only).
@@ -31,6 +31,14 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 - Order of play: GM grades the plan → engine allocates → posture check → GM writes Starfleet Command's reply announcing the ships → player assigns duties.
 - A Galaxy should be hard to get in a normal scenario; scarce logistics ships (e.g. Istanbul) likewise.
 
+## Play aids
+- **Ship board.** Every ship has a captain, a current location and a current task. Captains are assigned with the ships (cosmetic for now; traits could come later). After each order the GM proposes position and task updates, which the engine validates, and the GM always sees where each ship is.
+- **Cast list and Who's who.** Authored characters, places and nations appear in Who's who once their scene opens; people the GM introduces are recorded too. The GM is sent the list so names and roles stay consistent.
+- **End-of-sector review.** When the scenario ends, the GM writes a review of the whole posting from the player's superior: strengths, decisions Starfleet would question, and how the sector stands.
+- **Export.** The campaign can be exported as a readable record (an HTML file, or copied as text).
+- **Testing tools.** Hidden unless switched on with Alt+Shift+D: revise the latest answer, clear the review. Not a gameplay feature.
+- **Factions can drop out.** A faction leaves the standings once it stops being relevant (Sector Alpha's border power, once the Saalit are known to be extinct).
+
 ## Ship catalogue
 - **Scope:** "Classic" Trek only — ENT, TOS, TNG, DS9, VOY, and the TOS and TNG films.
 - **Sources:** Canon, beta canon, DITL referenced items, DITL speculation where reasonable, Andrew's headcanon, and marked Claude estimates.
@@ -41,8 +49,11 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 - Question One playable, with the fleet request and allocation system.
 - Question Three rewritten as ten in-universe scenes with a named cast (Ambassador Rhiannon Okafor, Minister Hadrin Toma, Fleet Commander Drevak Sul, Commander Ysolde Hart and others; the seven Lysaran nations: Caldre and Imrath ask for Federation help, Voss, Thale and Orvane invite Kestu, and Merrow and Dunhal stay unaligned). The original's hypothetical is replaced by three real developments: stranded merchants (a mixed convoy, mostly unaligned Merrovian and Dunhali ships with three Caldrean and Imrathi ships, so escorting it raises the question of taking sides), a Kestu deconfliction proposal, and intelligence that Kestu ships left home two days before the assassination (never confirmed either way). The report to Brennan also asks for the admiral's view for the Council on Tekanan joining and a long-term Federation presence; Question Four's petition scene refers back to it without changing the outcome.
 - Question Four rewritten as twelve in-universe scenes (adding First Speaker Imra Talov, Lt. Commander Ama Osei and Rear Admiral Teresa Vance) with the original plot: war started by the unaligned Merrow and Dunhal against the Kestu-backed nations, reinforcements by request, the fleets' mutual destruction and a named lost patrol ship, the Kestu accusation, refugees, a targeted strike that kills the Kestu junta with a device resembling a salvaged photon-torpedo warhead (culprit never revealed; no weapons of mass destruction), the new Kestu government, the buoy reveal, an exploration programme, the Council accepting Tekanan's membership petition (a first step, not membership) and the starbase sale, the handover briefing and the choice of ship for Sector Beta. A closing screen shows final standings.
-- Sector Alpha is playable end to end.
+- Sector Alpha is playable end to end, with the ship board, cast list, end-of-sector review and export. Lysara's standing falls by two when the war ends, since no Lysaran faction is happy with the Federation.
 - Questions Two through Four playable through a shared stage engine: the player answers each prompt and crisis, the AI GM picks one authored outcome and writes the in-character reply in a single call, and the outcome's effects (standing changes, flags) apply and are shown. Hidden truths are never sent to the GM until revealed; it only sees what characters currently believe.
+
+## Decided against for now
+- Follow-up replies within a scene, and a "what came of it" debrief for loose threads: both are limits of non-branching scenarios and should resolve naturally with branching.
 
 ## Next steps
 1. A "load test game" option for replaying from saved fixtures.
