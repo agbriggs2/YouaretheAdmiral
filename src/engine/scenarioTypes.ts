@@ -190,6 +190,8 @@ export interface GameEvent {
   outcomes: Outcome[];
   defaultOutcomeId: string;      // used if the GM can't decide
   gmNotes?: string;              // private direction for the GM
+  /** Extra GM notes that apply only when their conditions are met (no branching). */
+  conditionalNotes?: { conditions: Condition[]; note: string }[];
   /** Earlier answers the GM is shown for this scene, for continuity only. */
   recall?: { promptId: string; label: string }[];
 }

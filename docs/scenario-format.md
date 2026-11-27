@@ -72,6 +72,7 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 - A scene's text may contain `{lost}`; it is replaced with the names of ships removed by that scene's `onEnter`.
 - A `ship-choice` prompt asks the player to pick one ship from the current fleet.
 - An event can `recall` earlier answers by prompt id. The GM sees them for continuity only (e.g. Sector Alpha's petition scene recalls what the admiral told the Council in Question Three).
+- An event can carry `conditionalNotes`: GM notes that apply only when their conditions hold. The scene and its outcomes stay the same; only the GM's reading changes (e.g. whether the Caldrean and Imrathi merchant ships count as Federation clients depends on what the admiral told their envoys).
 - After the last scene of the last stage, a closing screen shows final standings.
 
 ## Schema (TypeScript)
@@ -261,6 +262,7 @@ export interface GameEvent {
   outcomes: Outcome[];
   defaultOutcomeId: string;      // used if the GM can't decide
   gmNotes?: string;              // private direction for the GM
+  conditionalNotes?: { conditions: Condition[]; note: string }[];  // GM notes that apply only when conditions hold
   recall?: { promptId: string; label: string }[];  // earlier answers shown to the GM, for continuity
 }
 
