@@ -191,6 +191,9 @@ export async function resolve(s: Scenario, state: GameState, byId: ById, inp: Re
   }
   const orders = inp.prompts.map((p) => `${p.text}\n${state.answers[p.id] || "(no answer)"}`).join("\n\n");
   const brief = inp.prompts.some((p) => p.kind === "free-text" && p.short);
+  // A compact picture of the present, so reports and assessments can be judged against reality.
+  const standingsNow = s.factions.map((f) => `- ${f.name}: ${standingLabel(state.standings[f.id] ?? 0)} (${state.standings[f.id] ?? 0} on a scale of -3 to +3)`).join("\n");
+  const resultsSoFar = state.log.filter((l) => !l.text.includes("Reassigned")).map((l) => `- ${l.text}`).join("\n");
   // Continuity: earlier scenes of this stage, with the admiral's answers and the replies.
   const earlier = state.transmissions.filter((t) => t.stageId === inp.stage.id).map((t) => {
     const ev = inp.stage.events?.find((e) => e.id === t.eventId);
@@ -207,6 +210,12 @@ ${secretsText(s, state)}
 CURRENT STAGE: ${inp.stage.title}
 ${inp.stage.briefing}
 ${earlier ? `\nEARLIER IN THIS STAGE (stay consistent with these)\n${earlier}\n` : ""}
+WHERE THINGS STAND NOW
+Relations with the Federation:
+${standingsNow}
+Results so far (scene: outcome):
+${resultsSoFar || "(none)"}
+
 SITUATION: ${inp.title}${inp.from ? ` (reported by ${inp.from})` : ""}
 ${inp.situation}
 
@@ -214,7 +223,7 @@ THE ADMIRAL'S ORDERS
 ${orders}
 
 YOUR TASK
-1. Decide which one outcome below best fits the admiral's orders. Judge the reasoning and whether the ships named can plausibly do what is asked, given their duties and capabilities. Be fair but discerning.
+1. Decide which one outcome below best fits the admiral's orders. Judge the reasoning and whether the ships named can plausibly do what is asked, given their duties and capabilities. When the admiral gives an assessment or report, judge whether it fits WHERE THINGS STAND NOW, not whether it ticks every box in the question. Read the whole answer for its substance: an answer that declines one option but offers a reasonable alternative should get credit for the alternative. Be fair but discerning.
 2. Write the in-character reply from ${inp.from || "the relevant party"} (or the captain carrying out the orders, if more fitting), addressed to the admiral, showing how events unfold under that outcome. Refer to specific ships and details from the orders. Do not state any standing changes or game terms. ${brief ? "This is one scene in a fast-moving sequence and the admiral's orders are brief: reply in under 140 words, as a live exchange, and do not jump ahead to later events." : "Under 250 words."} Plain text, short paragraphs, no headings or bullet points.
 
 OUTCOMES

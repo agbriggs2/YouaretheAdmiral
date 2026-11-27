@@ -370,7 +370,8 @@ export const sectorAlpha: Scenario = {
           outcomes: [
             { id: "negotiated", label: "Negotiated passage", criteria: "Secures passage by talking to the Kestu commander, or escorts openly in a way that avoids confrontation.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "freed" }], reactions: "The merchant ships leave orbit under escort; Corrin is effusive." },
             { id: "forced", label: "Forced through", criteria: "Runs the cordon or threatens the Kestu ships.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "forced" }, { type: "adjust-standing", factionId: "kestu", delta: -1 }], reactions: "The ships get out, but a Kestu warship powers weapons before backing off. Ruusk lodges a protest." },
-            { id: "declined", label: "Declined", criteria: "Leaves the merchants where they are.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "stranded" }], reactions: "Corrin is bitter; the crews wait it out on half rations." },
+            { id: "sustained", label: "Sustained and negotiating", criteria: "Doesn't escort, but keeps the crews supplied and presses Kestu to clear the ships.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "supplied" }], reactions: "Corrin is frustrated but grateful for the supplies; the crews wait it out in reasonable comfort while talks continue." },
+            { id: "declined", label: "Declined", criteria: "Offers neither escort nor real help; leaves the merchants where they are.", effects: [{ type: "set-flag", flag: "q3-merchants", value: "stranded" }], reactions: "Corrin is bitter; the crews wait it out on half rations." },
           ],
         },
         {
@@ -405,13 +406,15 @@ export const sectorAlpha: Scenario = {
           id: "q3-report",
           title: "Report to Starfleet",
           from: "Vice Admiral Hal Brennan, Starfleet Command",
-          text: "Vice Admiral Brennan wants your assessment for the Federation Council before it meets. He keeps it short: what do you recommend, what should be investigated first, and what do you need?",
-          prompts: [{ id: "q3-report-orders", kind: "free-text", short: true, text: "Your report to Vice Admiral Brennan." }],
-          defaultOutcomeId: "clear",
-          gmNotes: "Brennan acknowledges and can say the Council will take it under advisement. Do not promise reinforcements; the scenario decides those later.",
+          text: "Vice Admiral Brennan wants your assessment for the Federation Council before it meets. \"Give it to me straight, Admiral. How stable is Lysara, what should the Federation do, or not do, and is there anything you need from us?\"",
+          prompts: [{ id: "q3-report-orders", kind: "free-text", short: true, text: "Your assessment for Vice Admiral Brennan: how stable is the situation, what should the Federation do, and do you need anything?" }],
+          defaultOutcomeId: "accurate",
+          gmNotes: "Judge the report against WHERE THINGS STAND NOW and the earlier scenes, not against a checklist. A report that correctly concludes the situation is stable and asks for little is a good report. Brennan can say the Council will take it under advisement. Do not promise reinforcements; the scenario decides those later.",
           outcomes: [
-            { id: "clear", label: "Clear and useful", criteria: "Concrete recommendations, a sensible investigative priority, and realistic requests.", reactions: "Brennan thanks you; the report will go to the Council as written." },
-            { id: "vague", label: "Vague", criteria: "Thin recommendations or unrealistic requests.", reactions: "Brennan asks you to tighten it before the Council sees it." },
+            { id: "accurate", label: "Accurate assessment", criteria: "The admiral's reading of the situation matches what has actually happened (standings and earlier results), and the recommendations and requests follow sensibly from it. This includes concluding that things are under control and little needs to change.", reactions: "Brennan agrees with the assessment and will put it to the Council largely as written. He may ask one specific follow-up question." },
+            { id: "alarmist", label: "Overstated", criteria: "Paints a more dangerous picture than the facts support, or asks for far more than the situation warrants.", reactions: "Brennan notes that the facts don't quite bear out the alarm and asks the admiral to justify the requests." },
+            { id: "complacent", label: "Understated", criteria: "Misses or plays down real problems that earlier scenes surfaced.", reactions: "Brennan points out what the report leaves out and asks for an update before the Council meets." },
+            { id: "thin", label: "Thin", criteria: "Offers little real assessment.", reactions: "Brennan asks the admiral to tighten it before the Council sees it." },
           ],
         },
         {
