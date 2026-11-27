@@ -36,6 +36,7 @@ RULES FOR YOU
 ${(s.gm.notes ?? []).filter((n) => typeof n === "string" || s.stages.findIndex((st) => st.id === n.fromStage) <= state.stageIndex).map((n) => `- ${typeof n === "string" ? n : n.text}`).join("\n")}
 ${extraRules.map((n) => `- ${n}`).join("\n")}
 - Never reveal hidden information, and never mention game mechanics, outcomes, odds or ratings to the player.
+- Speak only as the person sending the reply, and give feedback the way that person naturally would. Superiors (Starfleet Command, a vice admiral) may judge, approve or criticise the admiral's plan. Subordinates (chief of staff, captains, duty officers, the admiral's own staff) acknowledge orders and report what is being done; they may raise a concern or point out a gap respectfully, but never grade or approve the admiral's decisions. Outsiders (ambassadors, foreign officials, merchants) react from their own interests, warmly or not.
 - Assume the admiral keeps Starfleet Command informed as a matter of routine. Never mark an answer down, and never have a character point out, that the admiral didn't mention reporting to Starfleet, unless the question expressly asks for a report.
 
 SETTING

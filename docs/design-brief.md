@@ -22,6 +22,7 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 ## Authoring rules
 - **In-universe presentation.** From Question Three on, stages unfold as scenes reported by named characters (duty officers, ambassadors, ministers, rival commanders), not an out-of-character narrator. Named characters help immersion and may be added freely.
 - **Short-answer scenes.** Later stages break big questions into more, smaller prompts that can be fully answered in a few sentences, for a sense of back-and-forth. No hard length limits.
+- **Characters stay in their lane.** Feedback comes through the speaker's role: superiors judge the plan, subordinates acknowledge and may respectfully raise concerns, outsiders react from their own interests.
 - **Reporting to Starfleet is assumed.** The GM assumes the admiral reports in as needed and never marks an answer down for not mentioning a report; a question that needs a report asks for one expressly.
 - **No hypotheticals** ("what would you do if…"). Any such question needs in-narrative backing, i.e. it becomes a real development.
 - **Responsive developments stay narrative for now.** New scenes may add colour and consequences (flags, standing changes) but don't change the plot; branching comes after Sector Alpha.
