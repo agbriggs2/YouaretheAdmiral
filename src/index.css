@@ -209,3 +209,13 @@ th { font-weight: 600; color: var(--ink-soft); }
 .unit-steps li.done::before { content: "✓ "; }
 .event .field > span { font-size: 15px; font-weight: 600; color: var(--ink); }
 .new-ships { margin-top: 18px; padding-top: 6px; border-top: 1px solid var(--line); }
+.board li { display: flex; flex-direction: column; gap: 1px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.board .r-pos { font-size: 0.85rem; }
+.who { margin-top: 14px; font-size: 0.9rem; }
+.who summary { cursor: pointer; font-weight: 600; }
+.who h4 { margin: 10px 0 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+.who ul { list-style: none; padding: 0; margin: 0; }
+.who li { padding: 3px 0; }
+.export { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn.dev, .badge.dev { border-style: dashed; }
+.review h2 { margin-top: 4px; }

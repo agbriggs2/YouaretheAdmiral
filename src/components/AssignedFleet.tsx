@@ -19,7 +19,7 @@ export function AssignedFleet({ fleet, byId, assignments, locked, onChange }: Pr
           <li key={f.uid} className={`ship-row${f.substituted ? " sub" : ""}`}>
             <div className="ship-top">
               <input className="ship-name" value={f.name} disabled={locked} onChange={(e) => update(f.uid, { name: e.target.value })} aria-label="Ship name" />
-              <span className="ship-class">{c?.name} class <span className="muted">· {c?.type}</span></span>
+              <span className="ship-class">{c?.name} class <span className="muted">· {c?.type}{f.captain ? ` · Captain ${f.captain}` : ""}</span></span>
             </div>
             <p className="requested small-text">
               Requested: {f.requested}

@@ -3,9 +3,10 @@ import type { FleetRules, Prompt, Scenario, Stage } from "../engine/scenarioType
 import type { ShipClass } from "../engine/shipTypes";
 import type { GameState, Transmission } from "../engine/state";
 import type { RequestLine } from "../engine/state";
-import { allocateFleet, applyEffects, checkAssignments, conditionsMet, grantChance, readLines, standingChanges, standingLabel, uid } from "../engine/state";
+import { activeFactions, allocateFleet, applyEffects, checkAssignments, conditionsMet, crewShips, grantChance, readLines, standingChanges, standingLabel, uid } from "../engine/state";
+import { saveUndo, readUndo, clearUndo } from "../engine/dev";
 import { AssignedFleet } from "./AssignedFleet";
-import { resolve } from "../engine/gm";
+import { resolve, writeReview } from "../engine/gm";
 
 interface Props {
   scenario: Scenario;
@@ -19,6 +20,7 @@ interface Props {
   rules: FleetRules;
   catalogue: ShipClass[];
   isLast: boolean;
+  dev: boolean;
 }
 
 const SUPPORTED = ["free-text", "choice", "reinforcement", "ship-choice"];
@@ -109,8 +111,9 @@ function ReinforcementForm({ p, state, rules, catalogue, locked, setState }: { p
   );
 }
 
-export function StageView({ scenario, stage, state, byId, setState, onContinue, nextLabel, nextReady, rules, catalogue, isLast }: Props) {
+export function StageView({ scenario, stage, state, byId, setState, onContinue, nextLabel, nextReady, rules, catalogue, isLast, dev }: Props) {
   const [busy, setBusy] = useState("");
+  const [, bump] = useState(0);
   const [error, setError] = useState<{ key: string; text: string } | null>(null);
 
   const units: Unit[] = [];
@@ -146,10 +149,12 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
     setError(null);
     try {
       let working = state;
+      if (!state.submitted[`${u.key}:alloc`]) saveUndo(u.key, state);
       const rp = u.prompts.find((p) => p.kind === "reinforcement");
       if (rp && !state.submitted[`${u.key}:alloc`]) {
-        const newShips = allocateFleet(rules, { disposition: "", lines: readLines(state, rp.id) }, catalogue, rp.id, 0, Math.random, [...state.fleet, ...state.departed])
+        const allocated = allocateFleet(rules, { disposition: "", lines: readLines(state, rp.id) }, catalogue, rp.id, 0, Math.random, [...state.fleet, ...state.departed])
           .map((f) => ({ ...f, uid: uid(), assignment: "" }));
+        const newShips = crewShips(scenario, state, allocated);
         working = { ...working, fleet: [...working.fleet, ...newShips], submitted: { ...working.submitted, [`${u.key}:alloc`]: true } };
         const w = working;
         setState(() => w);
@@ -160,7 +165,12 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
         outcomes: u.outcomes, defaultOutcomeId: u.defaultOutcomeId, gmNotes: u.gmNotes,
       });
       setState((s) => {
-        const base = s;
+        // Ship moves and new characters from the GM, then the outcome's effects.
+        const moved = s.fleet.map((f) => {
+          const up = r.shipUpdates?.find((x) => x.ship.toLowerCase() === f.name.toLowerCase());
+          return up ? { ...f, location: up.location, task: up.task || f.task } : f;
+        });
+        const base = { ...s, fleet: moved, cast: [...s.cast, ...(r.newCharacters ?? []).filter((c) => !s.cast.some((x) => x.name === c.name))] };
         const after = applyEffects(base, r.outcome.effects, stage.id, byId);
         const t: Transmission = {
           stageId: stage.id, eventId: u.eventId, outcomeId: r.outcome.id, outcomeLabel: r.outcome.label,
@@ -185,6 +195,7 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
   const openUnit = units[firstOpen];
   const openKey = openUnit?.key;
   useEffect(() => {
+    if (openUnit && !state.submitted[`${openUnit.key}:seen`]) setState((s) => ({ ...s, submitted: { ...s.submitted, [`${openUnit.key}:seen`]: true } }));
     if (!openUnit?.onEnter?.length) return;
     setState((s) => s.submitted[`${openUnit.key}:entered`] ? s : {
       ...applyEffects(s, openUnit.onEnter, stage.id, byId, openUnit.key),
@@ -192,6 +203,36 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openKey]);
+
+  // Testing only: put the state back to just before the latest scene was sent, keeping the typed answer.
+  const undo = dev ? readUndo(state.scenarioId) : null;
+  const revise = (u: Unit) => {
+    if (!undo || undo.key !== u.key) return;
+    const keep = Object.fromEntries(u.prompts.map((p) => [p.id, state.answers[p.id] ?? ""]));
+    setState(() => ({ ...undo.state, answers: { ...undo.state.answers, ...keep } }));
+    clearUndo(state.scenarioId);
+    bump((n) => n + 1);
+  };
+
+  // End of the scenario: the review of the whole posting, requested once.
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const requestReview = async () => {
+    setReviewBusy(true);
+    setReviewError("");
+    try {
+      const t = await writeReview(scenario, state, byId);
+      setState((s) => ({ ...s, review: t }));
+    } catch (e) {
+      setReviewError(errorText(e));
+    } finally {
+      setReviewBusy(false);
+    }
+  };
+  useEffect(() => {
+    if (allDone && isLast && !state.review && !reviewBusy && !reviewError) requestReview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allDone, isLast]);
 
   const departedHere = state.departed.filter((d) => state.log.some((l) => l.stageId === stage.id && l.text.startsWith(d.name)));
 
@@ -269,6 +310,9 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
               </>
             )}
             {reply && <Reply t={reply} scenario={scenario} />}
+            {dev && done && undo?.key === u.key && (
+              <button type="button" className="btn ghost small dev" onClick={() => revise(u)}>Revise this answer (testing)</button>
+            )}
             {done && newShips.length > 0 && (
               <div className="new-ships">
                 <h3 className="sub">New arrivals</h3>
@@ -287,9 +331,29 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
           <h2>{scenario.title}: command handed over</h2>
           <p>Your time in {scenario.title} is done. Where things stand as you leave:</p>
           <ul className="changes">
-            {scenario.factions.map((f) => <li key={f.id}>{f.name}: {standingLabel(state.standings[f.id] ?? 0)}</li>)}
+            {activeFactions(scenario, state).map((f) => <li key={f.id}>{f.name}: {standingLabel(state.standings[f.id] ?? 0)}</li>)}
           </ul>
           <p className="muted small-text">{state.fleet.length} ships remain in the sector; {state.departed.length} left your command along the way. Sector Beta comes in a later build. Your game is saved.</p>
+        </section>
+      )}
+      {allDone && isLast && (
+        <section className="card transmission review">
+          <p className="tx-meta">Review of your posting · {scenario.debrief?.from ?? "Starfleet Command"}</p>
+          {state.review ? (
+            <>
+              <h2>{state.review.subject}</h2>
+              {state.review.body.split(/\n+/).map((p, i) => <p key={i}>{p}</p>)}
+              {state.review.offline && <button type="button" className="btn ghost small" onClick={requestReview}>Request the full review</button>}
+            </>
+          ) : reviewBusy ? (
+            <p className="muted">Starfleet Command is reviewing your reports…</p>
+          ) : (
+            <>
+              {reviewError && <p className="error" role="alert">{reviewError}</p>}
+              <button type="button" className="btn primary" onClick={requestReview}>Request your review</button>
+            </>
+          )}
+          {dev && state.review && <button type="button" className="btn ghost small dev" onClick={() => setState((s) => ({ ...s, review: undefined }))}>Clear review (testing)</button>}
         </section>
       )}
       {allDone && !isLast && (

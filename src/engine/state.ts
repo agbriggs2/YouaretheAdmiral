@@ -12,7 +12,13 @@ export interface FleetShip {
   addedIn: string;               // prompt id that added it
   requested?: string;            // what the player asked for, e.g. "Frigate (New Orleans preferred)"
   substituted?: boolean;         // true if Starfleet sent something other than the preference
+  captain?: string;              // assigned with the ship; cosmetic for now
+  location?: string;             // a scenario location id, or "transit"
+  task?: string;                 // what the ship is doing right now
 }
+
+/** A named person or place in the story, so the GM keeps names consistent. */
+export interface CastMember { name: string; role: string; source: "scenario" | "gm" }
 
 export interface RequestLine {
   id: string;
@@ -56,6 +62,8 @@ export interface GameState {
   transmissions: Transmission[];
   log: LogEntry[];
   submitted: Record<string, boolean>;
+  cast: CastMember[];            // people the GM has introduced (authored cast lives in the scenario)
+  review?: Transmission;         // end-of-sector review
 }
 
 export function newGame(s: Scenario): GameState {
@@ -73,7 +81,74 @@ export function newGame(s: Scenario): GameState {
     transmissions: [],
     log: [],
     submitted: {},
+    cast: [],
   };
+}
+
+// ── Captains, positions and cast ───────────────────────
+
+const FIRST = ["Maren", "Rhael", "Tomas", "Aiko", "Elena", "Kofi", "Imani", "Dmitri", "Priya", "Sean", "Lucia", "Haruto", "Nadia", "Oren", "Yusuf", "Ingrid", "Mateo", "Leila", "Jonah", "Saoirse", "Ravi", "Thea", "Kwame", "Marisol", "Anders", "Mei", "Callum", "Zara", "Teodor", "Amara", "Viktor", "Noor", "Gabriel", "Hana", "Desmond", "Ines", "Bram", "Keiko", "Felix", "Adaeze"];
+const LAST = ["Okonjo", "Varga", "Castellanos", "Lindgren", "Tanaka", "Abernathy", "Moreau", "Rasmussen", "Chandra", "O'Hare", "Petrov", "Nakamura", "Adeyemi", "Halvorsen", "Quintero", "Sato", "Mbeki", "Delacroix", "Kowalski", "Reyes", "Aziz", "Fenwick", "Ibarra", "Thorne", "Kaur", "Bjornsson", "Achebe", "Marchetti", "Haddad", "Novak", "Shin", "Mwangi", "Calloway", "Duarte", "Yilmaz", "Brandt", "Harlan", "Ferreira", "Volkov"];
+
+/** A captain's name not already used by anyone in the story. */
+export function newCaptain(taken: Iterable<string>, rand: () => number = Math.random): string {
+  const names = [...taken];
+  const usedLast = new Set(names.map((n) => n.split(" ").pop()));
+  const usedFirst = new Set(names.map((n) => n.split(" ").slice(-2, -1)[0]));
+  const firsts = FIRST.filter((f) => !usedFirst.has(f));
+  const lasts = LAST.filter((l) => !usedLast.has(l));
+  const pick = <T,>(xs: T[], all: T[]) => (xs.length ? xs : all)[Math.floor(rand() * (xs.length || all.length))];
+  return `${pick(firsts, FIRST)} ${pick(lasts, LAST)}`;
+}
+
+/** Every name already in the story: authored cast, GM-introduced people and captains. */
+export function takenNames(s: Scenario, state: GameState): string[] {
+  return [...(s.cast ?? []).map((c) => c.name), ...state.cast.map((c) => c.name), ...[...state.fleet, ...state.departed].map((f) => f.captain ?? "").filter(Boolean)];
+}
+
+/** Give newly assigned ships a captain and put them at the starbase awaiting orders. */
+export function crewShips(s: Scenario, state: GameState, ships: FleetShip[]): FleetShip[] {
+  const taken = takenNames(s, state);
+  return ships.map((f) => {
+    const captain = f.captain ?? newCaptain(taken);
+    taken.push(captain);
+    return { ...f, captain, location: f.location ?? (state.starbase.locationId || undefined), task: f.task ?? "Arriving; awaiting orders" };
+  });
+}
+
+/** Bring an older save up to date: cast list, captains and positions. */
+export function migrate(s: Scenario, state: GameState): GameState {
+  const st: GameState = { ...state, cast: state.cast ?? [] };
+  // Reuse captains the GM already named in replies ("Captain Maren Doyle, USS Zephyr").
+  const named: Record<string, string> = {};
+  for (const t of st.transmissions) {
+    for (const m of t.body.matchAll(/Captain ([A-Z][a-z]+ [A-Z][a-z'-]+)(?:,| of the| of) (USS [A-Z][A-Za-z]+(?: [A-Z][a-z]+)?)/g)) named[m[2]] ??= m[1];
+  }
+  const fleet = st.fleet.map((f) => ({ ...f, captain: f.captain ?? named[f.name], task: f.task ?? (f.assignment || undefined) }));
+  return { ...st, fleet: crewShips(s, { ...st, fleet }, fleet) };
+}
+
+/** Authored cast whose scene has opened, plus everyone the GM has introduced. */
+export function castSeen(s: Scenario, state: GameState): { name: string; role: string; group: string }[] {
+  const seen = (key: string) => {
+    if (!key.includes(":")) return s.stages.findIndex((st) => st.id === key) <= state.stageIndex;
+    return !!(state.submitted[key] || state.submitted[`${key}:seen`] || state.submitted[`${key}:entered`]);
+  };
+  const authored = (s.cast ?? []).filter((c) => seen(c.introducedIn)).map((c) => ({ name: c.name, role: c.role, group: c.group ?? "People" }));
+  const names = new Set(authored.map((c) => c.name));
+  return [...authored, ...state.cast.filter((c) => !names.has(c.name)).map((c) => ({ name: c.name, role: c.role, group: "People" }))];
+}
+
+/** Factions still relevant: one can drop out once a secret about it is revealed. */
+export function activeFactions(s: Scenario, state: GameState) {
+  return s.factions.filter((f) => !(f.retiredBy && state.revealed.includes(f.retiredBy)));
+}
+
+export const TRANSIT = "transit";
+export function locationName(s: Scenario, id?: string): string {
+  if (!id) return "Unknown";
+  if (id === TRANSIT) return "In transit";
+  return s.locations.find((l) => l.id === id)?.name ?? id;
 }
 
 // ── Fleet rules ────────────────────────────────────────

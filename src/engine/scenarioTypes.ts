@@ -28,6 +28,17 @@ export interface Scenario {
   stages: Stage[];
   checkpoints?: Checkpoint[];
   gm: GmGuidance;
+  /** Named people and places, each listed in Who's who once its scene opens. */
+  cast?: CastEntry[];
+  /** Who writes the end-of-sector review, and what to weigh. */
+  debrief?: { from: string; gmNotes?: string };
+}
+
+export interface CastEntry {
+  name: string;
+  role: string;
+  group?: string;                // "People" (default), "Lysaran nations"…
+  introducedIn: string;          // a stage id, or a scene key "q3:q3-alert"
 }
 
 // ── Setting ────────────────────────────────────────────
@@ -49,6 +60,8 @@ export interface Faction {
   resources?: string;
   traits?: string[];             // what the GM should know about how they behave
   startingStanding: number;      // -3 (hostile) … +3 (close ally)
+  /** Drops out of standings once this secret is revealed (e.g. a power found to be extinct). */
+  retiredBy?: string;
 }
 
 export interface ForceEntry {

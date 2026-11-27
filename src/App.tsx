@@ -6,7 +6,9 @@ import { FleetRequest } from "./components/FleetRequest";
 import { StageView } from "./components/StageView";
 import { AssignedFleet } from "./components/AssignedFleet";
 import type { GameState, Transmission } from "./engine/state";
-import { allocateFleet, applyEffects, checkAssignments, checkRequest, newGame, postureTriggered, standingLabel } from "./engine/state";
+import { activeFactions, allocateFleet, applyEffects, castSeen, checkAssignments, checkRequest, crewShips, locationName, migrate, newGame, postureTriggered, standingLabel } from "./engine/state";
+import { isDev, toggleDev } from "./engine/dev";
+import { campaignHtml, campaignText } from "./engine/exportCampaign";
 import { getSample, gradeStage, writeReply } from "./engine/gm";
 import { loadGame, saveLocal, saveRemote } from "./engine/storage";
 
@@ -31,10 +33,43 @@ export default function App() {
   const [confirmReset, setConfirmReset] = useState(false);
   const [mapFocus, setMapFocus] = useState("");
   const replyRef = useRef<HTMLDivElement>(null);
+  const [dev, setDev] = useState(isDev);
+  const [exportNote, setExportNote] = useState("");
+
+  // Testing aids stay hidden unless switched on with Alt+Shift+D.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.altKey && e.shiftKey && e.code === "KeyD") setDev(toggleDev()); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const exportFile = () => {
+    try {
+      const blob = new Blob([campaignHtml(S, state, SHIPS_BY_ID)], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${S.id}-campaign.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      setExportNote("Downloading the campaign record. If nothing appears, use Copy as text.");
+    } catch {
+      setExportNote("Download isn't available here. Use Copy as text instead.");
+    }
+  };
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(campaignText(S, state, SHIPS_BY_ID));
+      setExportNote("Campaign copied to the clipboard.");
+    } catch {
+      setExportNote("Couldn't reach the clipboard here.");
+    }
+  };
 
   useEffect(() => {
     loadGame(S.id).then((g) => {
-      if (g && g.scenarioId === S.id) setState({ ...newGame(S), ...g });
+      if (g && g.scenarioId === S.id) setState(migrate(S, { ...newGame(S), ...g }));
       setLoaded(true);
     });
     getSample().then((s) => setGmAvailable(!!s));
@@ -80,7 +115,7 @@ export default function App() {
       if (!working.submitted.q1alloc) {
         const graded = await gradeStage(S, q1, working, SHIPS_BY_ID);
         const shift = RULES.allocation?.gradeTierShift?.[graded.id] ?? 0;
-        const fleet = allocateFleet(RULES, working.fleetRequest, CATALOGUE, "q1-fleet", shift);
+        const fleet = crewShips(S, working, allocateFleet(RULES, working.fleetRequest, CATALOGUE, "q1-fleet", shift));
         working = applyEffects({ ...working, fleet }, graded.effects, "q1", SHIPS_BY_ID);
         if (RULES.posture && postureTriggered(RULES, fleet, SHIPS_BY_ID)) {
           working = applyEffects(working, [...RULES.posture.effects, { type: "set-flag", flag: RULES.posture.flag, value: "heavy" }], "q1", SHIPS_BY_ID);
@@ -136,7 +171,7 @@ export default function App() {
           </nav>
         </div>
         <ul className="standings" aria-label="Faction standings">
-          {S.factions.map((f) => {
+          {activeFactions(S, state).map((f) => {
             const n = state.standings[f.id] ?? 0;
             return (
               <li key={f.id}>
@@ -278,6 +313,7 @@ export default function App() {
                 rules={RULES}
                 catalogue={CATALOGUE}
                 isLast={state.stageIndex === S.stages.length - 1}
+                dev={dev}
               />
               {reply && (
                 <details className="card">
@@ -299,20 +335,41 @@ export default function App() {
               </p>
             </div>
             <div className="roster">
-              <h3 className="sub">Fleet roster</h3>
+              <h3 className="sub">Ship board</h3>
               {state.fleet.length === 0 ? <p className="empty">{state.fleetRequest.lines.length ? `${state.fleetRequest.lines.reduce((n, l) => n + l.count, 0)} ships requested. Awaiting assignment.` : "No ships assigned."}</p> : (
-                <ul>
+                <ul className="board">
                   {state.fleet.map((f) => (
-                    <li key={f.uid}><span className="r-name">{f.name}</span><span className="muted">{SHIPS_BY_ID[f.classId]?.name} · {f.assignment || "no duty"}</span></li>
+                    <li key={f.uid}>
+                      <span className="r-name">{f.name}</span>
+                      <span className="muted">{SHIPS_BY_ID[f.classId]?.name} · Capt. {f.captain ?? "unassigned"}</span>
+                      <span className="r-pos"><b>{locationName(S, f.location)}</b>{f.task ? ` · ${f.task}` : ""}</span>
+                    </li>
                   ))}
                 </ul>
               )}
             </div>
+            {castSeen(S, state).length > 0 && (
+              <details className="who">
+                <summary>Who's who</summary>
+                {["People", ...new Set(castSeen(S, state).map((c) => c.group).filter((g) => g !== "People"))].map((g) => (
+                  <div key={g}>
+                    <h4>{g}</h4>
+                    <ul>{castSeen(S, state).filter((c) => c.group === g).map((c) => <li key={c.name}><b>{c.name}</b> <span className="muted">· {c.role}</span></li>)}</ul>
+                  </div>
+                ))}
+              </details>
+            )}
           </div>
         </aside>
       </main>
 
       <footer className="band foot">
+        <span className="export">
+          <button type="button" className="btn ghost small" onClick={exportFile} disabled={!state.transmissions.length}>Export campaign</button>
+          <button type="button" className="btn ghost small" onClick={copyText} disabled={!state.transmissions.length}>Copy as text</button>
+          {exportNote && <span className="muted small-text" role="status">{exportNote}</span>}
+          {dev && <span className="badge dev">Testing tools on</span>}
+        </span>
         <p className="muted small-text">Adapted from "You're the Admiral!" on <a href={S.source?.url}>Star Trek Minutiae</a>. Personal fan project; not affiliated with Paramount or CBS.</p>
         {confirmReset ? (
           <span className="reset-confirm">Start the scenario over? Your answers will be cleared. <button type="button" className="btn small danger" onClick={reset}>Start over</button> <button type="button" className="btn ghost small" onClick={() => setConfirmReset(false)}>Cancel</button></span>
