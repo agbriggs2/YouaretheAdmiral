@@ -43,19 +43,27 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const exportFile = () => {
+  const exportFile = async () => {
+    const html = campaignHtml(S, state, SHIPS_BY_ID);
+    const filename = `${S.id}-campaign.html`;
     try {
-      const blob = new Blob([campaignHtml(S, state, SHIPS_BY_ID)], { type: "text/html" });
+      // Inside Claude the page saves through the platform; elsewhere, a plain download link.
+      const downloads = window.claude?.use ? (await window.claude.use("downloads").catch(() => null)) as { save: (f: { filename: string; data: string }) => Promise<unknown> } | null : null;
+      if (downloads) {
+        await downloads.save({ filename, data: html });
+        setExportNote("Campaign record saved.");
+        return;
+      }
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${S.id}-campaign.html`;
+      a.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      setExportNote("Downloading the campaign record. If nothing appears, use Copy as text.");
+      setExportNote("Downloading the campaign record.");
     } catch {
-      setExportNote("Download isn't available here. Use Copy as text instead.");
+      setExportNote("The file wasn't saved. Use Copy as text instead.");
     }
   };
   const copyText = async () => {
