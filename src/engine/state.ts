@@ -1,3 +1,4 @@
+import { pickShipName } from "../data/shipNames";
 import type { Availability, Condition, Effect, FleetRules, Scenario, ShipSelector } from "./scenarioTypes";
 import type { ShipClass } from "./shipTypes";
 import { totalRating } from "./shipTypes";
@@ -288,7 +289,6 @@ export function checkAssignments(fleet: FleetShip[]): RuleCheck {
   return { label: "Every ship has a duty and a primary mission", ok: fleet.length > 0 && missing.length === 0, detail: missing.length ? `${missing.length} incomplete` : "Complete" };
 }
 
-const NAMES = ["Arcturus", "Bellerophon", "Concorde", "Drake", "Endeavour", "Fearless", "Gallant", "Hermes", "Icarus", "Jaguar", "Kearsarge", "Leander", "Majestic", "Nimitz", "Orion", "Pioneer", "Resolute", "Sentinel", "Tenacity", "Valiant", "Wasp", "Yorktown", "Zephyr"];
 
 /**
  * Starfleet fills each requested slot. A preferred class is granted with a
@@ -299,7 +299,6 @@ const NAMES = ["Arcturus", "Bellerophon", "Concorde", "Drake", "Endeavour", "Fea
 export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: ShipClass[], promptId: string, tierShift = 0, rand: () => number = Math.random, existing: { name: string; classId: string }[] = []): FleetShip[] {
   const out: FleetShip[] = [];
   const taken = new Set(existing.map((e) => e.name.replace(/^USS /, "")));
-  const names = NAMES.filter((n) => !taken.has(n)).sort(() => rand() - 0.5);
   // Ships already in the sector count toward the repeat penalty.
   const copies: Record<string, number> = {};
   for (const e of existing) copies[e.classId] = (copies[e.classId] ?? 0) + 1;
@@ -333,10 +332,13 @@ export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: S
         pick = weighted(others);
       }
       copies[pick.id] = (copies[pick.id] ?? 0) + 1;
+      const named = pickShipName(pick.id, pick.category, taken, rand);
+      taken.add(named.name);
       out.push({
         uid: uid(),
         classId: pick.id,
-        name: `USS ${names[out.length % names.length]}`,
+        name: `USS ${named.name}`,
+        registry: named.registry,
         assignment: "",
         mission: line.purpose,
         justification: line.purpose,
