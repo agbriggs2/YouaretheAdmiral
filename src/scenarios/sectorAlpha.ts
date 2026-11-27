@@ -265,7 +265,7 @@ export const sectorAlpha: Scenario = {
           text: "An object has entered the Really Big Nebula. Its warp signature matches the alien ships that attacked Tekanan III, and sensors show what may be weapons signatures. All three worlds have confirmed the readings and stepped up patrols. Tekanan III demands a Starfleet response.",
           prompts: [{ id: "q2-probe-orders", kind: "free-text", text: "Which ship responds, what do you do, and what diplomatic steps do you take?" }],
           defaultOutcomeId: "cautious",
-          gmNotes: "Do not reveal the probe-truth secret. Readings stay ambiguous. If the player destroys the object, its wreckage is still recovered for analysis later.",
+          gmNotes: "Do not reveal the probe-truth secret. Readings stay ambiguous. If the player destroys the object, its transmissions have already been recorded and can still be analysed later.",
           outcomes: [
             { id: "cautious", label: "Careful investigation", criteria: "Investigates with care, reassures Tekanan, avoids firing first.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: 1 }, { type: "set-flag", flag: "probe-handling", value: "investigated" }], reactions: "Tekanan is reassured that Starfleet takes the threat seriously." },
             { id: "destroyed", label: "Destroyed", criteria: "Destroys or disables the object on sight.", effects: [{ type: "set-flag", flag: "probe-handling", value: "destroyed" }], reactions: "Tekanan is relieved; Starfleet science staff grumble about lost data." },
@@ -562,10 +562,11 @@ export const sectorAlpha: Scenario = {
           id: "q4-buoy",
           title: "The buoy's message",
           from: "Lt. Commander Ama Osei, starbase science officer",
-          text: "Lt. Commander Osei has finished with the object from the nebula. It is not a weapon. It is an automated distress buoy. Its records tell of the Saalit, a resource-hungry empire that occupied Tekanan III until a plague struck them. They withdrew, collapsed into anarchy, and a last democratic government launched distress buoys before the Saalit died out. \"Admiral, the people who did that to Tekanan are gone.\"",
+          text: "Lt. Commander Osei's team has finally decoded the signal the object in the nebula was transmitting, working from the sensor logs gathered since it was first detected. It is not a weapon. It is an automated distress buoy. Its message tells of the Saalit, a resource-hungry empire that occupied Tekanan III until a plague struck them. They withdrew, collapsed into anarchy, and a last democratic government launched distress buoys before the Saalit died out. \"Admiral, the people who did that to Tekanan are gone.\"",
           onEnter: [{ type: "reveal", secretId: "probe-truth" }],
           prompts: [{ id: "q4-buoy-orders", kind: "free-text", short: true, text: "Who should be told, and in what order?" }],
           defaultOutcomeId: "careful",
+          gmNotes: "No one has recovered the buoy; the message was decoded from its recorded transmissions. Whether it is still out in the nebula depends on how the admiral handled it earlier.",
           outcomes: [
             { id: "careful", label: "Careful disclosure", criteria: "Tells Tekanan sensitively and early, briefs Starfleet, and considers the plague risk.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: 1 }], reactions: "Toma receives the news with grief and relief." },
             { id: "careless", label: "Careless disclosure", criteria: "Overlooks Tekanan or ignores the plague risk.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: -1 }], reactions: "Tekanan learns the truth secondhand and is hurt." },
