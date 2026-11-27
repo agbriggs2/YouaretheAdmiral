@@ -402,7 +402,7 @@ export const sectorAlpha: Scenario = {
           defaultOutcomeId: "held",
           gmNotes: "Never confirm or deny Kestu foreknowledge. If confronted, Kestu calls it a scheduled exercise; that claim is neither proven nor disproven.",
           outcomes: [
-            { id: "held", label: "Held and investigated", criteria: "Keeps it close, reports to Starfleet, and pursues more evidence before acting.", effects: [{ type: "set-flag", flag: "q3-intel", value: "held" }], reactions: "Hart approves; the inquiry continues quietly." },
+            { id: "held", label: "Held and investigated", criteria: "Keeps it close and pursues more evidence before acting.", effects: [{ type: "set-flag", flag: "q3-intel", value: "held" }], reactions: "Hart approves; the inquiry continues quietly." },
             { id: "shared", label: "Shared with Lysarans", criteria: "Shares it with Caldre, Imrath or the council.", effects: [{ type: "set-flag", flag: "q3-intel", value: "shared" }, { type: "adjust-standing", factionId: "kestu", delta: -1 }], reactions: "Within a day it is the talk of Aurenne. Kestu denounces it as slander." },
             { id: "confronted", label: "Confronted Kestu", criteria: "Puts it to Kestu directly.", effects: [{ type: "set-flag", flag: "q3-intel", value: "confronted" }], reactions: "Ruusk replies that the fleet was on a scheduled exercise, and asks pointedly how Starfleet came by its sensor logs." },
           ],
@@ -541,8 +541,8 @@ export const sectorAlpha: Scenario = {
           defaultOutcomeId: "investigate",
           gmNotes: "This was a targeted strike on the junta, not a mass-casualty attack: keep the scale small. Never reveal or hint at who planted the device or how they got the warhead. Hart has no answer and should not speculate toward one.",
           outcomes: [
-            { id: "investigate", label: "Investigate and aid", criteria: "Orders an investigation, informs Starfleet, and offers help to Kestu.", effects: [{ type: "set-flag", flag: "q4-strike", value: "investigated" }], reactions: "Hart begins at once; offers of help are readied." },
-            { id: "silent", label: "Says nothing", criteria: "Keeps quiet and waits.", effects: [{ type: "set-flag", flag: "q4-strike", value: "silent" }], reactions: "Rumours that the Federation was behind it begin to spread." },
+            { id: "investigate", label: "Investigate and aid", criteria: "Orders an investigation and offers help to Kestu.", effects: [{ type: "set-flag", flag: "q4-strike", value: "investigated" }], reactions: "Hart begins at once; offers of help are readied." },
+            { id: "silent", label: "Says nothing", criteria: "Takes no action: no investigation and no offer of help.", effects: [{ type: "set-flag", flag: "q4-strike", value: "silent" }], reactions: "Rumours that the Federation was behind it begin to spread." },
           ],
         },
         {
@@ -573,7 +573,7 @@ export const sectorAlpha: Scenario = {
           defaultOutcomeId: "careful",
           gmNotes: "The signal has only just been received; nothing earlier established that the object was transmitting, and no one has recovered it. Do not explain how a destroyed object could transmit; simply report the signal.",
           outcomes: [
-            { id: "careful", label: "Careful disclosure", criteria: "Tells Tekanan sensitively and early, briefs Starfleet, and considers the plague risk.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: 1 }], reactions: "Toma receives the news with grief and relief." },
+            { id: "careful", label: "Careful disclosure", criteria: "Tells Tekanan sensitively and early, and considers the plague risk.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: 1 }], reactions: "Toma receives the news with grief and relief." },
             { id: "careless", label: "Careless disclosure", criteria: "Overlooks Tekanan or ignores the plague risk.", effects: [{ type: "adjust-standing", factionId: "tekanan", delta: -1 }], reactions: "Tekanan learns the truth secondhand and is hurt." },
           ],
         },

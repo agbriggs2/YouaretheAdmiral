@@ -36,6 +36,7 @@ RULES FOR YOU
 ${(s.gm.notes ?? []).map((n) => `- ${n}`).join("\n")}
 ${extraRules.map((n) => `- ${n}`).join("\n")}
 - Never reveal hidden information, and never mention game mechanics, outcomes, odds or ratings to the player.
+- Assume the admiral keeps Starfleet Command informed as a matter of routine. Never mark an answer down, and never have a character point out, that the admiral didn't mention reporting to Starfleet, unless the question expressly asks for a report.
 
 SETTING
 ${s.setting.overview}
