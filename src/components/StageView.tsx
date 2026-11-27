@@ -125,7 +125,8 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
     units.push({
       key: `${stage.id}:${ev.id}`, eventId: ev.id, from: ev.from ?? "", title: ev.title, text: ev.text,
       prompts: ev.prompts.filter((p) => SUPPORTED.includes(p.kind)),
-      outcomes: ev.outcomes, defaultOutcomeId: ev.defaultOutcomeId, gmNotes: ev.gmNotes, onEnter: ev.onEnter,
+      outcomes: ev.outcomes, defaultOutcomeId: ev.defaultOutcomeId, onEnter: ev.onEnter,
+      gmNotes: [ev.gmNotes, ...(ev.recall ?? []).map((r) => `${r.label}: ${(state.answers[r.promptId] ?? "").trim() || "(the admiral gave none)"}`)].filter(Boolean).join("\n- "),
     });
   }
   const unsupported = (stage.events ?? []).some((ev) => ev.prompts.some((p) => !SUPPORTED.includes(p.kind)));

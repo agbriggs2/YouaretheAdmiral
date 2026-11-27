@@ -71,6 +71,7 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 - A `reinforcement` prompt lists slots (for example "One combat ship" from cruiser, light cruiser or frigate, and "Two transports"). The player picks a type, an optional preferred class and a purpose for each. The engine allocates with the sector's usual factors; ships already in the sector count toward the repeat penalty, and new ships never reuse a name. The GM announces exactly what was sent, then the player gives each new ship a duty before moving on.
 - A scene's text may contain `{lost}`; it is replaced with the names of ships removed by that scene's `onEnter`.
 - A `ship-choice` prompt asks the player to pick one ship from the current fleet.
+- An event can `recall` earlier answers by prompt id. The GM sees them for continuity only (e.g. Sector Alpha's petition scene recalls what the admiral told the Council in Question Three).
 - After the last scene of the last stage, a closing screen shows final standings.
 
 ## Schema (TypeScript)
@@ -260,6 +261,7 @@ export interface GameEvent {
   outcomes: Outcome[];
   defaultOutcomeId: string;      // used if the GM can't decide
   gmNotes?: string;              // private direction for the GM
+  recall?: { promptId: string; label: string }[];  // earlier answers shown to the GM, for continuity
 }
 
 export interface Outcome {

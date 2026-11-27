@@ -405,10 +405,13 @@ export const sectorAlpha: Scenario = {
           id: "q3-report",
           title: "Report to Starfleet",
           from: "Vice Admiral Hal Brennan, Starfleet Command",
-          text: "Vice Admiral Brennan wants your assessment for the Federation Council before it meets. \"Give it to me straight, Admiral. How stable is Lysara, what should the Federation do, or not do, and is there anything you need from us?\"",
-          prompts: [{ id: "q3-report-orders", kind: "free-text", short: true, text: "Your assessment for Vice Admiral Brennan: how stable is the situation, what should the Federation do, and do you need anything?" }],
+          text: "Vice Admiral Brennan wants your assessment for the Federation Council before it meets. \"Give it to me straight, Admiral. How stable is Lysara, what should the Federation do, or not do, and is there anything you need from us?\" He adds one more thing: Tekanan's membership petition is on the Council's agenda, and the councillors want to hear from the admiral on the ground.",
+          prompts: [
+            { id: "q3-report-orders", kind: "free-text", short: true, text: "Your assessment for Vice Admiral Brennan: how stable is the situation, what should the Federation do, and do you need anything?" },
+            { id: "q3-report-council", kind: "free-text", short: true, text: "For the Council: do you have any reservations about Tekanan joining the Federation, or about a long-term Federation presence in the sector?" },
+          ],
           defaultOutcomeId: "accurate",
-          gmNotes: "Judge the report against WHERE THINGS STAND NOW and the earlier scenes, not against a checklist. A report that correctly concludes the situation is stable and asks for little is a good report. Brennan can say the Council will take it under advisement. Do not promise reinforcements; the scenario decides those later.",
+          gmNotes: "Judge the report against WHERE THINGS STAND NOW and the earlier scenes, not against a checklist. A report that correctly concludes the situation is stable and asks for little is a good report. Brennan can say the Council will take it under advisement. Do not promise reinforcements; the scenario decides those later. The Council update on Tekanan is the admiral's own view: there is no right answer, and it should not move the grade unless it contradicts the situation assessment. Brennan simply takes it to the Council; do not say how the Council will decide.",
           outcomes: [
             { id: "accurate", label: "Accurate assessment", criteria: "The admiral's reading of the situation matches what has actually happened (standings and earlier results), and the recommendations and requests follow sensibly from it. This includes concluding that things are under control and little needs to change.", reactions: "Brennan agrees with the assessment and will put it to the Council largely as written. He may ask one specific follow-up question." },
             { id: "alarmist", label: "Overstated", criteria: "Paints a more dangerous picture than the facts support, or asks for far more than the situation warrants.", reactions: "Brennan notes that the facts don't quite bear out the alarm and asks the admiral to justify the requests." },
@@ -434,7 +437,7 @@ export const sectorAlpha: Scenario = {
     // ── Question Four ────────────────────────────────────
     // Retold as in-universe scenes with short answers. Same plot as the original:
     // war, reinforcements, mutual destruction and a lost ship, refugees, the
-    // antimatter strike, the buoy, Tekanan's admission and the handover.
+    // strike on the Kestu junta, the buoy, Tekanan's accepted petition and the handover.
     {
       id: "q4",
       title: "Question Four: War and Aftermath",
@@ -442,8 +445,8 @@ export const sectorAlpha: Scenario = {
         "The hotline to Fleet Commander Sul has carried little but routine traffic for a month. Relief convoys reach Caldre and Imrath on schedule. Then, in the space of a single night, the peace on Lysara breaks.",
       secrets: [
         {
-          id: "antimatter-culprit",
-          truth: "The scenario never establishes who planted the antimatter devices. The GM must not reveal or imply a culprit.",
+          id: "strike-culprit",
+          truth: "The scenario never establishes who planted the device that killed the Kestu junta, or where its salvaged photon-torpedo warhead came from. The GM must not reveal or imply a culprit.",
         },
       ],
       events: [
@@ -524,15 +527,15 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-strike",
-          title: "Fire over Kestu",
+          title: "Strike on the Directorate",
           from: "Commander Ysolde Hart, Starfleet Intelligence",
-          text: "Hart's voice is flat. Three antimatter devices have detonated in Kestu IX's three largest cities. The Directorate is gone. Preliminary analysis of the debris shows Federation manufacturing signatures. \"I don't know who did this, Admiral. I know how it's going to look.\"",
+          text: "Hart's voice is flat. An explosive device has detonated inside the Directorate's council chamber on Kestu IX, killing the ruling junta in session. Damage outside the government compound is limited. Preliminary analysis of the debris says the device looked an awful lot like a warhead salvaged from a Federation photon torpedo. \"I don't know who did this, Admiral. I know how it's going to look.\"",
           onEnter: [{ type: "set-flag", flag: "kestu-regime", value: "fallen" }],
           prompts: [{ id: "q4-strike-orders", kind: "free-text", short: true, text: "What are your first orders?" }],
           defaultOutcomeId: "investigate",
-          gmNotes: "Never reveal or hint at who planted the devices. Hart has no answer and should not speculate toward one.",
+          gmNotes: "This was a targeted strike on the junta, not a mass-casualty attack: keep the scale small. Never reveal or hint at who planted the device or how they got the warhead. Hart has no answer and should not speculate toward one.",
           outcomes: [
-            { id: "investigate", label: "Investigate and aid", criteria: "Orders an investigation, informs Starfleet, and offers humanitarian aid to Kestu.", effects: [{ type: "set-flag", flag: "q4-strike", value: "investigated" }], reactions: "Hart begins at once; aid ships are readied." },
+            { id: "investigate", label: "Investigate and aid", criteria: "Orders an investigation, informs Starfleet, and offers help to Kestu.", effects: [{ type: "set-flag", flag: "q4-strike", value: "investigated" }], reactions: "Hart begins at once; offers of help are readied." },
             { id: "silent", label: "Says nothing", criteria: "Keeps quiet and waits.", effects: [{ type: "set-flag", flag: "q4-strike", value: "silent" }], reactions: "Rumours that the Federation was behind it begin to spread." },
           ],
         },
@@ -540,11 +543,11 @@ export const sectorAlpha: Scenario = {
           id: "q4-new-kestu",
           title: "A new voice from Kestu",
           from: "First Speaker Imra Talov, Provisional Government of Kestu",
-          text: "A woman you have never seen appears on your screen, in a room lit by emergency lighting. Imra Talov speaks for a provisional democratic government that has risen from the ruins. Kestu is leaving the war. She thanks the Federation for freeing her people. Both Kestu and Lysara are in ruins, and not one Lysaran faction is happy with the Federation.",
+          text: "A woman you have never seen appears on your screen, in a borrowed office with the Directorate's emblem freshly painted over. Imra Talov speaks for a provisional democratic government formed in the days since the junta fell. Kestu is leaving the war. She thanks the Federation for freeing her people. Lysara is battered by the war, and not one Lysaran faction is happy with the Federation.",
           onEnter: [{ type: "set-flag", flag: "kestu-regime", value: "democratic" }],
           prompts: [{ id: "q4-new-kestu-orders", kind: "free-text", short: true, text: "How do you answer Talov's thanks?" }],
           defaultOutcomeId: "honest",
-          gmNotes: "Never reveal or hint at who planted the devices. Talov sincerely believes the Federation helped; she is grateful, not scheming.",
+          gmNotes: "Never reveal or hint at who planted the device. Talov sincerely believes the Federation helped; she is grateful, not scheming.",
           outcomes: [
             { id: "honest", label: "Honest", criteria: "Refuses credit, says the Federation did not do this, offers aid and support to the new government.", effects: [{ type: "adjust-standing", factionId: "kestu", delta: 1 }], reactions: "Talov is surprised, then grateful for the honesty." },
             { id: "accepts", label: "Accepts the thanks", criteria: "Takes the credit, or lets the belief stand.", effects: [{ type: "adjust-standing", factionId: "lysara", delta: -1 }], reactions: "Talov is pleased. On Lysara, the rumours harden into certainty." },
@@ -577,14 +580,16 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-membership",
-          title: "Tekanan joins the Federation",
+          recall: [{ promptId: "q3-report-council", label: "What the admiral told the Council about Tekanan and a long-term Federation presence (earlier, in the report to Brennan)" }],
+          title: "Tekanan's petition accepted",
           from: "Minister Hadrin Toma, then Envoy Lisette Arvane",
-          text: "It is official: Tekanan III is a member of the Federation. Toma, now Tekanan's first Federation councillor, calls to thank you personally. Its defense force will be absorbed into Starfleet, a ground starbase will replace its orbital yards, and trade is growing. Then Lisette Arvane calls. A consortium of Federation-friendly Lysaran nations wants to buy your starbase and tow it to neutral space, where it would serve all of the sector's worlds.",
+          text: "The Federation Council has accepted Tekanan III's petition for membership. It is only the first step; years of review lie ahead before Tekanan is a member. Toma calls to thank you personally all the same. Then Lisette Arvane calls. A consortium of Federation-friendly Lysaran nations wants to buy your starbase and tow it to neutral space, where it would serve all of the sector's worlds.",
           prompts: [
             { id: "q4-sale", kind: "choice", text: "Do you advise selling the starbase?", options: [{ id: "sell", label: "Sell" }, { id: "keep", label: "Keep it" }] },
             { id: "q4-sale-why", kind: "free-text", short: true, text: "Why?" },
           ],
           defaultOutcomeId: "reasoned",
+          gmNotes: "Toma may refer briefly to what the admiral told the Council earlier, warmly or ruefully as fits, but the Council's decision stands regardless. Tekanan is not yet a member.",
           outcomes: [
             { id: "reasoned", label: "Well reasoned", criteria: "A clear rationale tied to the sector's future, whichever way it goes.", reactions: "Arvane and Toma both accept the reasoning, whatever their preference." },
             { id: "thin", label: "Thinly reasoned", criteria: "Little rationale.", reactions: "Arvane asks you to put your reasoning in writing." },
@@ -627,7 +632,7 @@ export const sectorAlpha: Scenario = {
     },
     notes: [
       "This is a low-complexity scenario: every event happens in order regardless of outcome.",
-      "Kestu's motives for mobilizing, the assassin's identity and the antimatter culprit are never established. Keep them unresolved.",
+      "Kestu's motives for mobilizing, the assassin's identity and who planted the device that killed the Kestu junta are never established. Keep them unresolved.",
     ],
   },
 };

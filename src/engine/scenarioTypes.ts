@@ -190,6 +190,8 @@ export interface GameEvent {
   outcomes: Outcome[];
   defaultOutcomeId: string;      // used if the GM can't decide
   gmNotes?: string;              // private direction for the GM
+  /** Earlier answers the GM is shown for this scene, for continuity only. */
+  recall?: { promptId: string; label: string }[];
 }
 
 export interface Outcome {
