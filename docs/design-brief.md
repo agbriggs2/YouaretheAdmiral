@@ -16,7 +16,7 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 - **Content:** Start with the original st-minutiae scenarios; originals later via the scenario engine. Forum-only parts (peer critique, player-written scenarios) dropped for now.
 - **Sample answer:** One example of a reasonable answer, not an answer key.
 - **Platform/stack:** TypeScript + React + Vite, single-file build published as a claude.ai artifact (AI GM via Claude's in-page capability; saves in the artifact database).
-- **Look:** an LCARS-style console (TNG era): black ground, elbow-framed panels, pill controls in the classic palette, condensed uppercase labels with a readable body font for scene text.
+- **Look:** an LCARS-style console (TNG era): black ground, elbow-framed panels, pill controls in the classic palette, Antonio (uppercase) for headings and labels and Roboto Condensed for reading text, both bundled into the page; the sidebar scrolls without a visible scrollbar.
 - **Parked:** Campaign continuity across sectors (career mode).
 
 ## Authoring rules

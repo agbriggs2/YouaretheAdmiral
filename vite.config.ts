@@ -4,4 +4,5 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 
 export default defineConfig({
   plugins: [react(), viteSingleFile()],
+  build: { assetsInlineLimit: 100000000 },  // fonts are inlined into the single file
 })

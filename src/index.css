@@ -5,7 +5,7 @@ PICTURE: the schematic sector map, dark like space, with the starbase marker you
 COLOUR and TYPE: an LCARS-style console (TNG era): black ground, elbow-framed panels and pill controls in peach, orange, lilac and blue; Antonio uppercase for labels and headings, Barlow for reading. The LCARS layer is at the end of this file.
 LAYOUT: an elbow-framed header with stage pills and faction standings; two columns, prompts and a sticky map; stacks below 900px with the map first.
 */
-@import url("https://fonts.googleapis.com/css2?family=Antonio:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap");
+/* Fonts are bundled (see main.tsx): Antonio for headings and labels, Roboto Condensed for reading. */
 
 :root {
   color-scheme: light dark;
@@ -221,7 +221,8 @@ th { font-weight: 600; color: var(--ink-soft); }
 .review h2 { margin-top: 4px; }
 /* The sidebar scrolls on its own, beside the scenario. */
 @media (min-width: 901px) {
-  .side-sticky { max-height: calc(100vh - 32px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; scrollbar-gutter: stable; }
+  .side-sticky { max-height: calc(100vh - 32px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  .side-sticky::-webkit-scrollbar { display: none; }
 }
 .board-head { margin-bottom: 4px; }
 .disclose { all: unset; cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px; }
@@ -263,8 +264,10 @@ th { font-weight: 600; color: var(--ink-soft); }
   --focus: var(--lc-gold);
   --space: #000000;
   --lc-font: Antonio, "Barlow Condensed", sans-serif;
+  --lc-text: "Roboto Condensed", "Arial Narrow", sans-serif;
 }
-body { background: #000; color: var(--ink); }
+body { background: #000; color: var(--ink); font: 17px/1.55 var(--lc-text); letter-spacing: 0.01em; }
+textarea, input, select, .loc-btn, .radio { font-family: var(--lc-text); font-size: 17px; }
 h1, h2, h3, h4 { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; }
 
 /* Header: an elbow frame with the title inside. */
@@ -276,11 +279,11 @@ h1, h2, h3, h4 { font-family: var(--lc-font); text-transform: uppercase; letter-
   border-top-left-radius: 70px; border-bottom-left-radius: 46px;
 }
 .top::before {
-  content: "SECTOR COMMAND"; position: absolute; left: -116px; top: 8px; width: 108px;
+  content: "SECTOR COMMAND"; position: absolute; left: -116px; top: 46px; width: 108px;
   font: 600 14px var(--lc-font); letter-spacing: 0.08em; color: #000; text-align: right;
 }
 .top::after {
-  content: "47-2372"; position: absolute; left: -116px; bottom: 10px; width: 108px;
+  content: "47-2372"; position: absolute; left: -116px; bottom: 30px; width: 108px;
   font: 600 14px var(--lc-font); color: #000; text-align: right;
 }
 .kicker { font-family: var(--lc-font); text-transform: uppercase; letter-spacing: 0.12em; color: var(--lc-lilac); opacity: 1; font-size: 17px; }
