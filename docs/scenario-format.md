@@ -76,7 +76,8 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 - After the last scene of the last stage, a closing screen shows final standings.
 
 ## Ship board, cast and review (v0.6)
-- **Ships** carry a captain (assigned with the ship), a location (a scenario location id, or `transit`) and a current task. New ships start at the starbase, awaiting orders.
+- **Ships** carry a captain (assigned with the ship), a location (a scenario location id, or `transit`) and a current task. New ships start at the starbase, awaiting orders. A ship in transit also records its destination and when it set off.
+- **Orders are carried out over time.** The GM is told where each ship in transit is headed and how long ago it left, and brings it in at its destination once enough story time has passed for its speed. When a new stage opens (weeks later), the engine brings in every ship still travelling, with a task such as "On station at Tekanan III".
 - **The GM's reply** may include `shipUpdates` (ship, location, task) for ships whose position or task its orders changed, and `newCharacters` (name, role) for named people it introduces. The engine keeps only updates naming real ships and real locations, and only new names.
 - **Cast:** `cast` lists authored people, places and nations, each with the scene (or stage) that introduces it. The GM is sent everyone introduced so far, plus GM-introduced people and the captains, and told to reuse names and roles.
 - **Debrief:** `debrief` names who writes the end-of-sector review and what to weigh.

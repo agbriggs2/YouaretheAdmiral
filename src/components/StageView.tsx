@@ -3,7 +3,7 @@ import type { FleetRules, Prompt, Scenario, Stage } from "../engine/scenarioType
 import type { ShipClass } from "../engine/shipTypes";
 import type { GameState, Transmission } from "../engine/state";
 import type { RequestLine } from "../engine/state";
-import { activeFactions, allocateFleet, applyEffects, checkAssignments, conditionsMet, crewShips, grantChance, readLines, standingChanges, standingLabel, uid } from "../engine/state";
+import { activeFactions, moveShips, allocateFleet, applyEffects, checkAssignments, conditionsMet, crewShips, grantChance, readLines, standingChanges, standingLabel, uid } from "../engine/state";
 import { saveUndo, readUndo, clearUndo } from "../engine/dev";
 import { AssignedFleet } from "./AssignedFleet";
 import { resolve, writeReview } from "../engine/gm";
@@ -166,10 +166,7 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
       });
       setState((s) => {
         // Ship moves and new characters from the GM, then the outcome's effects.
-        const moved = s.fleet.map((f) => {
-          const up = r.shipUpdates?.find((x) => x.ship.toLowerCase() === f.name.toLowerCase());
-          return up ? { ...f, location: up.location, task: up.task || f.task } : f;
-        });
+        const moved = moveShips(s, r.shipUpdates ?? []);
         const base = { ...s, fleet: moved, cast: [...s.cast, ...(r.newCharacters ?? []).filter((c) => !s.cast.some((x) => x.name === c.name))] };
         const after = applyEffects(base, r.outcome.effects, stage.id, byId);
         const t: Transmission = {

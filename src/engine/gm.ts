@@ -149,7 +149,7 @@ function campaignSoFar(s: Scenario, state: GameState, byId: ById): string {
   const fleet = state.fleet.map((f) => {
     const c = byId[f.classId];
     const r = c?.ratings;
-    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; firepower ${r?.firepower}, defense ${r?.defense}, speed ${r?.speed}, sensors ${r?.sensors}, science ${r?.science}, logistics ${r?.logistics}). Registry ${f.registry ?? "unassigned"}. Captain ${f.captain ?? "(unnamed)"}. Duty: ${f.assignment || "none"}. Mission: ${f.mission || "none"}. NOW AT: ${locationName(s, f.location)}. CURRENT TASK: ${f.task || "none"}.`;
+    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; firepower ${r?.firepower}, defense ${r?.defense}, speed ${r?.speed}, sensors ${r?.sensors}, science ${r?.science}, logistics ${r?.logistics}). Registry ${f.registry ?? "unassigned"}. Captain ${f.captain ?? "(unnamed)"}. Duty: ${f.assignment || "none"}. Mission: ${f.mission || "none"}. NOW AT: ${f.location === TRANSIT ? `in transit to ${locationName(s, f.destination)}${f.transitSince !== undefined ? `, set off ${((n) => n === 0 ? "just now" : n === 1 ? "1 reply ago" : `${n} replies ago`)(state.transmissions.length - f.transitSince)}` : ""}` : locationName(s, f.location)}. CURRENT TASK: ${f.task || "none"}.`;
   }).join("\n");
   const departed = state.departed.map((d) => `- ${d.name} (${byId[d.classId]?.name ?? d.classId} class): ${d.reason}`).join("\n");
   const history = state.transmissions.map((t) => `- ${t.subject} (from ${t.from}): outcome "${t.outcomeLabel}"`).join("\n");
@@ -174,7 +174,7 @@ function locationIds(s: Scenario): string {
   return [...s.locations.map((l) => `"${l.id}" (${l.name})`), `"${TRANSIT}" (in transit between locations)`].join(", ");
 }
 
-export interface ShipUpdate { ship: string; location: string; task: string }
+export interface ShipUpdate { ship: string; location: string; destination?: string; task: string }
 
 /** Read the GM's proposed ship moves and new characters, keeping only valid ones. */
 function extras(s: Scenario, state: GameState, data: Record<string, unknown> | null): { shipUpdates: ShipUpdate[]; newCharacters: CastMember[] } {
@@ -182,7 +182,7 @@ function extras(s: Scenario, state: GameState, data: Record<string, unknown> | n
   const names = new Set(state.fleet.map((f) => f.name.toLowerCase()));
   const ups = Array.isArray(data?.shipUpdates) ? (data!.shipUpdates as Record<string, unknown>[]) : [];
   const shipUpdates = ups.filter((u) => typeof u?.ship === "string" && names.has((u.ship as string).toLowerCase()) && typeof u.location === "string" && ids.has(u.location as string))
-    .map((u) => ({ ship: u.ship as string, location: u.location as string, task: typeof u.task === "string" ? (u.task as string).slice(0, 120) : "" }));
+    .map((u) => ({ ship: u.ship as string, location: u.location as string, destination: typeof u.destination === "string" && ids.has(u.destination as string) && u.destination !== TRANSIT ? (u.destination as string) : undefined, task: typeof u.task === "string" ? (u.task as string).slice(0, 120) : "" }));
   const known = new Set(castSeen(s, state).map((c) => c.name.toLowerCase()));
   const chars = Array.isArray(data?.newCharacters) ? (data!.newCharacters as Record<string, unknown>[]) : [];
   const newCharacters = chars.filter((c) => typeof c?.name === "string" && typeof c.role === "string" && !known.has((c.name as string).toLowerCase()))
@@ -190,7 +190,7 @@ function extras(s: Scenario, state: GameState, data: Record<string, unknown> | n
   return { shipUpdates, newCharacters };
 }
 
-const EXTRAS_SPEC = `"shipUpdates": [{"ship": "<exact ship name from the fleet>", "location": "<location id>", "task": "<what it is doing now, under 12 words>"}] for every ship whose position or task changes because of these orders (an empty list if none), and "newCharacters": [{"name": "<full name>", "role": "<who they are, a few words>"}] for any named person your reply introduces who isn't already listed (an empty list if none)`;
+const EXTRAS_SPEC = `"shipUpdates": [{"ship": "<exact ship name from the fleet>", "location": "<location id>", "destination": "<location id, only when location is transit>", "task": "<what it is doing now, under 12 words>"}] for every ship whose position or task changes, whether because of these orders or because a ship in transit has now arrived (an empty list if none), and "newCharacters": [{"name": "<full name>", "role": "<who they are, a few words>"}] for any named person your reply introduces who isn't already listed (an empty list if none)`;
 
 function secretsText(s: Scenario, state: GameState): string {
   // Only secrets introduced up to the current stage; later ones don't exist yet.
@@ -270,7 +270,7 @@ ${orders}
 YOUR TASK
 1. Decide which one outcome below best fits the admiral's orders. Judge the reasoning and whether the ships named can plausibly do what is asked, given their duties and capabilities. When the admiral gives an assessment or report, judge whether it fits WHERE THINGS STAND NOW, not whether it ticks every box in the question. Pick the closest outcome; it doesn't have to match perfectly. Be fair, not flattering: characters can be unhappy, and a sound decision can still disappoint someone.
 2. Write the in-character reply from ${inp.from || "the relevant party"} (or the captain carrying out the orders, if more fitting), addressed to the admiral, showing how events unfold under that outcome. Refer to specific ships and details from the orders. The reply must reflect everything the admiral actually ordered or offered, even under an unfavourable outcome: never contradict or ignore it (for example, don't have characters still short of supplies the admiral just sent). Do not state any standing changes or game terms. ${brief ? "This is one scene in a fast-moving sequence and the admiral's orders are brief: reply in under 140 words, as a live exchange, and do not jump ahead to later events." : "Under 250 words."} Plain text, short paragraphs, no headings or bullet points.
-3. Update the ship board: for each ship whose position or task changes because of these orders, give its new location (one of: ${locationIds(s)}) and its current task. A ship ordered somewhere far away is "${TRANSIT}" with a task like "En route to Lysara". Ships not mentioned stay as they are.
+3. Update the ship board: for each ship whose position or task changes because of these orders, give its new location (one of: ${locationIds(s)}) and its current task. A ship ordered somewhere far away is "${TRANSIT}", with its destination and a task like "En route to Lysara". Also carry out earlier orders: time passes between scenes, so a ship in transit that would have reached its destination by now arrives there, with a task such as "On station at Tekanan III". Judge travel time from the ship's speed and the time that has passed in the story. Ships not mentioned stay as they are.
 
 OUTCOMES
 ${inp.outcomes.map((o) => `- id "${o.id}" (${o.label}): ${o.criteria} How characters react: ${o.reactions ?? ""}`).join("\n")}

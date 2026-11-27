@@ -16,6 +16,8 @@ export interface FleetShip {
   captain?: string;              // assigned with the ship; cosmetic for now
   registry?: string;             // "NCC-62497"
   location?: string;             // a scenario location id, or "transit"
+  destination?: string;          // where a ship in transit is headed
+  transitSince?: number;         // how many replies had been sent when it set off
   condition?: "operational" | "damaged";  // shown on the ship board
   task?: string;                 // what the ship is doing right now
 }
@@ -172,6 +174,30 @@ export function boardShips(state: GameState, byId: Record<string, ShipClass>) {
     ...[...state.fleet].sort(order).map((f) => ({ ship: f, destroyed: false, reason: "" })),
     ...state.departed.filter((d) => d.fate === "destroyed").sort(order).map((d) => ({ ship: d as FleetShip, destroyed: true, reason: d.reason })),
   ];
+}
+
+/** Apply the GM's ship moves; a ship in transit remembers where it's going and since when. */
+export function moveShips(state: GameState, updates: { ship: string; location: string; destination?: string; task: string }[]): FleetShip[] {
+  return state.fleet.map((f) => {
+    const up = updates.find((x) => x.ship.toLowerCase() === f.name.toLowerCase());
+    if (!up) return f;
+    const task = up.task || f.task;
+    if (up.location === TRANSIT) {
+      const already = f.location === TRANSIT && f.destination === (up.destination ?? f.destination);
+      return { ...f, location: TRANSIT, destination: up.destination ?? f.destination, transitSince: already ? f.transitSince : state.transmissions.length, task };
+    }
+    return { ...f, location: up.location, destination: undefined, transitSince: undefined, task };
+  });
+}
+
+/** A new question opens weeks later: ships still travelling have arrived. */
+export function arriveAll(s: Scenario, state: GameState): FleetShip[] {
+  return state.fleet.map((f) => {
+    if (f.location !== TRANSIT || !f.destination) return f;
+    const where = s.locations.find((l) => l.id === f.destination)?.name ?? f.destination;
+    const task = !f.task || /^en route|^returning|^heading|^under way/i.test(f.task) ? `On station at ${where}` : f.task;
+    return { ...f, location: f.destination, destination: undefined, transitSince: undefined, task };
+  });
 }
 
 export const TRANSIT = "transit";
