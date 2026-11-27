@@ -58,7 +58,7 @@ export const sectorAlpha: Scenario = {
       name: "Lysara",
       status: "aligned",
       population: "5.2 billion",
-      government: "Monarchy: five nations (Caldre, Imrath, Voss, Thale, Orvane) under a single crown",
+      government: "Monarchy: seven nations (Caldre, Imrath, Voss, Thale, Orvane, Merrow, Dunhal) under a single crown",
       technology: "24th-century equivalent",
       military: [
         { count: 3, description: "Miranda-class equivalent warships", equivalentTo: "miranda" },
@@ -283,7 +283,7 @@ export const sectorAlpha: Scenario = {
       id: "q3",
       title: "Question Three: The Crown Falls",
       briefing:
-        "0347 hours, starbase time. The Lysaran crown holds together five proud nations: Caldre, Imrath, Voss, Thale and Orvane. Queen Sereth IV has worn it for thirty years. Tonight that ends.",
+        "0347 hours, starbase time. The Lysaran crown holds together seven proud nations: Caldre, Imrath, Voss, Thale, Orvane, Merrow and Dunhal. Queen Sereth IV has worn it for thirty years. Tonight that ends.",
       secrets: [
         {
           id: "kestu-timing",
@@ -309,7 +309,7 @@ export const sectorAlpha: Scenario = {
           id: "q3-morning",
           title: "Morning after",
           from: "Ambassador Rhiannon Okafor",
-          text: "By dawn the royal council has split along national lines. Voss and Thale have closed their borders; Orvane's delegation walked out of the palace. About four hundred Federation citizens, mostly traders and university staff, are in Aurenne. Guild master Pell Corrin, speaking for the Federation traders, wants to know whether they should leave.",
+          text: "By dawn the royal council has split along national lines. Voss and Thale have closed their borders; Orvane's delegation walked out of the palace. Merrow and Dunhal have declared for no one and are keeping their own counsel. About four hundred Federation citizens, mostly traders and university staff, are in Aurenne. Guild master Pell Corrin, speaking for the Federation traders, wants to know whether they should leave.",
           prompts: [{ id: "q3-morning-orders", kind: "free-text", short: true, text: "Do you evacuate Federation citizens, shelter them in place, or wait? How?" }],
           defaultOutcomeId: "sensible",
           outcomes: [
@@ -454,13 +454,13 @@ export const sectorAlpha: Scenario = {
           id: "q4-war",
           title: "Open war",
           from: "Ambassador Rhiannon Okafor",
-          text: "Okafor's signal is broken up by interference. Caldre and Imrath have declared war on the Kestu-backed alliance of Voss, Thale and Orvane. Fighting is under way along every border, and Lysaran sublight warships are already exchanging fire across the binary system. \"The embassy is safe for now, Admiral. I can't say the same for the city.\"",
+          text: "Okafor's signal is broken up by interference. Merrow and Dunhal, unaligned since the Queen's death, have declared war on the Kestu-backed alliance of Voss, Thale and Orvane. Caldre and Imrath have stayed out of it so far, but the fighting is spreading along every border, and Lysaran sublight warships are already exchanging fire across the binary system. \"The embassy is safe for now, Admiral. I can't say the same for the city.\"",
           prompts: [{ id: "q4-war-orders", kind: "free-text", short: true, text: "What are your immediate orders?" }],
           defaultOutcomeId: "measured",
           gmNotes: "Starfleet's standing guidance is unchanged: aid only the nations that asked for help, and stay out of the fighting.",
           outcomes: [
             { id: "measured", label: "Measured", criteria: "Protects Federation people and relief operations, keeps ships clear of the fighting, and keeps channels open.", reactions: "Okafor acknowledges; the relief effort holds together." },
-            { id: "drawn-in", label: "Drawn in", criteria: "Moves ships into the fighting or takes sides militarily.", effects: [{ type: "adjust-standing", factionId: "kestu", delta: -1 }], reactions: "Okafor warns that Federation ships near the fighting are being read as Caldrean and Imrathi escorts." },
+            { id: "drawn-in", label: "Drawn in", criteria: "Moves ships into the fighting or takes sides militarily.", effects: [{ type: "adjust-standing", factionId: "kestu", delta: -1 }], reactions: "Okafor warns that Federation ships near the fighting are being read as taking Merrow and Dunhal's side." },
             { id: "withdrawn", label: "Pulled back", criteria: "Withdraws relief and support entirely.", effects: [{ type: "adjust-standing", factionId: "lysara", delta: -1 }], reactions: "Arvane and Maskel ask where their promised aid has gone." },
           ],
         },
@@ -502,7 +502,7 @@ export const sectorAlpha: Scenario = {
           id: "q4-accusation",
           title: "The accusation",
           from: "Envoy Kael Ruusk, Kestu Directorate",
-          text: "Envoy Ruusk is on your screen within the hour, colder than you have ever seen him. Kestu holds the Federation responsible: its ships escorted Lysaran convoys, and Starfleet sensors guided Caldrean and Imrathi fire. \"Commander Sul trusted your channel, Admiral. Now he is dead.\"",
+          text: "Envoy Ruusk is on your screen within the hour, colder than you have ever seen him. Kestu holds the Federation responsible: its ships escorted Lysaran convoys through the war zone, and Kestu believes Starfleet sensors guided the Merrovian and Dunhali fire. \"Commander Sul trusted your channel, Admiral. Now he is dead.\"",
           prompts: [{ id: "q4-accusation-orders", kind: "free-text", short: true, text: "How do you answer Ruusk?" }],
           defaultOutcomeId: "firm",
           outcomes: [
