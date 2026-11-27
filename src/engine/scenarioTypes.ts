@@ -147,6 +147,8 @@ export interface Secret {
   id: string;
   truth: string;
   coverStory?: string;           // what characters believe until revealed
+  /** The scene that introduces it ("q2:q2-probe"); until that scene opens, the GM isn't told. */
+  introducedIn?: string;
 }
 
 // ── Stages, prompts and events ─────────────────────────
@@ -257,5 +259,6 @@ export interface GmGuidance {
   tone: string;
   improvisation: string;         // what the GM may and may not invent
   sampleAnswer?: { url: string; note: string };
-  notes?: string[];
+  /** A plain note applies throughout; one with fromStage applies from that stage on, so it can't give away what's coming. */
+  notes?: (string | { text: string; fromStage: string })[];
 }

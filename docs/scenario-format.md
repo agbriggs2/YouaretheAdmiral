@@ -65,7 +65,7 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 ## Scenes and continuity (v0.4)
 - A free-text prompt can be marked `short`: the player sees a smaller box with a "A few sentences" hint, and the GM replies in under 140 words as a live exchange, without jumping ahead.
 - For each answer the GM also sees the earlier scenes of the same stage (the admiral's answers and the replies), so a run of scenes reads as one continuous story.
-- Secrets are only shown to the GM from the stage that introduces them, and only as their cover story until revealed. A secret with no cover story is never sent; its scene's text and GM notes carry what the GM needs.
+- Secrets are only shown to the GM from the stage that introduces them, and only as their cover story until revealed. A secret can name the scene that introduces it (`introducedIn`); until that scene opens, the GM isn't told at all, so it can't anticipate the event. Scenario-wide GM notes about later events carry `fromStage` for the same reason. A secret with no cover story is never sent; its scene's text and GM notes carry what the GM needs.
 
 ## Reinforcements, losses and departures (v0.5)
 - A `reinforcement` prompt lists slots (for example "One combat ship" from cruiser, light cruiser or frigate, and "Two transports"). The player picks a type, an optional preferred class and a purpose for each. The engine allocates with the sector's usual factors; ships already in the sector count toward the repeat penalty, and new ships never reuse a name. The GM announces exactly what was sent, then the player gives each new ship a duty before moving on.
@@ -230,6 +230,7 @@ export interface Secret {
   id: string;
   truth: string;
   coverStory?: string;           // what characters believe until revealed
+  introducedIn?: string;         // scene that introduces it ("q2:q2-probe"); unknown to the GM before then
 }
 
 // ── Stages, prompts and events ─────────────────────────
@@ -331,6 +332,6 @@ export interface GmGuidance {
   tone: string;
   improvisation: string;         // what the GM may and may not invent
   sampleAnswer?: { url: string; note: string };
-  notes?: string[];
+  notes?: (string | { text: string; fromStage: string })[];  // fromStage: applies from that stage on
 }
 ```

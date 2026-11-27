@@ -229,6 +229,7 @@ export const sectorAlpha: Scenario = {
           id: "probe-truth",
           truth: "The object in the nebula is an automated distress buoy, not a warship or weapon. It was launched by the last government of the Saalit, a resource-hungry empire that occupied Tekanan III until a biological plague struck them. They withdrew, collapsed into anarchy, and a final democratic government sent out distress buoys before the Saalit died out.",
           coverStory: "An unidentified probe with the warp signature of the ships that attacked Tekanan III, and possible weapons signatures.",
+          introducedIn: "q2:q2-probe",
         },
       ],
       events: [
@@ -673,7 +674,9 @@ export const sectorAlpha: Scenario = {
     },
     notes: [
       "This is a low-complexity scenario: every event happens in order regardless of outcome.",
-      "Kestu's motives for mobilizing, the assassin's identity and who planted the device that killed the Kestu junta are never established. Keep them unresolved.",
+      { text: "Kestu's motives for mobilizing are never established. Keep them unresolved.", fromStage: "q2" },
+      { text: "The assassin's identity is never established. Keep it unresolved.", fromStage: "q3" },
+      { text: "Who planted the device that killed the Kestu junta is never established. Keep it unresolved.", fromStage: "q4" },
     ],
   },
 };

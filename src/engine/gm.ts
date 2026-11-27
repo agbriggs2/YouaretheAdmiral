@@ -33,7 +33,7 @@ RULES FOR YOU
 - ${s.gm.improvisation}
 - Tone: ${s.gm.tone}
 - There is no answer key. Many different plans are reasonable; judge the player's reasoning on its own merits.
-${(s.gm.notes ?? []).map((n) => `- ${n}`).join("\n")}
+${(s.gm.notes ?? []).filter((n) => typeof n === "string" || s.stages.findIndex((st) => st.id === n.fromStage) <= state.stageIndex).map((n) => `- ${typeof n === "string" ? n : n.text}`).join("\n")}
 ${extraRules.map((n) => `- ${n}`).join("\n")}
 - Never reveal hidden information, and never mention game mechanics, outcomes, odds or ratings to the player.
 - Assume the admiral keeps Starfleet Command informed as a matter of routine. Never mark an answer down, and never have a character point out, that the admiral didn't mention reporting to Starfleet, unless the question expressly asks for a report.
@@ -193,7 +193,9 @@ const EXTRAS_SPEC = `"shipUpdates": [{"ship": "<exact ship name from the fleet>"
 
 function secretsText(s: Scenario, state: GameState): string {
   // Only secrets introduced up to the current stage; later ones don't exist yet.
-  const all = s.stages.slice(0, state.stageIndex + 1).flatMap((st) => st.secrets ?? []);
+  // A secret tied to a scene stays unknown until that scene opens.
+  const opened = (key?: string) => !key || !!(state.submitted[key] || state.submitted[`${key}:seen`] || state.submitted[`${key}:entered`]);
+  const all = s.stages.slice(0, state.stageIndex + 1).flatMap((st) => st.secrets ?? []).filter((x) => opened(x.introducedIn) || state.revealed.includes(x.id));
   if (!all.length) return "";
   const lines = all.map((x) => state.revealed.includes(x.id)
     ? `- REVEALED, may be discussed: ${x.truth}`
