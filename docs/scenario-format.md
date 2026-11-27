@@ -67,6 +67,12 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 - For each answer the GM also sees the earlier scenes of the same stage (the admiral's answers and the replies), so a run of scenes reads as one continuous story.
 - Secrets are only shown to the GM from the stage that introduces them, and only as their cover story until revealed. A secret with no cover story is never sent; its scene's text and GM notes carry what the GM needs.
 
+## Reinforcements, losses and departures (v0.5)
+- A `reinforcement` prompt lists slots (for example "One combat ship" from cruiser, light cruiser or frigate, and "Two transports"). The player picks a type, an optional preferred class and a purpose for each. The engine allocates with the sector's usual factors; ships already in the sector count toward the repeat penalty, and new ships never reuse a name. The GM announces exactly what was sent, then the player gives each new ship a duty before moving on.
+- A scene's text may contain `{lost}`; it is replaced with the names of ships removed by that scene's `onEnter`.
+- A `ship-choice` prompt asks the player to pick one ship from the current fleet.
+- After the last scene of the last stage, a closing screen shows final standings.
+
 ## Schema (TypeScript)
 ```ts
 /**
@@ -233,7 +239,11 @@ export type Prompt =
   | { id: string; kind: "fleet-builder"; text: string; mode: "initial" | "add"; addRules?: AddRules }
   | { id: string; kind: "fleet-request"; text: string }
   | { id: string; kind: "starbase-placement"; text: string }
-  | { id: string; kind: "choice"; text: string; options: { id: string; label: string }[] };
+  | { id: string; kind: "choice"; text: string; options: { id: string; label: string }[] }
+  | { id: string; kind: "reinforcement"; text: string; slots: ReinforcementSlot[] }
+  | { id: string; kind: "ship-choice"; text: string };   // pick one ship from the current fleet
+
+export interface ReinforcementSlot { id: string; label: string; categories: string[]; count: number; }
 
 export interface AddRules {
   ships: { count: number; combatRole?: "primary" | "secondary" | "none"; tag?: string; label: string }[];
@@ -244,7 +254,7 @@ export interface GameEvent {
   title: string;
   conditions?: Condition[];      // empty or absent = always happens
   from?: string;                 // who delivers it: "Starfleet Command", "Lysaran Court"…
-  text: string;                  // what the player is told
+  text: string;                  // what the player is told; {lost} = ships removed by onEnter
   onEnter?: Effect[];            // effects applied before the player responds
   prompts: Prompt[];             // usually one free-text order prompt
   outcomes: Outcome[];

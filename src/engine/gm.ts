@@ -1,7 +1,7 @@
 import type { GameEvent, Outcome, Prompt, Scenario, Stage } from "./scenarioTypes";
 import type { ShipClass } from "./shipTypes";
 import type { GameState, Transmission } from "./state";
-import { standingLabel } from "./state";
+import { readLines, standingLabel } from "./state";
 
 /* The platform's "ask Claude" capability. Absent outside claude.ai. */
 type SampleFn = (input: string, opts?: Record<string, unknown>) => Promise<{ text: string }>;
@@ -189,7 +189,16 @@ export async function resolve(s: Scenario, state: GameState, byId: ById, inp: Re
   if (!sample) {
     return { outcome: def, subject: inp.title, body: `Admiral, your orders have been received and are being carried out.`, offline: true };
   }
-  const orders = inp.prompts.map((p) => `${p.text}\n${state.answers[p.id] || "(no answer)"}`).join("\n\n");
+  const catLabel = (id: string) => s.resources.fleet?.categories.find((c) => c.id === id)?.label ?? id;
+  const answerText = (p: Prompt): string => {
+    if (p.kind === "reinforcement") {
+      const req = readLines(state, p.id).map((l) => `- ${l.count} × ${catLabel(l.category)}${l.preferredClassId ? ` (prefers ${byId[l.preferredClassId]?.name ?? l.preferredClassId})` : ""}: ${l.purpose}`).join("\n");
+      const got = state.fleet.filter((f) => f.addedIn === p.id).map((f) => `- ${f.name}, ${byId[f.classId]?.name ?? f.classId} class. Requested as: ${f.requested ?? ""}.${f.substituted ? " SUBSTITUTE: the preferred class could not be spared." : ""}`).join("\n");
+      return `Requested:\n${req || "(none)"}\nShips Starfleet has sent (already decided; announce exactly these and give a one-sentence reason for any substitution):\n${got || "(none)"}`;
+    }
+    return state.answers[p.id] || "(no answer)";
+  };
+  const orders = inp.prompts.map((p) => `${p.text}\n${answerText(p)}`).join("\n\n");
   const brief = inp.prompts.some((p) => p.kind === "free-text" && p.short);
   // A compact picture of the present, so reports and assessments can be judged against reality.
   const standingsNow = s.factions.map((f) => `- ${f.name}: ${standingLabel(state.standings[f.id] ?? 0)} (${state.standings[f.id] ?? 0} on a scale of -3 to +3)`).join("\n");

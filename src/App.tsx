@@ -18,7 +18,7 @@ const playable = (i: number) => {
   const st = S.stages[i];
   if (!st) return false;
   const kinds = [...(st.prompts ?? []), ...(st.events ?? []).flatMap((e) => e.prompts)].map((p) => p.kind);
-  return kinds.every((k) => k === "free-text" || k === "choice");
+  return kinds.every((k) => ["free-text", "choice", "reinforcement", "ship-choice"].includes(k));
 };
 const ORBIT_LABEL: Record<string, string> = { "planet-orbit": "In planetary orbit", "star-orbit": "In orbit of the star", "open-space": "In open space" };
 
@@ -275,6 +275,9 @@ export default function App() {
                 onContinue={advance}
                 nextLabel={S.stages[state.stageIndex + 1] ? `Continue to ${S.stages[state.stageIndex + 1].title.split(":")[0]}` : "Scenario complete"}
                 nextReady={playable(state.stageIndex + 1)}
+                rules={RULES}
+                catalogue={CATALOGUE}
+                isLast={state.stageIndex === S.stages.length - 1}
               />
               {reply && (
                 <details className="card">

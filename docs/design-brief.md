@@ -40,10 +40,11 @@ A solo, single-player web game inspired by Flare SciFi Forums' "You're the Admir
 - Sector Alpha encoded in full (`src/scenarios/sectorAlpha.ts`).
 - Question One playable, with the fleet request and allocation system.
 - Question Three rewritten as ten in-universe scenes with a named cast (Ambassador Rhiannon Okafor, Minister Hadrin Toma, Fleet Commander Drevak Sul, Commander Ysolde Hart and others; the five Lysaran nations Caldre, Imrath, Voss, Thale and Orvane). The original's hypothetical is replaced by three real developments: stranded merchants, a Kestu deconfliction proposal, and intelligence that Kestu ships left home two days before the assassination (never confirmed either way).
-- Questions Two and Three playable through a shared stage engine: the player answers each prompt and crisis, the AI GM picks one authored outcome and writes the in-character reply in a single call, and the outcome's effects (standing changes, flags) apply and are shown. Hidden truths are never sent to the GM until revealed; it only sees what characters currently believe.
+- Question Four rewritten as twelve in-universe scenes (adding First Speaker Imra Talov, Lt. Commander Ama Osei and Rear Admiral Teresa Vance) with the original plot: war, reinforcements by request, the fleets' mutual destruction and a named lost patrol ship, the Kestu accusation, refugees, the antimatter strike (culprit never revealed), the new Kestu government, the buoy reveal, an exploration programme, Tekanan's admission and the starbase sale, the handover briefing and the choice of ship for Sector Beta. A closing screen shows final standings.
+- Sector Alpha is playable end to end.
+- Questions Two through Four playable through a shared stage engine: the player answers each prompt and crisis, the AI GM picks one authored outcome and writes the in-character reply in a single call, and the outcome's effects (standing changes, flags) apply and are shown. Hidden truths are never sent to the GM until revealed; it only sees what characters currently believe.
 
 ## Next steps
-1. Question Four: reinforcements chosen by request, the patrol-ship loss, the buoy reveal and the handover.
-2. A "load test game" option for replaying from saved fixtures.
-3. Import the ship catalogue from the spreadsheet automatically instead of by hand.
-4. Encode Sector Beta to exercise branching.
+1. A "load test game" option for replaying from saved fixtures.
+2. Import the ship catalogue from the spreadsheet automatically instead of by hand.
+3. Encode Sector Beta to exercise branching.

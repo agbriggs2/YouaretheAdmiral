@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import type { Prompt, Scenario, Stage } from "../engine/scenarioTypes";
+import type { FleetRules, Prompt, Scenario, Stage } from "../engine/scenarioTypes";
 import type { ShipClass } from "../engine/shipTypes";
 import type { GameState, Transmission } from "../engine/state";
-import { applyEffects, conditionsMet, standingChanges, standingLabel } from "../engine/state";
+import type { RequestLine } from "../engine/state";
+import { allocateFleet, applyEffects, checkAssignments, conditionsMet, grantChance, readLines, standingChanges, standingLabel, uid } from "../engine/state";
+import { AssignedFleet } from "./AssignedFleet";
 import { resolve } from "../engine/gm";
 
 interface Props {
@@ -14,7 +16,12 @@ interface Props {
   onContinue: () => void;
   nextLabel: string;
   nextReady: boolean;
+  rules: FleetRules;
+  catalogue: ShipClass[];
+  isLast: boolean;
 }
+
+const SUPPORTED = ["free-text", "choice", "reinforcement", "ship-choice"];
 
 type Unit = {
   key: string;                   // "q2" for the review, "q2:q2-piracy" for an event
@@ -57,7 +64,52 @@ function Reply({ t, scenario }: { t: Transmission; scenario: Scenario }) {
   );
 }
 
-export function StageView({ scenario, stage, state, byId, setState, onContinue, nextLabel, nextReady }: Props) {
+function ReinforcementForm({ p, state, rules, catalogue, locked, setState }: { p: Extract<Prompt, { kind: "reinforcement" }>; state: GameState; rules: FleetRules; catalogue: ShipClass[]; locked: boolean; setState: Props["setState"] }) {
+  const saved = readLines(state, p.id);
+  const lines: RequestLine[] = p.slots.map((slot) => saved.find((l) => l.id === slot.id) ?? { id: slot.id, category: slot.categories.length === 1 ? slot.categories[0] : "", count: slot.count, preferredClassId: "", purpose: "" });
+  const set = (id: string, patch: Partial<RequestLine>) => {
+    const next = lines.map((l) => (l.id === id ? { ...l, ...patch } : l));
+    setState((s) => ({ ...s, answers: { ...s.answers, [p.id]: JSON.stringify(next) } }));
+  };
+  const label = (id: string) => rules.categories.find((c) => c.id === id)?.label ?? id;
+  return (
+    <ol className="req-lines">
+      {p.slots.map((slot) => {
+        const l = lines.find((x) => x.id === slot.id)!;
+        const pool = catalogue.filter((c) => c.category === l.category);
+        return (
+          <li key={slot.id} className="req-line">
+            <div className="req-top"><strong className="req-cat">{slot.label}</strong></div>
+            <div className="req-fields">
+              {slot.categories.length > 1 && (
+                <label>
+                  <span>Type</span>
+                  <select value={l.category} disabled={locked} onChange={(e) => set(slot.id, { category: e.target.value, preferredClassId: "" })}>
+                    <option value="">Choose…</option>
+                    {slot.categories.map((c) => <option key={c} value={c}>{label(c)}</option>)}
+                  </select>
+                </label>
+              )}
+              <label>
+                <span>Preferred class</span>
+                <select value={l.preferredClassId} disabled={locked || !l.category} onChange={(e) => set(slot.id, { preferredClassId: e.target.value })}>
+                  <option value="">No preference</option>
+                  {pool.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.availability}, ~{Math.round(grantChance(rules, c) * 100)}%)</option>)}
+                </select>
+              </label>
+              <label className="grow">
+                <span>What are they for?</span>
+                <input value={l.purpose} disabled={locked} onChange={(e) => set(slot.id, { purpose: e.target.value })} />
+              </label>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+export function StageView({ scenario, stage, state, byId, setState, onContinue, nextLabel, nextReady, rules, catalogue, isLast }: Props) {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState<{ key: string; text: string } | null>(null);
 
@@ -72,23 +124,38 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
     if (!conditionsMet(state, ev.conditions, byId)) continue;
     units.push({
       key: `${stage.id}:${ev.id}`, eventId: ev.id, from: ev.from ?? "", title: ev.title, text: ev.text,
-      prompts: ev.prompts.filter((p) => p.kind === "free-text" || p.kind === "choice"),
+      prompts: ev.prompts.filter((p) => SUPPORTED.includes(p.kind)),
       outcomes: ev.outcomes, defaultOutcomeId: ev.defaultOutcomeId, gmNotes: ev.gmNotes, onEnter: ev.onEnter,
     });
   }
-  const unsupported = (stage.events ?? []).some((ev) => ev.prompts.some((p) => p.kind !== "free-text" && p.kind !== "choice"));
+  const unsupported = (stage.events ?? []).some((ev) => ev.prompts.some((p) => !SUPPORTED.includes(p.kind)));
 
-  const firstOpen = units.findIndex((u) => !state.submitted[u.key]);
+  // A unit is complete once answered, and any ships it added have duties.
+  const added = (u: Unit) => state.fleet.filter((f) => u.prompts.some((p) => p.kind === "reinforcement" && p.id === f.addedIn));
+  const complete = (u: Unit) => !!state.submitted[u.key] && (added(u).length === 0 || checkAssignments(added(u)).ok);
+  const lostText = (u: Unit, text: string) => {
+    const names = state.departed.filter((d) => d.lostIn === u.key).map((d) => `the ${d.name} (${byId[d.classId]?.name ?? d.classId} class)`);
+    return text.replace("{lost}", names.length ? names.join(" and ") : "one of your ships");
+  };
+  const firstOpen = units.findIndex((u) => !complete(u));
   const allDone = firstOpen === -1;
 
   const send = async (u: Unit) => {
     setBusy(u.key);
     setError(null);
     try {
-      const working = state;
+      let working = state;
+      const rp = u.prompts.find((p) => p.kind === "reinforcement");
+      if (rp && !state.submitted[`${u.key}:alloc`]) {
+        const newShips = allocateFleet(rules, { disposition: "", lines: readLines(state, rp.id) }, catalogue, rp.id, 0, Math.random, [...state.fleet, ...state.departed])
+          .map((f) => ({ ...f, uid: uid(), assignment: "" }));
+        working = { ...working, fleet: [...working.fleet, ...newShips], submitted: { ...working.submitted, [`${u.key}:alloc`]: true } };
+        const w = working;
+        setState(() => w);
+      }
       const r = await resolve(scenario, working, byId, {
         stage, event: u.eventId ? stage.events?.find((e) => e.id === u.eventId) : undefined,
-        from: u.from, title: u.title, situation: u.text || stage.briefing, prompts: u.prompts,
+        from: u.from, title: u.title, situation: lostText(u, u.text) || stage.briefing, prompts: u.prompts,
         outcomes: u.outcomes, defaultOutcomeId: u.defaultOutcomeId, gmNotes: u.gmNotes,
       });
       setState((s) => {
@@ -119,7 +186,7 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
   useEffect(() => {
     if (!openUnit?.onEnter?.length) return;
     setState((s) => s.submitted[`${openUnit.key}:entered`] ? s : {
-      ...applyEffects(s, openUnit.onEnter, stage.id, byId),
+      ...applyEffects(s, openUnit.onEnter, stage.id, byId, openUnit.key),
       submitted: { ...s.submitted, [`${openUnit.key}:entered`]: true },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,7 +207,7 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
         )}
         {units.length > 1 && (
           <ol className="unit-steps">
-            {units.map((u, i) => <li key={u.key} className={state.submitted[u.key] ? "done" : i === firstOpen ? "now" : ""}>{u.title}</li>)}
+            {units.map((u, i) => <li key={u.key} className={complete(u) ? "done" : i === firstOpen ? "now" : ""}>{u.title}</li>)}
           </ol>
         )}
       </section>
@@ -149,14 +216,17 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
         if (i > firstOpen && firstOpen !== -1) return null;
         const done = !!state.submitted[u.key];
         const reply = state.transmissions.find((t) => t.stageId === stage.id && t.eventId === u.eventId);
-        const ready = u.prompts.every((p) => (state.answers[p.id] ?? "").trim().length > 0);
+        const ready = u.prompts.every((p) => p.kind === "reinforcement"
+          ? p.slots.every((slot) => { const l = readLines(state, p.id).find((x) => x.id === slot.id); return !!l?.category && !!l.purpose.trim(); })
+          : (state.answers[p.id] ?? "").trim().length > 0);
+        const newShips = added(u);
         return (
           <section key={u.key} className={`card event${done ? " resolved" : ""}`}>
             {u.eventId ? (
               <>
                 <p className="tx-meta">{u.from ? `Report · ${u.from}` : "Report"}</p>
                 <h2>{u.title}</h2>
-                <p>{u.text}</p>
+                <p>{lostText(u, u.text)}</p>
               </>
             ) : (
               <h2><span className="step">{i + 1}</span>{u.title}</h2>
@@ -164,7 +234,18 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
             {u.prompts.map((p) => (
               <div key={p.id} className="field">
                 <span>{p.text}</span>
-                {p.kind === "choice" ? (
+                {p.kind === "reinforcement" ? (
+                  <ReinforcementForm p={p} state={state} rules={rules} catalogue={catalogue} locked={done || busy === u.key} setState={setState} />
+                ) : p.kind === "ship-choice" ? (
+                  <div className="orbit" role="radiogroup">
+                    {state.fleet.map((f) => (
+                      <label key={f.uid} className={`radio${state.answers[p.id] === f.name ? " on" : ""}`}>
+                        <input type="radio" name={p.id} disabled={done} checked={state.answers[p.id] === f.name} onChange={() => setState((s) => ({ ...s, answers: { ...s.answers, [p.id]: f.name } }))} />
+                        {f.name} <span className="muted">· {byId[f.classId]?.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : p.kind === "choice" ? (
                   <div className="orbit" role="radiogroup">
                     {p.options.map((o) => (
                       <label key={o.id} className={`radio${state.answers[p.id] === o.label ? " on" : ""}`}>
@@ -187,11 +268,30 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
               </>
             )}
             {reply && <Reply t={reply} scenario={scenario} />}
+            {done && newShips.length > 0 && (
+              <div className="new-ships">
+                <h3 className="sub">New arrivals</h3>
+                <p>Give each new ship a duty and a primary mission.</p>
+                <AssignedFleet fleet={newShips} byId={byId} assignments={rules.assignments} locked={false}
+                  onChange={(changed) => setState((s) => ({ ...s, fleet: s.fleet.map((f) => changed.find((c) => c.uid === f.uid) ?? f) }))} />
+              </div>
+            )}
           </section>
         );
       })}
 
-      {allDone && (
+      {allDone && isLast && (
+        <section className="card transmission">
+          <p className="tx-meta">Scenario complete</p>
+          <h2>{scenario.title}: command handed over</h2>
+          <p>Your time in {scenario.title} is done. Where things stand as you leave:</p>
+          <ul className="changes">
+            {scenario.factions.map((f) => <li key={f.id}>{f.name}: {standingLabel(state.standings[f.id] ?? 0)}</li>)}
+          </ul>
+          <p className="muted small-text">{state.fleet.length} ships remain in the sector; {state.departed.length} left your command along the way. Sector Beta comes in a later build. Your game is saved.</p>
+        </section>
+      )}
+      {allDone && !isLast && (
         <section className="card transmit">
           {unsupported && <p className="muted small-text">Some parts of this stage aren't playable yet.</p>}
           <button type="button" className="btn primary" disabled={!nextReady} onClick={onContinue}>{nextLabel}</button>

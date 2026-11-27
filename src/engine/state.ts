@@ -49,7 +49,7 @@ export interface GameState {
   starbase: { locationId: string; orbit: string; reasoning: string };
   fleetRequest: FleetRequest;
   fleet: FleetShip[];
-  departed: (FleetShip & { reason: string })[];
+  departed: (FleetShip & { reason: string; lostIn?: string })[];
   standings: Record<string, number>;
   flags: Record<string, string | number | boolean>;
   revealed: string[];
@@ -192,10 +192,13 @@ const NAMES = ["Arcturus", "Bellerophon", "Concorde", "Drake", "Endeavour", "Fea
  * and the plan's grade; otherwise Starfleet sends another class from the same
  * category, weighted the same way. Every slot is filled.
  */
-export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: ShipClass[], promptId: string, tierShift = 0, rand: () => number = Math.random): FleetShip[] {
+export function allocateFleet(rules: FleetRules, req: FleetRequest, catalogue: ShipClass[], promptId: string, tierShift = 0, rand: () => number = Math.random, existing: { name: string; classId: string }[] = []): FleetShip[] {
   const out: FleetShip[] = [];
-  const names = [...NAMES].sort(() => rand() - 0.5);
+  const taken = new Set(existing.map((e) => e.name.replace(/^USS /, "")));
+  const names = NAMES.filter((n) => !taken.has(n)).sort(() => rand() - 0.5);
+  // Ships already in the sector count toward the repeat penalty.
   const copies: Record<string, number> = {};
+  for (const e of existing) copies[e.classId] = (copies[e.classId] ?? 0) + 1;
   for (const line of req.lines) {
     const pool = catalogue.filter((c) => c.category === line.category);
     if (!pool.length) continue;
@@ -261,7 +264,7 @@ function selectShips(state: GameState, sel: ShipSelector, count: number, byId: R
   return fleet.filter((f) => f.addedIn === sel.addedIn).slice(0, count);
 }
 
-export function applyEffects(state: GameState, effects: Effect[] | undefined, stageId: string, byId: Record<string, ShipClass>): GameState {
+export function applyEffects(state: GameState, effects: Effect[] | undefined, stageId: string, byId: Record<string, ShipClass>, sourceKey?: string): GameState {
   let s = state;
   for (const e of effects ?? []) {
     switch (e.type) {
@@ -279,7 +282,7 @@ export function applyEffects(state: GameState, effects: Effect[] | undefined, st
         s = {
           ...s,
           fleet: s.fleet.filter((f) => !ids.has(f.uid)),
-          departed: [...s.departed, ...gone.map((g) => ({ ...g, reason: e.reason }))],
+          departed: [...s.departed, ...gone.map((g) => ({ ...g, reason: e.reason, lostIn: sourceKey }))],
           log: [...s.log, ...gone.map((g) => ({ stageId, text: `${g.name} (${byId[g.classId]?.name ?? g.classId} class): ${e.reason}.` }))],
         };
         break;
@@ -321,4 +324,9 @@ export function standingLabel(n: number): string {
 
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10);
+}
+
+/** Reinforcement answers are stored as JSON request lines in answers[promptId]. */
+export function readLines(state: GameState, promptId: string): RequestLine[] {
+  try { return JSON.parse(state.answers[promptId] || "[]") as RequestLine[]; } catch { return []; }
 }

@@ -208,3 +208,4 @@ th { font-weight: 600; color: var(--ink-soft); }
 .unit-steps li.done { color: var(--ok); border-color: var(--ok); }
 .unit-steps li.done::before { content: "✓ "; }
 .event .field > span { font-size: 15px; font-weight: 600; color: var(--ink); }
+.new-ships { margin-top: 18px; padding-top: 6px; border-top: 1px solid var(--line); }

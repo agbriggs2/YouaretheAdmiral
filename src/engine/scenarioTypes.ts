@@ -162,7 +162,18 @@ export type Prompt =
   | { id: string; kind: "fleet-builder"; text: string; mode: "initial" | "add"; addRules?: AddRules }
   | { id: string; kind: "fleet-request"; text: string }
   | { id: string; kind: "starbase-placement"; text: string }
-  | { id: string; kind: "choice"; text: string; options: { id: string; label: string }[] };
+  | { id: string; kind: "choice"; text: string; options: { id: string; label: string }[] }
+  /** Request specific reinforcements; the engine allocates them like the opening fleet. */
+  | { id: string; kind: "reinforcement"; text: string; slots: ReinforcementSlot[] }
+  /** Pick one ship from the player's current fleet. */
+  | { id: string; kind: "ship-choice"; text: string };
+
+export interface ReinforcementSlot {
+  id: string;
+  label: string;                 // "One combat ship"
+  categories: string[];          // categories the player may choose from
+  count: number;
+}
 
 export interface AddRules {
   ships: { count: number; combatRole?: "primary" | "secondary" | "none"; tag?: string; label: string }[];
@@ -173,7 +184,7 @@ export interface GameEvent {
   title: string;
   conditions?: Condition[];      // empty or absent = always happens
   from?: string;                 // who delivers it: "Starfleet Command", "Lysaran Court"…
-  text: string;                  // what the player is told
+  text: string;                  // what the player is told; {lost} = ships removed by this event's onEnter
   onEnter?: Effect[];            // effects applied before the player responds
   prompts: Prompt[];             // usually one free-text order prompt
   outcomes: Outcome[];
