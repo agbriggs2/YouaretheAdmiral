@@ -275,7 +275,7 @@ An untracked nebula squadron appears here **as a surprise**.
 | d | Allow and accept | Annexation, then insurgency, a crackdown and expulsions. The Torveth feel double-crossed. Prompt: as in your text. |
 | e | Allow and reject; **or** oppose and reject without a heavy modern Starfleet ship present (none, or only light ships) | A Torvethi–Hrattorian battle; each loses about half its ships; a ceasefire mediated by Suuvek. Any light Starfleet ships present can't tip the balance; at most they take damage. Prompt: as in your text, worded to fit whether you intervened. |
 
-**"Heavy modern ship"** (for c against e) will be defined in the ship database work: provisionally, a 24th-century design of cruiser size or larger with a combat role. A single one is enough.
+**"Heavy modern ship"** (for c against e) will be defined in the ship database work: status Frontline, combat-capable or warship, and cruiser size or larger (currently Galaxy, Nebula, Akira; Sovereign and Prometheus are banned in Omicron). A single one is enough.
 
 **Combat judging (b, and c lightly)**
 
@@ -391,4 +391,4 @@ The secret `mw-contact` is revealed here: the Kindred were the ones who called t
 4. The Kindred stand as written.
 5. Oppose-and-reject goes to (c) only with at least one heavy modern Starfleet ship present; with none, or only light ships, it goes to (e).
 
-Still to settle in the ship database work: what counts as a "combat vessel" and a "heavy modern ship".
+A "combat vessel" is any warship or combat-capable ship; non-combat ships never count. Omicron's "combat-optimised" limit (at most two) counts warships, and its "no heavy combat ships" rule bans the `heavy-combat` tag.

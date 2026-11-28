@@ -64,9 +64,9 @@ export function isCombatVessel(c?: ShipClass): boolean {
   return !!c && c.combatRole !== "non-combat";
 }
 
-/** Heavy modern ship: a frontline warship of cruiser size or larger. */
+/** Heavy modern ship: a frontline combat vessel (combat-capable or warship) of cruiser size or larger. */
 export function isHeavyModern(c?: ShipClass): boolean {
-  return !!c && c.status === "Frontline" && c.combatRole === "warship" && (c.category === "cruiser" || c.category === "capital");
+  return !!c && c.status === "Frontline" && isCombatVessel(c) && (c.category === "cruiser" || c.category === "capital");
 }
 
 export function totalRating(s: ShipClass): number {

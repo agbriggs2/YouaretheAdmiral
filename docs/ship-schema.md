@@ -7,7 +7,7 @@
   - **non-combat:** defensive armament only. It never counts as a combat vessel.
 - **Derived terms** (in `shipTypes.ts`):
   - **Combat vessel** = warship or combat-capable.
-  - **Heavy modern ship** = status Frontline, warship, and category cruiser or capital. Currently: Akira, Sovereign, Prometheus.
+  - **Heavy modern ship** = status Frontline, combat vessel (combat-capable or warship), and category cruiser or capital. Currently: Galaxy, Nebula, Akira, Sovereign, Prometheus.
 - **New tags:**
   - `heavy-combat` (Sovereign, Prometheus), for scenario bans such as Sector Omicron's;
   - `escort`, `medical`, `supply`, `multi-vector`.

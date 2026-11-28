@@ -131,7 +131,7 @@ export const sectorAlpha: Scenario = {
         note: "Sector Alpha is a quiet frontier. Starfleet is reluctant to spare frontline ships or dedicated warships here, and a well-argued plan improves your odds.",
       },
       posture: {
-        maxWarships: 4,
+        maxWarships: 1,
         flag: "fleet-posture",
         effects: [
           { type: "adjust-standing", factionId: "tekanan", delta: -1 },
