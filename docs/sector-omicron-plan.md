@@ -201,7 +201,7 @@ The board shows **tracked contacts** with ETAs: the Hrattorian task force, the T
 
 **q3-explorer (T+12)**
 
-- The explorer reaches the southern crossing, Grid K-1.
+- The explorer reaches the point where the border meets the sector's southern edge (internally, Grid K-1).
 - **Time pressure:** Miriam's World is 9.5 ly away. With 55 hours left, it can arrive in time only at warp 9 or above. D'Noth is 8.9 ly away.
 - The prompt: where it goes, and its mission. The engine computes when it arrives.
 - If you have no explorer, this is your largest ship.
