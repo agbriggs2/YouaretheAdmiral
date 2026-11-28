@@ -112,7 +112,7 @@ export const sectorAlpha: Scenario = {
     fleet: {
       maxShips: 10,
       tagLimits: [{ tag: "capital", max: 1, label: "No more than one Galaxy, Sovereign or Ambassador class ship" }],
-      roleMinimums: [{ combatRole: "none", min: 2, label: "At least two non-combat ships (science, transport, etc.)" }],
+      roleMinimums: [{ combatRole: "non-combat", min: 2, label: "At least two non-combat ships (science, transport, etc.)" }],
       justificationRequired: ["capital", "non-combat"],
       assignments: ["Patrol", "Escort", "Border watch", "Science and survey", "Diplomacy", "Transport and logistics", "Starbase defense", "Reserve"],
       categories: [
@@ -126,12 +126,12 @@ export const sectorAlpha: Scenario = {
       ],
       allocation: {
         statusFactor: { Frontline: 0.6, "Second-line": 1, Obsolescent: 1.25, Reserve: 1 },
-        roleFactor: { primary: 0.8, secondary: 1, none: 1.1 },
+        roleFactor: { warship: 0.8, "combat-capable": 1, "non-combat": 1.1 },
         gradeTierShift: { commended: 1, approved: 0, "approved-with-concerns": -1 },
         note: "Sector Alpha is a quiet frontier. Starfleet is reluctant to spare frontline ships or dedicated warships here, and a well-argued plan improves your odds.",
       },
       posture: {
-        maxPrimaryCombat: 4,
+        maxWarships: 4,
         flag: "fleet-posture",
         effects: [
           { type: "adjust-standing", factionId: "tekanan", delta: -1 },

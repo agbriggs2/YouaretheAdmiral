@@ -1,3 +1,4 @@
+import type { CombatRole } from "./shipTypes";
 /**
  * Scenario format, v0.1
  *
@@ -91,7 +92,7 @@ export interface Resources {
 export interface FleetRules {
   maxShips: number;
   tagLimits?: { tag: string; max: number; label: string }[];
-  roleMinimums?: { combatRole: "primary" | "secondary" | "none"; min: number; label: string }[];
+  roleMinimums?: { combatRole: CombatRole; min: number; label: string }[];
   justificationRequired?: ("capital" | "non-combat" | "all")[];
   assignments: string[];         // duty categories the player assigns ships to
   categories: FleetCategory[];   // what the player can request
@@ -107,7 +108,7 @@ export interface FleetRules {
  */
 export interface AllocationFactors {
   statusFactor?: Record<string, number>;          // by ShipClass status: "Frontline", "Second-line"…
-  roleFactor?: Partial<Record<"primary" | "secondary" | "none", number>>;
+  roleFactor?: Partial<Record<CombatRole, number>>;
   /** Availability tiers to shift preferred-class odds by, keyed by the review outcome id. */
   gradeTierShift?: Record<string, number>;
   /** Multiplier applied for each ship of the same class already assigned. Overrides engine defaults. */
@@ -117,7 +118,7 @@ export interface AllocationFactors {
 
 /** Consequences when the assigned fleet carries too many front-line warships. */
 export interface PostureRule {
-  maxPrimaryCombat: number;      // more ships with combatRole "primary" than this triggers it
+  maxWarships: number;           // more warships than this triggers it
   flag: string;
   effects: Effect[];
   gmNote: string;                // how characters should react
@@ -195,7 +196,7 @@ export interface ReinforcementSlot {
 }
 
 export interface AddRules {
-  ships: { count: number; combatRole?: "primary" | "secondary" | "none"; tag?: string; label: string }[];
+  ships: { count: number; combatRole?: CombatRole; tag?: string; label: string }[];
 }
 
 export interface GameEvent {

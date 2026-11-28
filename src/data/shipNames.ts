@@ -20,7 +20,7 @@ export const CATEGORY_NAMES: Record<string, string[]> = {
     "Steadfast", "Vigilant", "Tenacious", "Diligent", "Stalwart", "Ardent",
     "Prospero", "Ariel", "Portia", "Cordelia", "Rosalind", "Viola", "Beatrice", "Benedick", "Mercutio", "Titania", "Puck", "Hotspur"],
   // Wild places (after canon's Ahwahnee) and words for swiftness.
-  scout: ["Denali", "Serengeti", "Banff", "Kakadu", "Patagonia", "Zion", "Sequoia", "Shenandoah", "Okavango", "Fiordland", "Jasper", "Tongariro",
+  scout: ["Denali", "Serengeti", "Banff", "Kakadu", "Patagonia", "Zion", "Shenandoah", "Okavango", "Fiordland", "Jasper", "Tongariro",
     "Swift", "Arrow", "Comet", "Falcon", "Peregrine", "Kestrel", "Gazelle", "Courser", "Quicksilver", "Dart", "Swallow", "Merlin"],
   // Scientists, astronomers and thinkers.
   science: ["Copernicus", "Kepler", "Curie", "Meitner", "Hypatia", "Herschel", "Sagan", "Chandrasekhar", "Leavitt", "Rubin", "Noether", "Tycho", "Feynman", "Darwin", "Hawking", "Franklin"],
@@ -50,6 +50,12 @@ export const CANON_NAMES: Record<string, { name: string; registry: string }[]> =
   steamrunner: [{ name: "Appalachia", registry: "NCC-52136" }],
   saber: [{ name: "Yeager", registry: "NCC-61947" }],
   cheyenne: [{ name: "Ahwahnee", registry: "NCC-71620" }],
+  constellation: [{ name: "Victory", registry: "NCC-9754" }, { name: "Gettysburg", registry: "NCC-3890" }, { name: "Magellan", registry: "NCC-3069" }],
+  challenger: [{ name: "Armstrong", registry: "NCC-57537" }, { name: "Kearsarge", registry: "NCC-57566" }],
+  norway: [{ name: "Budapest", registry: "NCC-64923" }],
+  nova: [{ name: "Rhode Island", registry: "NCC-72701" }],
+  korolev: [{ name: "Goddard", registry: "NCC-59621" }],
+  renaissance: [{ name: "Aries", registry: "NCC-45167" }],
   oberth: [{ name: "Cochrane", registry: "NCC-59318" }, { name: "Biko", registry: "NCC-50331" }],
 };
 
@@ -57,9 +63,11 @@ export const CANON_NAMES: Record<string, { name: string; registry: string }[]> =
 export const BANNED_NAMES = new Set([
   "Enterprise", "Defiant", "Voyager", "Discovery", "Titan", "Cerritos", "Stargazer", "Protostar", "Equinox",
   "Reliant", "Saratoga", "Grissom", "Pegasus", "Yamato", "Odyssey", "Lantree", "Brattain", "Tsiolkovsky",
-  "Horatio", "Kyushu", "Honshu", "Jenolan",
+  "Horatio", "Kyushu", "Honshu", "Jenolan", "Valiant", "Sao Paulo", "São Paulo", "Pasteur", "Hathaway", "Lalo", "Buran", "Chekov", "Trieste",
   "Galaxy", "Nebula", "Excelsior", "Akira", "Miranda", "New Orleans", "Cheyenne", "Ambassador", "Steamrunner", "Saber",
   "Istanbul", "Oberth", "Sydney", "Constitution", "Sovereign", "Intrepid", "Prometheus", "Nova", "Norway", "Springfield",
+  "Andromeda", "Centaur", "Challenger", "Constellation", "Deneva", "Hokule'a", "Korolev", "Mediterranean", "Merced", "Olympic",
+  "Renaissance", "Sequoia", "Yorkshire",
 ]);
 
 /** A default name (and canon registry, if it's a canon name) for a new ship of this class. */

@@ -8,7 +8,7 @@ const NAMES = ["Arcturus", "Bellerophon", "Concorde", "Drake", "Endeavour", "Fea
 
 const SHORT: Record<string, string> = { firepower: "Firepower", defense: "Defense", speed: "Speed", agility: "Agility", sensors: "Sensors", science: "Science", endurance: "Endurance", logistics: "Logistics", presence: "Presence" };
 
-const ROLE_LABEL = { primary: "Combat", secondary: "Combat support", none: "Non-combat" } as const;
+const ROLE_LABEL = { warship: "Warship", "combat-capable": "Combat-capable", "non-combat": "Non-combat" } as const;
 
 interface Props {
   rules: FleetRules;

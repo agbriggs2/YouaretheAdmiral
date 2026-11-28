@@ -1,8 +1,14 @@
 /** Ship class schema v0.3 (see ship-schema.md), as the app uses it. */
 
 export type BalanceEra = "TOS" | "TMP" | "TNG";
-export type SourceTier = "canon" | "beta" | "headcanon";
-export type CombatRole = "primary" | "secondary" | "none";
+/** canon: on screen; beta: canon class, our figures; fanon: a published fan design (ASDB); headcanon: our own invention. */
+export type SourceTier = "canon" | "beta" | "fanon" | "headcanon";
+/**
+ * warship: built to fight (Akira, Defiant, Sovereign).
+ * combat-capable: multi-role, armed to fight but combat is not its purpose (Galaxy, Excelsior).
+ * non-combat: defensive armament only; never counts as a combat vessel.
+ */
+export type CombatRole = "warship" | "combat-capable" | "non-combat";
 
 export interface Ratings {
   firepower: number;
@@ -49,6 +55,18 @@ export interface ShipClass {
   weaknesses: string[];
   reputation?: string;
   sourceTier: SourceTier;
+  /** Where the design and figures come from, e.g. an ASDB page. */
+  sources?: string[];
+}
+
+/** Combat vessel: a warship or a combat-capable ship. */
+export function isCombatVessel(c?: ShipClass): boolean {
+  return !!c && c.combatRole !== "non-combat";
+}
+
+/** Heavy modern ship: a frontline warship of cruiser size or larger. */
+export function isHeavyModern(c?: ShipClass): boolean {
+  return !!c && c.status === "Frontline" && c.combatRole === "warship" && (c.category === "cruiser" || c.category === "capital");
 }
 
 export function totalRating(s: ShipClass): number {

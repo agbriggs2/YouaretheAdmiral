@@ -301,7 +301,7 @@ export function checkFleet(rules: FleetRules, fleet: FleetShip[], byId: Record<s
   const needs = fleet.filter((f) => {
     const c = byId[f.classId];
     if (!c) return false;
-    return req.includes("all") || (req.includes("capital") && c.tags.includes("capital")) || (req.includes("non-combat") && c.combatRole === "none");
+    return req.includes("all") || (req.includes("capital") && c.tags.includes("capital")) || (req.includes("non-combat") && c.combatRole === "non-combat");
   });
   const unjustified = needs.filter((f) => !f.justification.trim());
   if (needs.length) {
@@ -316,7 +316,7 @@ export function checkFleet(rules: FleetRules, fleet: FleetShip[], byId: Record<s
 
 export function needsJustification(rules: FleetRules, c: ShipClass): boolean {
   const req = rules.justificationRequired ?? [];
-  return req.includes("all") || (req.includes("capital") && c.tags.includes("capital")) || (req.includes("non-combat") && c.combatRole === "none");
+  return req.includes("all") || (req.includes("capital") && c.tags.includes("capital")) || (req.includes("non-combat") && c.combatRole === "non-combat");
 }
 
 // ── Fleet requests and allocation ──────────────────────
@@ -355,7 +355,7 @@ export function grantChance(rules: FleetRules, c: ShipClass, tierShift = 0, copi
 /** True if the fleet carries more front-line warships than the sector tolerates. */
 export function postureTriggered(rules: FleetRules, fleet: FleetShip[], byId: Record<string, ShipClass>): boolean {
   if (!rules.posture) return false;
-  return fleet.filter((f) => byId[f.classId]?.combatRole === "primary").length > rules.posture.maxPrimaryCombat;
+  return fleet.filter((f) => byId[f.classId]?.combatRole === "warship").length > rules.posture.maxWarships;
 }
 
 export function checkRequest(rules: FleetRules, req: FleetRequest): RuleCheck[] {
@@ -451,7 +451,7 @@ function selectShips(state: GameState, sel: ShipSelector, count: number, byId: R
   };
   if (sel === "strongest") return fleet.sort((a, b) => score(b) - score(a)).slice(0, count);
   if (sel === "weakest-combat") {
-    return fleet.filter((f) => byId[f.classId]?.combatRole !== "none").sort((a, b) => score(a) - score(b)).slice(0, count);
+    return fleet.filter((f) => byId[f.classId]?.combatRole !== "non-combat").sort((a, b) => score(a) - score(b)).slice(0, count);
   }
   if ("assignment" in sel) {
     const pick = fleet.filter((f) => f.assignment === sel.assignment).sort((a, b) => score(a) - score(b));

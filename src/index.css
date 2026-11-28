@@ -104,8 +104,8 @@ textarea:disabled, input:disabled, select:disabled { opacity: 0.75; }
 .class-head strong { font: 700 21px "Barlow Condensed", sans-serif; }
 .badges { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
 .badge { font-size: 13px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); }
-.badge.role-primary { border-color: var(--accent); color: var(--accent); }
-.badge.role-none { border-color: var(--teal); color: var(--teal-ink); }
+.badge.role-warship { border-color: var(--accent); color: var(--accent); }
+.badge.role-non-combat { border-color: var(--teal); color: var(--teal-ink); }
 .badge.capital { background: var(--crimson); color: var(--crimson-ink); border-color: var(--crimson); }
 .ratings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; }
 .rating { display: grid; gap: 2px; font-size: 13px; }

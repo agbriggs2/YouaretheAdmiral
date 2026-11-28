@@ -1,9 +1,10 @@
 import type { ShipClass } from "../engine/shipTypes";
+import { ADDED_SHIPS } from "./shipsAdded";
 
-/** TNG-era demo classes, exported from the "YatA Ship Class Data Entry" sheet. */
-export const SHIPS: ShipClass[] = [
+/** TNG-era classes: the first 13 exported from the "YatA Ship Class Data Entry" sheet, the rest added for Sector Omicron. */
+const SHEET_SHIPS: ShipClass[] = [
   {
-    id: "galaxy", name: "Galaxy", faction: "Federation", era: "TNG", type: "Explorer", category: "capital", combatRole: "primary",
+    id: "galaxy", name: "Galaxy", faction: "Federation", era: "TNG", type: "Explorer", category: "capital", combatRole: "combat-capable",
     tags: ["capital", "saucer-separation"], availability: "Rare", status: "Frontline",
     ratings: { firepower: 8, defense: 8, speed: 8, agility: 4, sensors: 9, science: 9, endurance: 9, logistics: 9, presence: 10 },
     registryRange: [70600, 71999], serviceEntry: 2363, lengthM: 642.5, crew: 1012, evacuation: 15000, maxWarp: 9.6,
@@ -15,7 +16,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "Its arrival signals that the Federation takes a situation very seriously.", sourceTier: "beta",
   },
   {
-    id: "nebula", name: "Nebula", faction: "Federation", era: "TNG", type: "Light Explorer", category: "cruiser", combatRole: "primary",
+    id: "nebula", name: "Nebula", faction: "Federation", era: "TNG", type: "Light Explorer", category: "cruiser", combatRole: "combat-capable",
     tags: [], availability: "Uncommon", status: "Frontline",
     ratings: { firepower: 6, defense: 7, speed: 6, agility: 5, sensors: 9, science: 8, endurance: 6, logistics: 7, presence: 6 },
     registryRange: [60000, 72999], serviceEntry: 2357, lengthM: 442.23, crew: 750, evacuation: 9800, maxWarp: 9.4,
@@ -26,7 +27,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A serious, modern frontline ship, if less symbolic than a Galaxy.", sourceTier: "beta",
   },
   {
-    id: "excelsior", name: "Excelsior", faction: "Federation", era: "TNG", type: "Cruiser", category: "cruiser", combatRole: "secondary",
+    id: "excelsior", name: "Excelsior", faction: "Federation", era: "TNG", type: "Cruiser", category: "cruiser", combatRole: "combat-capable",
     tags: [], availability: "Common", status: "Second-line",
     ratings: { firepower: 5, defense: 5, speed: 5, agility: 3, sensors: 6, science: 6, endurance: 5, logistics: 5, presence: 5 },
     registryRange: [2000, 42999], serviceEntry: 2285, lengthM: 467, crew: 750, evacuation: 5000, maxWarp: 9.2,
@@ -37,7 +38,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A familiar workhorse: signals routine Starfleet presence rather than escalation.", sourceTier: "beta",
   },
   {
-    id: "akira", name: "Akira", faction: "Federation", era: "TNG", type: "Heavy Cruiser", category: "cruiser", combatRole: "primary",
+    id: "akira", name: "Akira", faction: "Federation", era: "TNG", type: "Heavy Cruiser", category: "cruiser", combatRole: "warship",
     tags: [], availability: "Rare", status: "Frontline",
     ratings: { firepower: 7, defense: 7, speed: 9, agility: 6, sensors: 7, science: 5, endurance: 6, logistics: 6, presence: 7 },
     registryRange: [62000, 63999], serviceEntry: 2368, lengthM: 464.43, crew: 500, evacuation: 4500, maxWarp: 9.8,
@@ -48,7 +49,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "Reads as a warship: its arrival signals readiness to fight.", sourceTier: "beta",
   },
   {
-    id: "miranda", name: "Miranda", faction: "Federation", era: "TNG", type: "Frigate", category: "frigate", combatRole: "secondary",
+    id: "miranda", name: "Miranda", faction: "Federation", era: "TNG", type: "Frigate", category: "frigate", combatRole: "combat-capable",
     tags: [], availability: "Common", status: "Obsolescent",
     ratings: { firepower: 2, defense: 2, speed: 4, agility: 5, sensors: 3, science: 3, endurance: 2, logistics: 3, presence: 2 },
     registryRange: [1800, 31999], serviceEntry: 2280, lengthM: 243, crew: 200, evacuation: 1200, maxWarp: 9.0,
@@ -59,7 +60,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A routine presence: nobody is impressed by a Miranda.", sourceTier: "beta",
   },
   {
-    id: "new-orleans", name: "New Orleans", faction: "Federation", era: "TNG", type: "Frigate", category: "frigate", combatRole: "primary",
+    id: "new-orleans", name: "New Orleans", faction: "Federation", era: "TNG", type: "Frigate", category: "frigate", combatRole: "combat-capable",
     tags: [], availability: "Uncommon", status: "Second-line",
     ratings: { firepower: 4, defense: 4, speed: 6, agility: 6, sensors: 4, science: 3, endurance: 4, logistics: 3, presence: 4 },
     registryRange: [63000, 65999], serviceEntry: 2332, lengthM: 350, crew: 190, evacuation: 2500, maxWarp: 9.4,
@@ -70,7 +71,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A capable but unremarkable Starfleet presence.", sourceTier: "beta",
   },
   {
-    id: "cheyenne", name: "Cheyenne", faction: "Federation", era: "TNG", type: "Scout Cruiser", category: "scout", combatRole: "secondary",
+    id: "cheyenne", name: "Cheyenne", faction: "Federation", era: "TNG", type: "Scout Cruiser", category: "scout", combatRole: "combat-capable",
     tags: ["scout"], availability: "Uncommon", status: "Second-line",
     ratings: { firepower: 2, defense: 4, speed: 6, agility: 5, sensors: 7, science: 7, endurance: 8, logistics: 3, presence: 3 },
     registryRange: [69000, 71999], serviceEntry: 2345, lengthM: 394, crew: 245, evacuation: 2000, maxWarp: 9.4,
@@ -81,7 +82,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "An older survey ship: reads as exploration, not force.", sourceTier: "headcanon",
   },
   {
-    id: "ambassador", name: "Ambassador", faction: "Federation", era: "TNG", type: "Explorer", category: "capital", combatRole: "primary",
+    id: "ambassador", name: "Ambassador", faction: "Federation", era: "TNG", type: "Explorer", category: "capital", combatRole: "combat-capable",
     tags: ["capital"], availability: "Rare", status: "Second-line",
     ratings: { firepower: 7, defense: 8, speed: 5, agility: 4, sensors: 8, science: 8, endurance: 8, logistics: 8, presence: 8 },
     registryRange: [10500, 26999], serviceEntry: 2330, lengthM: 526, crew: 700, evacuation: 10000, maxWarp: 9.2,
@@ -92,7 +93,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A substantial, respected ship, though no longer Starfleet's newest.", sourceTier: "beta",
   },
   {
-    id: "steamrunner", name: "Steamrunner", faction: "Federation", era: "TNG", type: "Light Cruiser", category: "light-cruiser", combatRole: "primary",
+    id: "steamrunner", name: "Steamrunner", faction: "Federation", era: "TNG", type: "Light Cruiser", category: "light-cruiser", combatRole: "combat-capable",
     tags: [], availability: "Uncommon", status: "Frontline",
     ratings: { firepower: 4, defense: 5, speed: 7, agility: 7, sensors: 5, science: 4, endurance: 4, logistics: 4, presence: 4 },
     registryRange: [51000, 56999], serviceEntry: 2371, lengthM: 244, crew: 185, evacuation: 1500, maxWarp: 9.5,
@@ -103,7 +104,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A modern patrol ship: a visible but measured presence.", sourceTier: "beta",
   },
   {
-    id: "saber", name: "Saber", faction: "Federation", era: "TNG", type: "Frigate", category: "frigate", combatRole: "primary",
+    id: "saber", name: "Saber", faction: "Federation", era: "TNG", type: "Frigate", category: "frigate", combatRole: "combat-capable",
     tags: [], availability: "Common", status: "Frontline",
     ratings: { firepower: 3, defense: 3, speed: 8, agility: 8, sensors: 4, science: 2, endurance: 3, logistics: 3, presence: 2 },
     registryRange: [61000, 62999], serviceEntry: 2370, lengthM: 190.5, crew: 40, evacuation: 200, maxWarp: 9.7,
@@ -114,7 +115,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "Small and unimposing: reads as a patrol or picket.", sourceTier: "beta",
   },
   {
-    id: "istanbul", name: "Istanbul", faction: "Federation", era: "TNG", type: "Transport", category: "transport", combatRole: "none",
+    id: "istanbul", name: "Istanbul", faction: "Federation", era: "TNG", type: "Transport", category: "transport", combatRole: "non-combat",
     tags: ["transport", "planetfall"], availability: "Uncommon", status: "Frontline",
     ratings: { firepower: 1, defense: 2, speed: 5, agility: 2, sensors: 2, science: 1, endurance: 7, logistics: 9, presence: 1 },
     registryRange: [33000, 41999], serviceEntry: 2340, lengthM: 340, crew: 150, evacuation: 12000, maxWarp: 9.2,
@@ -125,7 +126,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "Civilian-looking: reads as humanitarian or logistical support.", sourceTier: "headcanon",
   },
   {
-    id: "oberth", name: "Oberth", faction: "Federation", era: "TNG", type: "Science", category: "science", combatRole: "none",
+    id: "oberth", name: "Oberth", faction: "Federation", era: "TNG", type: "Science", category: "science", combatRole: "non-combat",
     tags: ["science"], availability: "Ubiquitous", status: "Obsolescent",
     ratings: { firepower: 1, defense: 1, speed: 2, agility: 3, sensors: 7, science: 5, endurance: 3, logistics: 1, presence: 1 },
     registryRange: [600, 31999], serviceEntry: 2280, lengthM: 150.81, crew: 80, evacuation: 300, maxWarp: 5.8,
@@ -136,7 +137,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "An unthreatening research ship: signals science, not force.", sourceTier: "beta",
   },
   {
-    id: "sydney", name: "Sydney", faction: "Federation", era: "TNG", type: "Transport", category: "transport", combatRole: "none",
+    id: "sydney", name: "Sydney", faction: "Federation", era: "TNG", type: "Transport", category: "transport", combatRole: "non-combat",
     tags: ["transport"], availability: "Common", status: "Obsolescent",
     ratings: { firepower: 1, defense: 1, speed: 3, agility: 2, sensors: 1, science: 1, endurance: 4, logistics: 6, presence: 1 },
     registryRange: [1950, 2999], serviceEntry: 2280, lengthM: 238, crew: 125, evacuation: 3000, maxWarp: 8,
@@ -147,5 +148,7 @@ export const SHIPS: ShipClass[] = [
     reputation: "A routine transport nobody notices.", sourceTier: "headcanon",
   },
 ];
+
+export const SHIPS: ShipClass[] = [...SHEET_SHIPS, ...ADDED_SHIPS];
 
 export const SHIPS_BY_ID: Record<string, ShipClass> = Object.fromEntries(SHIPS.map((s) => [s.id, s]));
