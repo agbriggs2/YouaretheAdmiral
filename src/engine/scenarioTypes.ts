@@ -77,6 +77,8 @@ export interface Location {
   factionId?: string;
   description?: string;
   starbaseOptions?: ("planet-orbit" | "star-orbit" | "open-space")[];
+  /** Position on the sector map, in light-years. Travel times are worked out from these. */
+  coords?: { x: number; y: number };
 }
 
 // ── Player resources ───────────────────────────────────
@@ -154,6 +156,8 @@ export interface Secret {
 // ── Stages, prompts and events ─────────────────────────
 
 export interface Stage {
+  /** When the stage opens, in days since the posting began. Scenes inside it are timed from here. */
+  atDay?: number;
   id: string;                    // "q1"
   title: string;                 // "Question One: Taking Command"
   briefing: string;              // shown when the stage opens
@@ -179,7 +183,7 @@ export type Prompt =
   | { id: string; kind: "starbase-placement"; text: string }
   | { id: string; kind: "choice"; text: string; options: { id: string; label: string }[] }
   /** Request specific reinforcements; the engine allocates them like the opening fleet. */
-  | { id: string; kind: "reinforcement"; text: string; slots: ReinforcementSlot[] }
+  | { id: string; kind: "reinforcement"; text: string; slots: ReinforcementSlot[]; arrivesInHours?: number }
   /** Pick one ship from the player's current fleet. */
   | { id: string; kind: "ship-choice"; text: string };
 
@@ -196,6 +200,8 @@ export interface AddRules {
 
 export interface GameEvent {
   id: string;
+  /** When the scene happens, in hours after its stage opens. The player isn't necessarily told. */
+  atHours?: number;
   title: string;
   conditions?: Condition[];      // empty or absent = always happens
   from?: string;                 // who delivers it: "Starfleet Command", "Lysaran Court"…

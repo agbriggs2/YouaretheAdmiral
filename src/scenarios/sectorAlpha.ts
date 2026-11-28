@@ -100,13 +100,13 @@ export const sectorAlpha: Scenario = {
     },
   ],
   locations: [
-    { id: "nebula", name: "The Really Big Nebula", kind: "nebula", description: "Vast, mostly harmless, ideal for hiding.", starbaseOptions: ["open-space"] },
-    { id: "tekanan-iii", name: "Tekanan III", kind: "planet", factionId: "tekanan", starbaseOptions: ["planet-orbit", "star-orbit"] },
-    { id: "lysara", name: "Lysara (binary system)", kind: "planet", factionId: "lysara", starbaseOptions: ["planet-orbit", "star-orbit"] },
-    { id: "kestu-ix", name: "Kestu IX", kind: "planet", factionId: "kestu", starbaseOptions: ["planet-orbit", "star-orbit"] },
-    { id: "class-l", name: "The Class-L world", kind: "planet", description: "Unexplored, across the border." },
-    { id: "border", name: "The border", kind: "border", description: "Frontier with the isolated alien power.", starbaseOptions: ["open-space"] },
-    { id: "open-space", name: "Open space between the systems", kind: "open-space", starbaseOptions: ["open-space"] },
+    { coords: { x: 3.2, y: 4.6 }, id: "nebula", name: "The Really Big Nebula", kind: "nebula", description: "Vast, mostly harmless, ideal for hiding.", starbaseOptions: ["open-space"] },
+    { coords: { x: 7.0, y: 2.1 }, id: "tekanan-iii", name: "Tekanan III", kind: "planet", factionId: "tekanan", starbaseOptions: ["planet-orbit", "star-orbit"] },
+    { coords: { x: 6.1, y: 7.0 }, id: "lysara", name: "Lysara (binary system)", kind: "planet", factionId: "lysara", starbaseOptions: ["planet-orbit", "star-orbit"] },
+    { coords: { x: 9.7, y: 5.3 }, id: "kestu-ix", name: "Kestu IX", kind: "planet", factionId: "kestu", starbaseOptions: ["planet-orbit", "star-orbit"] },
+    { coords: { x: 12.8, y: 3.2 }, id: "class-l", name: "The Class-L world", kind: "planet", description: "Unexplored, across the border." },
+    { coords: { x: 11.3, y: 7.0 }, id: "border", name: "The border", kind: "border", description: "Frontier with the isolated alien power.", starbaseOptions: ["open-space"] },
+    { coords: { x: 8.3, y: 3.8 }, id: "open-space", name: "Open space between the systems", kind: "open-space", starbaseOptions: ["open-space"] },
   ],
   resources: {
     fleet: {
@@ -150,6 +150,7 @@ export const sectorAlpha: Scenario = {
     // ── Question One ─────────────────────────────────────
     {
       id: "q1",
+      atDay: 0,
       title: "Question One: Taking Command",
       briefing:
         "Before your fleet is assigned, Starfleet Command wants your plan for the sector: what matters most, where the starbase goes, and which ships you need.",
@@ -205,6 +206,7 @@ export const sectorAlpha: Scenario = {
     // ── Question Two ─────────────────────────────────────
     {
       id: "q2",
+      atDay: 30,
       title: "Question Two: First Tests",
       briefing:
         "Starfleet approved your fleet, but at the last minute your two largest or best-equipped ships were reassigned elsewhere, and no replacements will be available for the foreseeable future. Your fleet is now fixed.",
@@ -217,7 +219,7 @@ export const sectorAlpha: Scenario = {
         },
       ],
       review: {
-        from: "Your chief of staff",
+        from: "Captain Mara Lindqvist, your chief of staff",
         defaultOutcomeId: "sound",
         outcomes: [
           { id: "sound", label: "Sound redeployment", criteria: "Gaps left by the lost ships are covered or consciously accepted.", reactions: "The staff gets to work; captains acknowledge new orders." },
@@ -235,6 +237,7 @@ export const sectorAlpha: Scenario = {
       events: [
         {
           id: "q2-piracy",
+          atHours: 336,
           title: "Piracy surge",
           from: "Lysaran Ministry of Commerce",
           text: "Attacks on shipping have risen sharply. The raiders fly small Maquis-style ships in larger numbers than before. Lysara wants the threat ended but lacks the means to do it alone.",
@@ -248,6 +251,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q2-kestu",
+          atHours: 504,
           title: "Kestu mobilization",
           from: "Starfleet Intelligence",
           text: "Half the Kestu fleet — five warships and their support vessels — has massed at the northern border with no explanation. Kestu has never sent more than three warships out at once. Tekanan III has closed its trade route to Kestu, and Lysara is sending two warships to the border to investigate.",
@@ -262,6 +266,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q2-probe",
+          atHours: 552,
           title: "Probe in the nebula",
           from: "Tekanan Defense Ministry",
           text: "An object has entered the Really Big Nebula. Its warp signature matches the alien ships that attacked Tekanan III, and sensors show what may be weapons signatures. All three worlds have confirmed the readings and stepped up patrols. Tekanan III demands a Starfleet response.",
@@ -283,6 +288,7 @@ export const sectorAlpha: Scenario = {
     // is replaced by three real developments (merchants, hotline, intelligence).
     {
       id: "q3",
+      atDay: 120,
       title: "Question Three: The Crown Falls",
       briefing:
         "0347 hours, starbase time. The Lysaran crown holds together seven proud nations: Caldre, Imrath, Voss, Thale, Orvane, Merrow and Dunhal. Queen Sereth IV has worn it for thirty years. Tonight that ends.",
@@ -295,6 +301,7 @@ export const sectorAlpha: Scenario = {
       events: [
         {
           id: "q3-alert",
+          atHours: 3.75,
           title: "Night alert",
           from: "Lt. Devan Torres, starbase duty officer",
           text: "\"Admiral, sorry to wake you. Priority signal from Ambassador Okafor on Lysara.\" Rhiannon Okafor's face is pale on the viewscreen behind him. Queen Sereth collapsed during the Festival of Lanterns in the capital, Aurenne, and the palace has confirmed she is dead. Her physicians are saying nothing. There is no named heir, and crowds are already gathering in the streets around the palace.",
@@ -309,6 +316,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-morning",
+          atHours: 9,
           title: "Morning after",
           from: "Ambassador Rhiannon Okafor",
           text: "By dawn the royal council has split along national lines. Voss and Thale have closed their borders; Orvane's delegation walked out of the palace. Merrow and Dunhal have declared for no one and are keeping their own counsel. About four hundred Federation citizens, mostly traders and university staff, are in Aurenne. Guild master Pell Corrin, speaking for the Federation traders, wants to know whether they should leave.",
@@ -322,6 +330,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-kestu-note",
+          atHours: 18,
           title: "Kestu speaks",
           from: "Kestu Directorate, then Minister Hadrin Toma of Tekanan III",
           text: "A curt communiqué arrives from the Kestu Directorate, signed by Envoy Kael Ruusk: Kestu \"stands ready to offer fraternal assistance to any Lysaran nation that requests it.\" Within the hour Tekanan's defense minister, Hadrin Toma, is on your screen. He wants to know what the Federation intends to do about it.",
@@ -336,6 +345,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-orbit",
+          atHours: 168,
           title: "A week later",
           from: "The captain of your nearest patrol ship",
           text: "A week passes in uneasy quiet. Then a priority report: the Kestu fleet has entered Lysaran orbit. Transporter signatures show Kestu troops beaming down into Voss, whose governor asked Kestu to help guard Voss's borders. The Kestu ships have taken up a loose cordon over the capital.",
@@ -350,6 +360,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-envoys",
+          atHours: 174,
           title: "Envoys",
           from: "Captain Mara Lindqvist, your chief of staff",
           text: "\"Two visitors, Admiral.\" Thale and Orvane have followed Voss in inviting Kestu troops. Now envoys from the other two nations have arrived at your starbase: Lisette Arvane of Caldre and Teodor Maskel of Imrath. Both ask, in almost the same words, for the Federation's help.",
@@ -363,6 +374,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-merchants",
+          atHours: 192,
           title: "Stranded merchants",
           from: "Guild master Pell Corrin",
           text: "Corrin is back on your screen. Eleven Lysaran merchant ships are stuck in orbit: the Kestu cordon has stopped clearing departures \"pending inspection.\" Eight fly the flags of Merrow and Dunhal, which have sided with no one. The other three are Caldrean and Imrathi, from the nations that asked for your help. The convoy has been travelling together for safety, and its crews are running short on supplies. They ask for a Federation escort out past the cordon.",
@@ -382,6 +394,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-hotline",
+          atHours: 216,
           title: "A proposal from orbit",
           from: "Fleet Commander Drevak Sul, Kestu Defense Force",
           text: "An unexpected hail from the Kestu flagship. Fleet Commander Drevak Sul is blunt: with two fleets operating over one planet, an accident is only a matter of time. He proposes a direct channel between his flagship and your command, and agreed zones each side will keep clear of.",
@@ -396,6 +409,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-intel",
+          atHours: 240,
           title: "The timeline doesn't add up",
           from: "Commander Ysolde Hart, Starfleet Intelligence",
           text: "Commander Hart asks to see you privately. Long-range sensor logs, cross-checked against Lysaran traffic records, show the Kestu fleet left home roughly two days before Queen Sereth died. It might have been foreknowledge. It might have been an exercise that happened to be in the right place. \"I can't tell you which, Admiral. Nobody can, yet.\"",
@@ -410,6 +424,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-report",
+          atHours: 264,
           title: "Report to Starfleet",
           from: "Vice Admiral Hal Brennan, Starfleet Command",
           text: "Vice Admiral Brennan wants your assessment for the Federation Council before it meets. \"Give it to me straight, Admiral. How stable is Lysara, what should the Federation do, or not do, and is there anything you need from us?\" He adds one more thing: Tekanan's membership petition is on the Council's agenda, and the councillors want to hear from the admiral on the ground.",
@@ -428,6 +443,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q3-tekanan-fleet",
+          atHours: 312,
           title: "Tekanan builds a navy",
           from: "Minister Hadrin Toma, Tekanan III",
           text: "Minister Toma tours your starbase with a delegation of Tekanan engineers. Afterwards, over coffee in your office, he lays out the plans: Tekanan III will build warp-capable warships, up to Excelsior-equivalent, with five ready within a year. \"We will never again be defenseless. But we would rather build them alongside you.\"",
@@ -447,6 +463,7 @@ export const sectorAlpha: Scenario = {
     // strike on the Kestu junta, the buoy, Tekanan's accepted petition and the handover.
     {
       id: "q4",
+      atDay: 165,
       title: "Question Four: War and Aftermath",
       briefing:
         "The hotline to Fleet Commander Sul has carried little but routine traffic for a month. Relief convoys reach Caldre and Imrath on schedule. Then, in the space of a single night, the peace on Lysara breaks.",
@@ -459,6 +476,7 @@ export const sectorAlpha: Scenario = {
       events: [
         {
           id: "q4-war",
+          atHours: 0,
           title: "Open war",
           from: "Ambassador Rhiannon Okafor",
           text: "Okafor's signal is broken up by interference. Merrow and Dunhal, unaligned since the Queen's death, have declared war on the Kestu-backed alliance of Voss, Thale and Orvane. Caldre and Imrath have stayed out of it so far, but the fighting is spreading along every border, and Lysaran sublight warships are already exchanging fire across the binary system. \"The embassy is safe for now, Admiral. I can't say the same for the city.\"",
@@ -473,6 +491,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-reinforce",
+          atHours: 6,
           title: "Reinforcements",
           from: "Vice Admiral Hal Brennan, Starfleet Command",
           text: "Brennan is brief. \"The Council's position stands: aid the nations that asked for it, and stay out of the war. To help you do that, Starfleet is sending you one combat ship and two transports. Tell me what you want.\"",
@@ -480,6 +499,7 @@ export const sectorAlpha: Scenario = {
             {
               id: "q4-reinforce-request",
               kind: "reinforcement",
+              arrivesInHours: 48,
               text: "Request your reinforcements. Starfleet will send what it can spare.",
               slots: [
                 { id: "combat", label: "One combat ship", categories: ["cruiser", "light-cruiser", "frigate"], count: 1 },
@@ -493,6 +513,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-disaster",
+          atHours: 72,
           title: "Mutual destruction",
           from: "Captain Mara Lindqvist, your chief of staff",
           text: "Lindqvist doesn't sit down. \"Admiral, the Lysaran and Kestu fleets met near the inner star an hour ago. They destroyed each other.\" Fleet Commander Sul's flagship is among the wrecks; the hotline is silent. In the crossfire, {lost} was destroyed along with the Tekanan transport Haveth's Promise it was escorting. There were no survivors from either ship.",
@@ -507,6 +528,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-accusation",
+          atHours: 73,
           title: "The accusation",
           from: "Envoy Kael Ruusk, Kestu Directorate",
           text: "Envoy Ruusk is on your screen within the hour, colder than you have ever seen him. Kestu holds the Federation responsible: its ships escorted Lysaran convoys through the war zone, and Kestu believes Starfleet sensors guided the Merrovian and Dunhali fire. \"Commander Sul trusted your channel, Admiral. Now he is dead.\"",
@@ -520,6 +542,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-refugees",
+          atHours: 96,
           title: "Refugees",
           from: "Ambassador Okafor, then Minister Hadrin Toma",
           text: "Okafor reports thousands of refugees fleeing Lysara toward the Tekanan system. Minister Toma has refused to take them: he fears Kestu will treat it as Tekanan joining the war. Refugee ships have begun shuttling instead to the Class-L world across the border. No response from that world has been observed.",
@@ -534,6 +557,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-strike",
+          atHours: 240,
           title: "Strike on the Directorate",
           from: "Commander Ysolde Hart, Starfleet Intelligence",
           text: "Hart's voice is flat. An explosive device has detonated inside the Directorate's council chamber on Kestu IX, killing the ruling junta in session. Damage outside the government compound is limited. Preliminary analysis of the debris says the device looked an awful lot like a warhead salvaged from a Federation photon torpedo. \"I don't know who did this, Admiral. I know how it's going to look.\"",
@@ -548,6 +572,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-new-kestu",
+          atHours: 288,
           title: "A new voice from Kestu",
           from: "First Speaker Imra Talov, Provisional Government of Kestu",
           text: "A woman you have never seen appears on your screen, in a borrowed office with the Directorate's emblem freshly painted over. Imra Talov speaks for a provisional democratic government formed in the days since the junta fell. Kestu is leaving the war. She thanks the Federation for freeing her people. Lysara is battered by the war, and not one Lysaran faction is happy with the Federation.",
@@ -566,6 +591,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-buoy",
+          atHours: 432,
           title: "The buoy's message",
           from: "Lt. Commander Ama Osei, starbase science officer",
           text: "The starbase has just received a signal from the nebula, carrying the same warp signature as the object found there. Lt. Commander Osei's team has decoded it. The object is not a weapon. It is an automated distress buoy. Its message tells of the Saalit, a resource-hungry empire that occupied Tekanan III until a plague struck them. They withdrew, collapsed into anarchy, and a last democratic government launched distress buoys before the Saalit died out. \"Admiral, the people who did that to Tekanan are gone.\"",
@@ -580,6 +606,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-explore",
+          atHours: 440,
           title: "Into Saalit space",
           from: "Vice Admiral Hal Brennan, Starfleet Command",
           text: "Brennan has read Osei's report. \"Saalit space is open, and someone has to go and look. I want an exploration programme covering at least twenty sectors, using the ships you have.\"",
@@ -592,6 +619,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-membership",
+          atHours: 960,
           recall: [{ promptId: "q3-report-council", label: "What the admiral told the Council about Tekanan and a long-term Federation presence (earlier, in the report to Brennan)" }],
           title: "Tekanan's petition accepted",
           from: "Minister Hadrin Toma, then Envoy Lisette Arvane",
@@ -609,6 +637,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-handover",
+          atHours: 1440,
           title: "Handover",
           from: "Vice Admiral Hal Brennan, Starfleet Command",
           text: "\"Good work, Admiral. You're needed in Sector Beta.\" Your replacement, Rear Admiral Teresa Vance, arrives tomorrow and wants your briefing first thing.",
@@ -621,6 +650,7 @@ export const sectorAlpha: Scenario = {
         },
         {
           id: "q4-departure",
+          atHours: 1452,
           title: "Departure",
           from: "Captain Mara Lindqvist, your chief of staff",
           text: "Your bags are packed. One ship from your fleet will carry you to Sector Beta, where it will join your new command. Lindqvist is waiting at the airlock.",
@@ -650,7 +680,7 @@ export const sectorAlpha: Scenario = {
     { name: "Guild master Pell Corrin", role: "Speaks for the Federation traders on Lysara", introducedIn: "q3:q3-morning" },
     { name: "Minister Hadrin Toma", role: "Tekanan III government minister; your main contact there", introducedIn: "q3:q3-kestu-note" },
     { name: "Envoy Kael Ruusk", role: "Kestu Directorate envoy", introducedIn: "q3:q3-kestu-note" },
-    { name: "Captain Mara Lindqvist", role: "Your chief of staff", introducedIn: "q3:q3-envoys" },
+    { name: "Captain Mara Lindqvist", role: "Your chief of staff", introducedIn: "q2" },
     { name: "Envoy Lisette Arvane", role: "Envoy of Caldre", introducedIn: "q3:q3-envoys" },
     { name: "Envoy Teodor Maskel", role: "Envoy of Imrath", introducedIn: "q3:q3-envoys" },
     { name: "Fleet Commander Drevak Sul", role: "Commander of the Kestu fleet at Lysara", introducedIn: "q3:q3-hotline" },

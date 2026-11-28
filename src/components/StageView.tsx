@@ -3,10 +3,11 @@ import type { FleetRules, Prompt, Scenario, Stage } from "../engine/scenarioType
 import type { ShipClass } from "../engine/shipTypes";
 import type { GameState, Transmission } from "../engine/state";
 import type { RequestLine } from "../engine/state";
-import { activeFactions, moveShips, allocateFleet, applyEffects, checkAssignments, conditionsMet, crewShips, grantChance, readLines, standingChanges, standingLabel, uid } from "../engine/state";
+import { advanceClock, activeFactions, moveShips, allocateFleet, applyEffects, checkAssignments, conditionsMet, crewShips, grantChance, readLines, standingChanges, standingLabel, uid } from "../engine/state";
 import { saveUndo, readUndo, clearUndo } from "../engine/dev";
 import { AssignedFleet } from "./AssignedFleet";
 import { resolve, writeReview } from "../engine/gm";
+import { unitTime } from "../engine/travel";
 
 interface Props {
   scenario: Scenario;
@@ -27,6 +28,7 @@ const SUPPORTED = ["free-text", "choice", "reinforcement", "ship-choice"];
 
 type Unit = {
   key: string;                   // "q2" for the review, "q2:q2-piracy" for an event
+  at: number;                    // sector clock, in hours, when the scene happens
   eventId?: string;
   from: string;
   title: string;
@@ -119,14 +121,14 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
   const units: Unit[] = [];
   if (stage.review && stage.prompts?.length) {
     units.push({
-      key: stage.id, from: stage.review.from, title: "Your orders", text: "",
+      key: stage.id, from: stage.review.from, title: "Your orders", text: "", at: unitTime(stage),
       prompts: stage.prompts, outcomes: stage.review.outcomes, defaultOutcomeId: stage.review.defaultOutcomeId, gmNotes: stage.review.gmNotes,
     });
   }
   for (const ev of stage.events ?? []) {
     if (!conditionsMet(state, ev.conditions, byId)) continue;
     units.push({
-      key: `${stage.id}:${ev.id}`, eventId: ev.id, from: ev.from ?? "", title: ev.title, text: ev.text,
+      key: `${stage.id}:${ev.id}`, eventId: ev.id, from: ev.from ?? "", title: ev.title, text: ev.text, at: unitTime(stage, ev),
       prompts: ev.prompts.filter((p) => SUPPORTED.includes(p.kind)),
       outcomes: ev.outcomes, defaultOutcomeId: ev.defaultOutcomeId, onEnter: ev.onEnter,
       gmNotes: [ev.gmNotes, ...(ev.conditionalNotes ?? []).filter((n) => conditionsMet(state, n.conditions, byId)).map((n) => n.note), ...(ev.recall ?? []).map((r) => `${r.label}: ${(state.answers[r.promptId] ?? "").trim() || "(the admiral gave none)"}`)].filter(Boolean).join("\n- "),
@@ -154,7 +156,12 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
       if (rp && !state.submitted[`${u.key}:alloc`]) {
         const allocated = allocateFleet(rules, { disposition: "", lines: readLines(state, rp.id) }, catalogue, rp.id, 0, Math.random, [...state.fleet, ...state.departed])
           .map((f) => ({ ...f, uid: uid(), assignment: "" }));
-        const newShips = crewShips(scenario, state, allocated, byId);
+        // Reinforcements come from outside the sector and reach the starbase after a delay.
+        const eta = rp.kind === "reinforcement" ? rp.arrivesInHours ?? 48 : 0;
+        const now = state.clock ?? 0;
+        const newShips = crewShips(scenario, state, allocated, byId).map((f) => eta > 0
+          ? { ...f, location: "transit", destination: state.starbase.locationId, task: "Arriving from outside the sector", route: { to: state.starbase.locationId, departAt: now, arriveAt: now + eta, fromOutside: true } }
+          : f);
         working = { ...working, fleet: [...working.fleet, ...newShips], submitted: { ...working.submitted, [`${u.key}:alloc`]: true } };
         const w = working;
         setState(() => w);
@@ -166,12 +173,12 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
       });
       setState((s) => {
         // Ship moves and new characters from the GM, then the outcome's effects.
-        const moved = moveShips(s, r.shipUpdates ?? []);
+        const moved = moveShips(scenario, s, r.shipUpdates ?? [], byId);
         const base = { ...s, fleet: moved, cast: [...s.cast, ...(r.newCharacters ?? []).filter((c) => !s.cast.some((x) => x.name === c.name))] };
         const after = applyEffects(base, r.outcome.effects, stage.id, byId);
         const t: Transmission = {
           stageId: stage.id, eventId: u.eventId, outcomeId: r.outcome.id, outcomeLabel: r.outcome.label,
-          from: u.from, subject: r.subject, body: r.body, offline: r.offline,
+          from: r.speaker ?? u.from, subject: r.subject, body: r.body, offline: r.offline,
           changes: standingChanges(base, after),
         };
         return {
@@ -192,7 +199,11 @@ export function StageView({ scenario, stage, state, byId, setState, onContinue, 
   const openUnit = units[firstOpen];
   const openKey = openUnit?.key;
   useEffect(() => {
-    if (openUnit && !state.submitted[`${openUnit.key}:seen`]) setState((s) => ({ ...s, submitted: { ...s.submitted, [`${openUnit.key}:seen`]: true } }));
+    // Opening a scene moves the sector clock to its time; ships whose journeys are done arrive.
+    if (openUnit && (!state.submitted[`${openUnit.key}:seen`] || (state.clock ?? 0) < openUnit.at)) {
+      const u = openUnit;
+      setState((s) => ({ ...advanceClock(scenario, s, u.at), submitted: { ...s.submitted, [`${u.key}:seen`]: true } }));
+    }
     if (!openUnit?.onEnter?.length) return;
     setState((s) => s.submitted[`${openUnit.key}:entered`] ? s : {
       ...applyEffects(s, openUnit.onEnter, stage.id, byId, openUnit.key),

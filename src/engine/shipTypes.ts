@@ -40,6 +40,8 @@ export interface ShipClass {
   crew?: number;
   evacuation?: number;
   maxWarp?: number;
+  /** Normal cruising speed; defaults to warp 6, or less for slow classes. */
+  cruiseWarp?: number;
   weapons?: string;
   auxiliaryCraft?: string;
   summary: string;

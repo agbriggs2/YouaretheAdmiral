@@ -2,7 +2,9 @@ import type { GameEvent, Outcome, Prompt, Scenario, Stage } from "./scenarioType
 import type { ShipClass } from "./shipTypes";
 import type { GameState, Transmission } from "./state";
 import type { CastMember } from "./state";
-import { TRANSIT, activeFactions, castSeen, locationName, readLines, standingLabel } from "./state";
+import { TRANSIT, activeFactions, castSeen, locationName, readLines, shipCoords, standingLabel } from "./state";
+import type { ShipOrder } from "./state";
+import { cruiseWarp, distanceLy, formatClock, formatDuration, maxWarp, travelHours, unitTime } from "./travel";
 
 /* The platform's "ask Claude" capability. Absent outside claude.ai. */
 type SampleFn = (input: string, opts?: Record<string, unknown>) => Promise<{ text: string }>;
@@ -37,6 +39,9 @@ ${(s.gm.notes ?? []).filter((n) => typeof n === "string" || s.stages.findIndex((
 ${extraRules.map((n) => `- ${n}`).join("\n")}
 - Never reveal hidden information, and never mention game mechanics, outcomes, odds or ratings to the player.
 - Speak only as the person sending the reply, and give feedback the way that person naturally would. Superiors (Starfleet Command, a vice admiral) may judge, approve or criticise the admiral's plan. Subordinates (chief of staff, captains, duty officers, the admiral's own staff) acknowledge orders and report what is being done; they may raise a concern or point out a gap respectfully, but never grade or approve the admiral's decisions. Outsiders (ambassadors, foreign officials, merchants) react from their own interests, warmly or not.
+- How to write a reply: write as one person, in the first person, to the admiral, the way a Starfleet officer or official speaks on screen: plain, specific and natural. If a second person must speak, give them their own paragraph and let them introduce themselves ("Minister Toma here."). Each speaker knows only what their post would let them know.
+- Avoid stock phrasing: don't open with "I will be plain" or "I will be direct", don't read the admiral's orders back, and don't pad the ending ("Standing by", "Awaiting your orders") unless it fits the moment. Mention only what matters to this speaker.
+- Before you answer, reread the reply as the admiral would. Fix any sentence that reads oddly or makes no sense in the story, anything said from the wrong point of view, and anything that contradicts the orders, earlier scenes, the time that has passed, or where the ships are.
 - Assume the admiral keeps Starfleet Command informed as a matter of routine. Never mark an answer down, and never have a character point out, that the admiral didn't mention reporting to Starfleet, unless the question expressly asks for a report.
 
 SETTING
@@ -99,7 +104,7 @@ OUTCOMES
 ${outcomeList(r.outcomes)}
 
 Respond with only a JSON object: {"outcomeId": "<one id from the list>", "reason": "<one sentence>"}`;
-  const res = await sample(prompt, { modelTier: "default", cache: false });
+  const res = await sample(prompt, { modelTier: "complex", cache: false });
   const data = parseJson(res.text);
   return r.outcomes.find((o) => o.id === data?.outcomeId) ?? def;
 }
@@ -133,7 +138,7 @@ Write the in-character reply from ${r.from}, addressed to the admiral. The asses
 Refer to specific things the player wrote. Announce the assigned ships and give a one-sentence reason for any substitution. Under 300 words, plain text, short paragraphs, no headings or bullet points.
 
 Respond with only a JSON object: {"subject": "<short message subject>", "body": "<the in-character message>"}`;
-  const res = await sample(prompt, { modelTier: "default", cache: false });
+  const res = await sample(prompt, { modelTier: "complex", cache: false });
   const data = parseJson(res.text);
   return {
     ...base,
@@ -144,12 +149,28 @@ Respond with only a JSON object: {"subject": "<short message subject>", "body": 
 
 // ── Later stages: one call picks the outcome and writes the reply ──
 
+/** Where a ship is, where it's going and when it gets there, plus travel times from here. */
+function positionText(s: Scenario, state: GameState, f: GameState["fleet"][number], c?: ShipClass): string {
+  const now = state.clock ?? 0;
+  const where = f.location === TRANSIT
+    ? `IN TRANSIT to ${locationName(s, f.route?.to ?? f.destination)}${f.route ? `${f.route.warp ? ` at warp ${f.route.warp}` : ""}${f.route.fromOutside ? ", arriving from outside the sector" : ""}, arrives in ${formatDuration(Math.max(0, f.route.arriveAt - now))}` : ""}.`
+    : `AT: ${locationName(s, f.location)}.`;
+  const here = shipCoords(s, state, f);
+  if (!here) return where;
+  const cw = cruiseWarp(c), mw = maxWarp(c);
+  const times = s.locations.filter((l) => l.coords && l.id !== f.location).map((l) => {
+    const ly = distanceLy(here, l.coords!);
+    return `${l.name} ${formatDuration(travelHours(ly, cw))} / ${formatDuration(travelHours(ly, mw))}`;
+  }).join("; ");
+  return `${where} Travel times from here at cruise (warp ${cw}) / maximum (warp ${mw}): ${times}.`;
+}
+
 function campaignSoFar(s: Scenario, state: GameState, byId: ById): string {
   const sb = s.locations.find((l) => l.id === state.starbase.locationId);
   const fleet = state.fleet.map((f) => {
     const c = byId[f.classId];
     const r = c?.ratings;
-    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; firepower ${r?.firepower}, defense ${r?.defense}, speed ${r?.speed}, sensors ${r?.sensors}, science ${r?.science}, logistics ${r?.logistics}). Registry ${f.registry ?? "unassigned"}. Captain ${f.captain ?? "(unnamed)"}. Duty: ${f.assignment || "none"}. Mission: ${f.mission || "none"}. NOW AT: ${f.location === TRANSIT ? `in transit to ${locationName(s, f.destination)}${f.transitSince !== undefined ? `, set off ${((n) => n === 0 ? "just now" : n === 1 ? "1 reply ago" : `${n} replies ago`)(state.transmissions.length - f.transitSince)}` : ""}` : locationName(s, f.location)}. CURRENT TASK: ${f.task || "none"}.`;
+    return `- ${f.name}, ${c?.name ?? f.classId} class (${c?.type ?? ""}; firepower ${r?.firepower}, defense ${r?.defense}, speed ${r?.speed}, sensors ${r?.sensors}, science ${r?.science}, logistics ${r?.logistics}). Registry ${f.registry ?? "unassigned"}. Captain ${f.captain ?? "(unnamed)"}. Duty: ${f.assignment || "none"}. Mission: ${f.mission || "none"}. ${positionText(s, state, f, c)} CURRENT TASK: ${f.task || "none"}.`;
   }).join("\n");
   const departed = state.departed.map((d) => `- ${d.name} (${byId[d.classId]?.name ?? d.classId} class): ${d.reason}`).join("\n");
   const history = state.transmissions.map((t) => `- ${t.subject} (from ${t.from}): outcome "${t.outcomeLabel}"`).join("\n");
@@ -157,7 +178,7 @@ function campaignSoFar(s: Scenario, state: GameState, byId: ById): string {
   return `THE CAMPAIGN SO FAR
 Admiral's stated priorities (from the first stage): ${priorities || "(none)"}
 Starbase: ${sb ? sb.name : "none"}${state.starbase.orbit ? `, ${state.starbase.orbit.replace("-", " ")}` : ""}.
-Current fleet (only these ships exist; orders naming other ships cannot be carried out). Each ship's position and task are current: a ship can only act where it is, or after travelling there.
+Current fleet (only these ships exist; orders naming other ships cannot be carried out). Positions, journeys and travel times are exact and kept by the game: a ship can only act where it is, and a ship ordered elsewhere gets there no sooner than its travel time.
 ${fleet || "(none)"}
 ${departed ? `Ships no longer available:\n${departed}\n` : ""}Earlier results:
 ${history || "(none)"}`;
@@ -171,26 +192,32 @@ ${people.map((p) => `- ${p.name}: ${p.role}`).join("\n")}`;
 }
 
 function locationIds(s: Scenario): string {
-  return [...s.locations.map((l) => `"${l.id}" (${l.name})`), `"${TRANSIT}" (in transit between locations)`].join(", ");
+  return s.locations.map((l) => `"${l.id}" (${l.name})`).join(", ");
 }
 
-export interface ShipUpdate { ship: string; location: string; destination?: string; task: string }
+export type ShipUpdate = ShipOrder;
 
-/** Read the GM's proposed ship moves and new characters, keeping only valid ones. */
-function extras(s: Scenario, state: GameState, data: Record<string, unknown> | null): { shipUpdates: ShipUpdate[]; newCharacters: CastMember[] } {
-  const ids = new Set([...s.locations.map((l) => l.id), TRANSIT]);
+/** Read the GM's ship orders and new characters, keeping only valid ones. */
+function extras(s: Scenario, state: GameState, data: Record<string, unknown> | null): { shipUpdates: ShipUpdate[]; newCharacters: CastMember[]; speaker?: string } {
+  const ids = new Set(s.locations.map((l) => l.id));
   const names = new Set(state.fleet.map((f) => f.name.toLowerCase()));
   const ups = Array.isArray(data?.shipUpdates) ? (data!.shipUpdates as Record<string, unknown>[]) : [];
-  const shipUpdates = ups.filter((u) => typeof u?.ship === "string" && names.has((u.ship as string).toLowerCase()) && typeof u.location === "string" && ids.has(u.location as string))
-    .map((u) => ({ ship: u.ship as string, location: u.location as string, destination: typeof u.destination === "string" && ids.has(u.destination as string) && u.destination !== TRANSIT ? (u.destination as string) : undefined, task: typeof u.task === "string" ? (u.task as string).slice(0, 120) : "" }));
+  const shipUpdates = ups.filter((u) => typeof u?.ship === "string" && names.has((u.ship as string).toLowerCase()))
+    .map((u) => ({
+      ship: u.ship as string,
+      destination: typeof u.destination === "string" && ids.has(u.destination) ? u.destination : undefined,
+      speed: u.speed,
+      task: typeof u.task === "string" ? u.task.slice(0, 120) : "",
+    }));
   const known = new Set(castSeen(s, state).map((c) => c.name.toLowerCase()));
   const chars = Array.isArray(data?.newCharacters) ? (data!.newCharacters as Record<string, unknown>[]) : [];
   const newCharacters = chars.filter((c) => typeof c?.name === "string" && typeof c.role === "string" && !known.has((c.name as string).toLowerCase()))
     .map((c) => ({ name: (c.name as string).slice(0, 60), role: (c.role as string).slice(0, 100), source: "gm" as const }));
-  return { shipUpdates, newCharacters };
+  const speaker = typeof data?.speaker === "string" && data.speaker.trim() ? data.speaker.trim().slice(0, 90) : undefined;
+  return { shipUpdates, newCharacters, speaker };
 }
 
-const EXTRAS_SPEC = `"shipUpdates": [{"ship": "<exact ship name from the fleet>", "location": "<location id>", "destination": "<location id, only when location is transit>", "task": "<what it is doing now, under 12 words>"}] for every ship whose position or task changes, whether because of these orders or because a ship in transit has now arrived (an empty list if none), and "newCharacters": [{"name": "<full name>", "role": "<who they are, a few words>"}] for any named person your reply introduces who isn't already listed (an empty list if none)`;
+const EXTRAS_SPEC = `"speaker": "<who is speaking: name and post, e.g. Captain Ingrid Quintero, USS Atalanta>", "shipUpdates": [{"ship": "<exact ship name from the fleet>", "destination": "<location id where the ship should be or go; omit to leave it where it is or on its current journey>", "speed": "<cruise, maximum, or a warp factor; only when it must travel>", "task": "<what it is doing now, under 12 words>"}] for every ship these orders send somewhere or give a new task (an empty list if none), and "newCharacters": [{"name": "<full name>", "role": "<who they are, a few words>"}] for any named person your reply introduces who isn't already listed (an empty list if none)`;
 
 function secretsText(s: Scenario, state: GameState): string {
   // Only secrets introduced up to the current stage; later ones don't exist yet.
@@ -202,6 +229,15 @@ function secretsText(s: Scenario, state: GameState): string {
     ? `- REVEALED, may be discussed: ${x.truth}`
     : x.coverStory ? `- What everyone currently believes (keep to this; nothing more is known): ${x.coverStory}` : "").filter(Boolean);
   return lines.length ? `KNOWN SITUATION\n${lines.join("\n")}` : "";
+}
+
+/** The sector clock for this scene, and how long since the previous one. */
+function timeText(s: Scenario, state: GameState, inp: ResolveInput): string {
+  const now = state.clock ?? unitTime(inp.stage, inp.event);
+  const units = s.stages.flatMap((st) => [{ key: st.id, at: unitTime(st) }, ...(st.events ?? []).map((e) => ({ key: `${st.id}:${e.id}`, at: unitTime(st, e) }))]);
+  const before = units.filter((u) => u.at < now && state.submitted[u.key]).map((u) => u.at);
+  const prev = before.length ? Math.max(...before) : undefined;
+  return `It is now ${formatClock(now)} (sector time; quote it only if a character naturally would).${prev !== undefined ? ` The previous scene was ${formatDuration(now - prev)} ago.` : ""} Describe only what has happened by now: a ship still in transit hasn't arrived yet.`;
 }
 
 export interface ResolveInput {
@@ -217,7 +253,7 @@ export interface ResolveInput {
 }
 
 /** Pick one authored outcome for the player's orders and write the in-character reply. */
-export async function resolve(s: Scenario, state: GameState, byId: ById, inp: ResolveInput): Promise<{ outcome: Outcome; subject: string; body: string; offline?: boolean; shipUpdates?: ShipUpdate[]; newCharacters?: CastMember[] }> {
+export async function resolve(s: Scenario, state: GameState, byId: ById, inp: ResolveInput): Promise<{ outcome: Outcome; subject: string; body: string; offline?: boolean; shipUpdates?: ShipUpdate[]; newCharacters?: CastMember[]; speaker?: string }> {
   const def = inp.outcomes.find((o) => o.id === inp.defaultOutcomeId) ?? inp.outcomes[0];
   const sample = await getSample();
   if (!sample) {
@@ -261,6 +297,9 @@ ${standingsNow}
 Results so far (scene: outcome):
 ${resultsSoFar || "(none)"}
 
+TIME
+${timeText(s, state, inp)}
+
 SITUATION: ${inp.title}${inp.from ? ` (reported by ${inp.from})` : ""}
 ${inp.situation}
 
@@ -269,14 +308,14 @@ ${orders}
 
 YOUR TASK
 1. Decide which one outcome below best fits the admiral's orders. Judge the reasoning and whether the ships named can plausibly do what is asked, given their duties and capabilities. When the admiral gives an assessment or report, judge whether it fits WHERE THINGS STAND NOW, not whether it ticks every box in the question. Pick the closest outcome; it doesn't have to match perfectly. Be fair, not flattering: characters can be unhappy, and a sound decision can still disappoint someone.
-2. Write the in-character reply from ${inp.from || "the relevant party"} (or the captain carrying out the orders, if more fitting), addressed to the admiral, showing how events unfold under that outcome. Refer to specific ships and details from the orders. The reply must reflect everything the admiral actually ordered or offered, even under an unfavourable outcome: never contradict or ignore it (for example, don't have characters still short of supplies the admiral just sent). Do not state any standing changes or game terms. ${brief ? "This is one scene in a fast-moving sequence and the admiral's orders are brief: reply in under 140 words, as a live exchange, and do not jump ahead to later events." : "Under 250 words."} Plain text, short paragraphs, no headings or bullet points.
-3. Update the ship board: for each ship whose position or task changes because of these orders, give its new location (one of: ${locationIds(s)}) and its current task. A ship ordered somewhere far away is "${TRANSIT}", with its destination and a task like "En route to Lysara". Also carry out earlier orders: time passes between scenes, so a ship in transit that would have reached its destination by now arrives there, with a task such as "On station at Tekanan III". Judge travel time from the ship's speed and the time that has passed in the story. Ships not mentioned stay as they are.
+2. Write the in-character reply from ${inp.from || "the relevant party"} (or the captain carrying out the orders, if more fitting; say who in "speaker"), addressed to the admiral, showing how events unfold under that outcome. Refer to specific ships and details from the orders. The reply must reflect everything the admiral actually ordered or offered, even under an unfavourable outcome: never contradict or ignore it (for example, don't have characters still short of supplies the admiral just sent). Do not state any standing changes or game terms. ${brief ? "This is one scene in a fast-moving sequence and the admiral's orders are brief: reply in under 140 words, as a live exchange, and do not jump ahead to later events." : "Under 250 words."} Plain text, short paragraphs, no headings or bullet points.
+3. Give the ship orders: for each ship these orders send somewhere, its destination (one of: ${locationIds(s)}), its speed (cruise unless the orders say otherwise or the situation is urgent), and its task, e.g. "En route to Lysara". For a ship given a new task where it already is, give just the task. The game works out the journey and arrival; when your reply mentions when a ship will arrive, use its travel time above. Ships not mentioned carry on as they are.
 
 OUTCOMES
 ${inp.outcomes.map((o) => `- id "${o.id}" (${o.label}): ${o.criteria} How characters react: ${o.reactions ?? ""}`).join("\n")}
 
 Respond with only a JSON object: {"outcomeId": "<one id from the list>", "subject": "<short message subject>", "body": "<the in-character message>", ${EXTRAS_SPEC}}`;
-  const res = await sample(prompt, { modelTier: "default", cache: false });
+  const res = await sample(prompt, { modelTier: "complex", cache: false });
   const data = parseJson(res.text);
   const outcome = inp.outcomes.find((o) => o.id === data?.outcomeId) ?? def;
   return {
@@ -326,7 +365,7 @@ YOUR TASK
 Write ${from}'s end-of-posting review, addressed to the admiral, in character. Assess the posting as a whole: two or three things the admiral did well, two or three decisions Starfleet would question or that cost something, and a candid closing judgment of how the sector stands. Be specific: name scenes, ships and people. Be fair, not flattering; a good posting can still have real mistakes. Do not mention game mechanics, outcomes, ratings or standings numbers. Under 400 words, plain text, short paragraphs, no headings or bullet points.
 
 Respond with only a JSON object: {"subject": "<short subject>", "body": "<the review>"}`;
-  const res = await sample(prompt, { modelTier: "default", cache: false });
+  const res = await sample(prompt, { modelTier: "complex", cache: false });
   const data = parseJson(res.text);
   return { ...base, subject: typeof data?.subject === "string" ? data.subject : `${s.title}: end of posting`, body: typeof data?.body === "string" ? data.body : res.text };
 }

@@ -1,4 +1,6 @@
 import { pickShipName } from "../data/shipNames";
+import type { Coords } from "./travel";
+import { distanceLy, formatDuration, locationCoords, speedToWarp, travelHours } from "./travel";
 import type { Availability, Condition, Effect, FleetRules, Scenario, ShipSelector } from "./scenarioTypes";
 import type { ShipClass } from "./shipTypes";
 import { totalRating } from "./shipTypes";
@@ -17,10 +19,14 @@ export interface FleetShip {
   registry?: string;             // "NCC-62497"
   location?: string;             // a scenario location id, or "transit"
   destination?: string;          // where a ship in transit is headed
-  transitSince?: number;         // how many replies had been sent when it set off
+  transitSince?: number;         // (older saves) replies sent when it set off
+  route?: Route;                 // timed journey, when in transit
   condition?: "operational" | "damaged";  // shown on the ship board
   task?: string;                 // what the ship is doing right now
 }
+
+/** A timed journey: from a point (or from outside the sector) to a location. */
+export interface Route { from?: Coords; to: string; departAt: number; arriveAt: number; warp?: number; fromOutside?: boolean }
 
 /** A named person or place in the story, so the GM keeps names consistent. */
 export interface CastMember { name: string; role: string; source: "scenario" | "gm" }
@@ -69,6 +75,7 @@ export interface GameState {
   submitted: Record<string, boolean>;
   cast: CastMember[];            // people the GM has introduced (authored cast lives in the scenario)
   review?: Transmission;         // end-of-sector review
+  clock?: number;                // hours since the posting began
 }
 
 export function newGame(s: Scenario): GameState {
@@ -87,6 +94,7 @@ export function newGame(s: Scenario): GameState {
     log: [],
     submitted: {},
     cast: [],
+    clock: 0,
   };
 }
 
@@ -135,9 +143,20 @@ export function crewShips(s: Scenario, state: GameState, ships: FleetShip[], byI
   });
 }
 
+/** For saves made before the clock existed: the time of the latest scene reached. */
+function savedClock(s: Scenario, state: GameState): number {
+  let t = 0;
+  s.stages.forEach((st, i) => {
+    if (i > state.stageIndex) return;
+    t = Math.max(t, (st.atDay ?? 0) * 24);
+    for (const e of st.events ?? []) if (state.submitted[`${st.id}:${e.id}`] || state.submitted[`${st.id}:${e.id}:seen`]) t = Math.max(t, (st.atDay ?? 0) * 24 + (e.atHours ?? 0));
+  });
+  return t;
+}
+
 /** Bring an older save up to date: cast list, captains and positions. */
 export function migrate(s: Scenario, state: GameState, byId?: Record<string, ShipClass>): GameState {
-  const st: GameState = { ...state, cast: state.cast ?? [] };
+  const st: GameState = { ...state, cast: state.cast ?? [], clock: state.clock ?? savedClock(s, state) };
   // Reuse captains the GM already named in replies ("Captain Maren Doyle, USS Zephyr").
   const named: Record<string, string> = {};
   for (const t of st.transmissions) {
@@ -176,28 +195,72 @@ export function boardShips(state: GameState, byId: Record<string, ShipClass>) {
   ];
 }
 
-/** Apply the GM's ship moves; a ship in transit remembers where it's going and since when. */
-export function moveShips(state: GameState, updates: { ship: string; location: string; destination?: string; task: string }[]): FleetShip[] {
+/** Where a ship is right now: at its location, or part-way along its route. */
+export function shipCoords(s: Scenario, state: GameState, f: FleetShip): Coords | undefined {
+  if (f.route) {
+    const to = locationCoords(s, f.route.to);
+    if (!to || !f.route.from) return f.route.fromOutside ? undefined : to;
+    const span = Math.max(1, f.route.arriveAt - f.route.departAt);
+    const t = Math.min(1, Math.max(0, ((state.clock ?? 0) - f.route.departAt) / span));
+    return { x: f.route.from.x + (to.x - f.route.from.x) * t, y: f.route.from.y + (to.y - f.route.from.y) * t };
+  }
+  return locationCoords(s, f.location === TRANSIT ? undefined : f.location);
+}
+
+export interface ShipOrder { ship: string; destination?: string; speed?: unknown; task: string }
+
+/** Apply the GM's ship orders: a new destination starts a timed journey; arrival is the engine's job. */
+export function moveShips(s: Scenario, state: GameState, orders: ShipOrder[], byId: Record<string, ShipClass>): FleetShip[] {
+  const now = state.clock ?? 0;
   return state.fleet.map((f) => {
-    const up = updates.find((x) => x.ship.toLowerCase() === f.name.toLowerCase());
-    if (!up) return f;
-    const task = up.task || f.task;
-    if (up.location === TRANSIT) {
-      const already = f.location === TRANSIT && f.destination === (up.destination ?? f.destination);
-      return { ...f, location: TRANSIT, destination: up.destination ?? f.destination, transitSince: already ? f.transitSince : state.transmissions.length, task };
+    const o = orders.find((x) => x.ship.toLowerCase() === f.name.toLowerCase());
+    if (!o) return f;
+    const task = o.task || f.task;
+    const heading = f.route?.to ?? (f.location === TRANSIT ? f.destination : f.location);
+    const travelling = /^en route|^returning|^heading|^under way|^moving|^on the way|^diverted|^proceeding|^setting course/i;
+    if (!o.destination || o.destination === heading) {
+      // Already there: don't let travel wording stick to a ship that isn't moving.
+      const here = f.location !== TRANSIT && travelling.test(task ?? "");
+      return { ...f, task: here ? `On station at ${s.locations.find((l) => l.id === f.location)?.name ?? f.location}` : task };
     }
-    return { ...f, location: up.location, destination: undefined, transitSince: undefined, task };
+    const from = shipCoords(s, state, f) ?? locationCoords(s, state.starbase.locationId);
+    const to = locationCoords(s, o.destination);
+    const warp = speedToWarp(o.speed, byId[f.classId]);
+    const ly = from && to ? distanceLy(from, to) : 0;
+    if (ly < 0.05) return { ...f, location: o.destination, destination: undefined, route: undefined, transitSince: undefined, task };
+    const hours = travelHours(ly, warp);
+    return { ...f, location: TRANSIT, destination: o.destination, transitSince: undefined, task, route: { from, to: o.destination, departAt: now, arriveAt: now + hours, warp } };
   });
 }
 
-/** A new question opens weeks later: ships still travelling have arrived. */
+/** Move the clock forward; ships whose journeys are done arrive. The clock never runs backwards. */
+export function advanceClock(s: Scenario, state: GameState, to: number): GameState {
+  const clock = Math.max(state.clock ?? 0, to);
+  const fleet = state.fleet.map((f) => {
+    if (!f.route || f.route.arriveAt > clock) return f;
+    const where = s.locations.find((l) => l.id === f.route!.to)?.name ?? f.route.to;
+    const task = !f.task || /^en route|^returning|^heading|^under way|^arriving|^moving|^on the way|^diverted|^proceeding|^setting course/i.test(f.task) ? `On station at ${where}` : f.task;
+    return { ...f, location: f.route.to, destination: undefined, route: undefined, task };
+  });
+  return { ...state, clock, fleet };
+}
+
+/** Ships from older saves that were in transit with no timed route: put them where they were going. */
 export function arriveAll(s: Scenario, state: GameState): FleetShip[] {
   return state.fleet.map((f) => {
-    if (f.location !== TRANSIT || !f.destination) return f;
+    if (f.location !== TRANSIT || f.route || !f.destination) return f;
     const where = s.locations.find((l) => l.id === f.destination)?.name ?? f.destination;
     const task = !f.task || /^en route|^returning|^heading|^under way/i.test(f.task) ? `On station at ${where}` : f.task;
     return { ...f, location: f.destination, destination: undefined, transitSince: undefined, task };
   });
+}
+
+/** For the ship board: "In transit → Lysara · arrives in 31 hours". */
+export function whereText(s: Scenario, state: GameState, f: FleetShip): string {
+  if (f.location !== TRANSIT) return locationName(s, f.location);
+  const dest = f.route?.to ?? f.destination;
+  const eta = f.route ? ` · arrives in ${formatDuration(Math.max(0, f.route.arriveAt - (state.clock ?? 0)))}` : "";
+  return `In transit${dest ? ` → ${locationName(s, dest)}` : ""}${eta}`;
 }
 
 export const TRANSIT = "transit";

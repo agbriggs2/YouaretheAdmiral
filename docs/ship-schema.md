@@ -1,4 +1,4 @@
-# Ship Class Schema — v0.5
+# Ship Class Schema — v0.6
 
 See the project copy for full history. Summary of the current schema:
 
@@ -35,6 +35,7 @@ interface ShipClass {
   combatRole: "primary" | "secondary" | "none";
   tags: string[];
   appearsIn: Production[];
+  cruiseWarp?: number;               // normal cruising speed; defaults to warp 6 (lower for slow classes)
   registryRange?: [number, number];  // NCC numbers this class is drawn from; roughly chronological
   serviceEntry: number;
   serviceRetired?: number;

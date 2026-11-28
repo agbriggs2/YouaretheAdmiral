@@ -1,4 +1,4 @@
-# Scenario Format — v0.6
+# Scenario Format — v0.7
 
 ## Principles
 - **Scenarios are authored, not improvised.** During play the AI GM reads the player's orders, picks one of the authored **outcomes** for each event, applies that outcome's **effects**, and writes in-character replies.
@@ -78,10 +78,29 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 ## Ship board, cast and review (v0.6)
 - **Ships** carry a captain (assigned with the ship), a location (a scenario location id, or `transit`) and a current task. New ships start at the starbase, awaiting orders. A ship in transit also records its destination and when it set off.
 - **Orders are carried out over time.** The GM is told where each ship in transit is headed and how long ago it left, and brings it in at its destination once enough story time has passed for its speed. When a new stage opens (weeks later), the engine brings in every ship still travelling, with a task such as "On station at Tekanan III".
-- **The GM's reply** may include `shipUpdates` (ship, location, task) for ships whose position or task its orders changed, and `newCharacters` (name, role) for named people it introduces. The engine keeps only updates naming real ships and real locations, and only new names.
+- **The GM's reply** names its `speaker`, and may include `shipUpdates` (ship, destination, speed, task) for ships its orders send somewhere or give a new task, and `newCharacters` (name, role) for named people it introduces. The engine keeps only updates naming real ships and real locations, and only new names.
 - **Cast:** `cast` lists authored people, places and nations, each with the scene (or stage) that introduces it. The GM is sent everyone introduced so far, plus GM-introduced people and the captains, and told to reuse names and roles.
 - **Debrief:** `debrief` names who writes the end-of-sector review and what to weigh.
 - **Retired factions:** a faction with `retiredBy` drops out of the standings and the GM's picture once that secret is revealed.
+
+## Time and travel (v0.7)
+- **The sector has a clock**, in hours since the posting began. Every stage has `atDay` (days since the posting began) and every scene `atHours` (hours after its stage opens). Opening a scene moves the clock to its time; the clock never runs backwards. The player isn't necessarily told the time; the scene text can carry it ("A week passes…") or not.
+- **Locations have coordinates** in light-years (`coords`). Distances, and so travel times, are worked out from them.
+- **Speed is a warp factor**, converted to multiples of light speed with the TNG scale (warp 6 ≈ 392c, warp 9 ≈ 1,516c). Each class has a cruising speed (`cruiseWarp`, default warp 6, lower for slow classes) and a maximum (`maxWarp`).
+- **Ships travel on timed routes.** When the GM sends a ship somewhere, it names the destination and the speed (cruise, maximum or a warp factor); the engine works out the departure and arrival times. A ship diverted mid-journey sets off from wherever it has got to. When the clock passes a ship's arrival time, it arrives ("On station at Lysara").
+- **The GM is told** the sector time, how long since the previous scene, where every ship is or is heading and when it arrives, and the travel time from each ship's position to every location at cruise and maximum. It uses those times when characters talk about arrivals, and describes only what has happened by now.
+- **Reinforcements** can arrive from outside the sector after a delay (`arrivesInHours` on a reinforcement prompt; Sector Alpha uses 48 hours).
+- **Authoring:** place every stage and scene on the timeline, and set scene times with travel in mind: whether a ship ordered in one scene can be somewhere by the next is decided by these times. Branching scenarios can then test exactly which ships are where at a given moment.
+
+### Sector Alpha timeline
+| Stage | Opens | Scenes |
+|---|---|---|
+| Question One | day 0 | |
+| Question Two | day 30 | piracy +14 days, Kestu mobilization +21 days, probe +23 days |
+| Question Three | day 120 | alert 0347, morning after 0900, Kestu note same day, a week later +7 days, then envoys, merchants, hotline, intel, report and Tekanan's navy over the following week |
+| Question Four | day 165 | war, reinforcements (arrive 48 hours later), mutual destruction +3 days, accusation, refugees, strike +10 days, new Kestu government +12 days, buoy +18 days, exploration, petition +40 days, handover +60 days |
+
+Map scale: Tekanan III to Lysara is 5.0 light-years (4.6 days at warp 6, 26 hours at warp 9.2); Tekanan III to Kestu IX 4.2; Lysara to Kestu IX 4.0; Tekanan III to the Class-L world 5.9.
 
 ## Schema (TypeScript)
 ```ts
@@ -161,6 +180,7 @@ export interface Location {
   factionId?: string;
   description?: string;
   starbaseOptions?: ("planet-orbit" | "star-orbit" | "open-space")[];
+  coords?: { x: number; y: number };   // light-years
 }
 
 // ── Player resources ───────────────────────────────────
@@ -238,6 +258,7 @@ export interface Secret {
 
 export interface Stage {
   id: string;                    // "q1"
+  atDay?: number;                // when the stage opens, days since the posting began
   title: string;                 // "Question One: Taking Command"
   briefing: string;              // shown when the stage opens
   prompts?: Prompt[];            // things the player must answer in this stage
@@ -261,7 +282,7 @@ export type Prompt =
   | { id: string; kind: "fleet-request"; text: string }
   | { id: string; kind: "starbase-placement"; text: string }
   | { id: string; kind: "choice"; text: string; options: { id: string; label: string }[] }
-  | { id: string; kind: "reinforcement"; text: string; slots: ReinforcementSlot[] }
+  | { id: string; kind: "reinforcement"; text: string; slots: ReinforcementSlot[]; arrivesInHours?: number }
   | { id: string; kind: "ship-choice"; text: string };   // pick one ship from the current fleet
 
 export interface ReinforcementSlot { id: string; label: string; categories: string[]; count: number; }
@@ -272,6 +293,7 @@ export interface AddRules {
 
 export interface GameEvent {
   id: string;
+  atHours?: number;              // when the scene happens, hours after its stage opens
   title: string;
   conditions?: Condition[];      // empty or absent = always happens
   from?: string;                 // who delivers it: "Starfleet Command", "Lysaran Court"…

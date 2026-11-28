@@ -6,8 +6,9 @@ import { FleetRequest } from "./components/FleetRequest";
 import { StageView } from "./components/StageView";
 import { AssignedFleet } from "./components/AssignedFleet";
 import type { GameState, Transmission } from "./engine/state";
-import { activeFactions, allocateFleet, applyEffects, arriveAll, boardShips, castSeen, checkAssignments, checkRequest, crewShips, locationName, migrate, newGame, postureTriggered, standingLabel } from "./engine/state";
+import { activeFactions, advanceClock, allocateFleet, applyEffects, arriveAll, boardShips, whereText, castSeen, checkAssignments, checkRequest, crewShips, migrate, newGame, postureTriggered, standingLabel } from "./engine/state";
 import { isDev, toggleDev } from "./engine/dev";
+import { stageTime } from "./engine/travel";
 import { campaignHtml, campaignText } from "./engine/exportCampaign";
 import { getSample, gradeStage, writeReply } from "./engine/gm";
 import { loadGame, saveLocal, saveRemote } from "./engine/storage";
@@ -152,8 +153,8 @@ export default function App() {
       const i = s.stageIndex + 1;
       const st = S.stages[i];
       if (!st) return s;
-      // Weeks pass between questions: ships still travelling have arrived.
-      const arrived = { ...s, fleet: arriveAll(S, s) };
+      // Weeks pass between questions: the clock moves on and ships whose journeys are done arrive.
+      const arrived = advanceClock(S, { ...s, fleet: arriveAll(S, s) }, stageTime(st));
       const next = applyEffects(arrived, st.onEnter, st.id, SHIPS_BY_ID);
       return { ...next, stageIndex: i };
     });
@@ -359,7 +360,7 @@ export default function App() {
                     <li key={f.uid} className={destroyed ? "destroyed" : f.condition === "damaged" ? "damaged" : undefined}>
                       <span className="r-name">{f.name}{f.registry && <span className="reg"> {f.registry}</span>}{destroyed && <span className="tag lost">Destroyed</span>}{!destroyed && f.condition === "damaged" && <span className="tag hurt">Damaged</span>}</span>
                       <span className="muted">{SHIPS_BY_ID[f.classId]?.name} · Capt. {f.captain ?? "unassigned"}</span>
-                      <span className="r-pos">{destroyed ? reason : <><b>{f.location === "transit" && f.destination ? `In transit → ${locationName(S, f.destination)}` : locationName(S, f.location)}</b>{f.task ? ` · ${f.task}` : ""}</>}</span>
+                      <span className="r-pos">{destroyed ? reason : <><b>{whereText(S, state, f)}</b>{f.task ? ` · ${f.task}` : ""}</>}</span>
                     </li>
                   ))}
                 </ul>
