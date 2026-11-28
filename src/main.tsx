@@ -8,7 +8,7 @@ import "@fontsource/roboto-condensed/latin-400-italic.css";
 import "@fontsource/roboto-condensed/latin-500.css";
 import "@fontsource/roboto-condensed/latin-600.css";
 import './index.css'
-import App from './App.tsx'
+import Root from './Root.tsx'
 
 // Label stacked table cells on narrow screens.
 new MutationObserver(() => {
@@ -22,6 +22,6 @@ new MutationObserver(() => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <Root />
   </StrictMode>,
 )

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { sectorAlpha } from "./scenarios/sectorAlpha";
+import type { Scenario } from "./engine/scenarioTypes";
 import { SHIPS, SHIPS_BY_ID } from "./data/ships";
 import { SectorMap } from "./components/SectorMap";
 import { FleetRequest } from "./components/FleetRequest";
@@ -13,19 +13,19 @@ import { campaignHtml, campaignText } from "./engine/exportCampaign";
 import { getSample, gradeStage, writeReply } from "./engine/gm";
 import { loadGame, saveLocal, saveRemote } from "./engine/storage";
 
-const S = sectorAlpha;
-const RULES = S.resources.fleet!;
-const CATALOGUE = SHIPS.filter((c) => c.era === S.era && (c.serviceEntry ?? 0) <= S.year);
-/** A stage is playable once every prompt kind it uses is supported by the stage engine. */
-const playable = (i: number) => {
-  const st = S.stages[i];
-  if (!st) return false;
-  const kinds = [...(st.prompts ?? []), ...(st.events ?? []).flatMap((e) => e.prompts)].map((p) => p.kind);
-  return kinds.every((k) => ["free-text", "choice", "reinforcement", "ship-choice"].includes(k));
-};
 const ORBIT_LABEL: Record<string, string> = { "planet-orbit": "In planetary orbit", "star-orbit": "In orbit of the star", "open-space": "In open space" };
 
-export default function App() {
+/** One scenario in play. The menu (Root) chooses which. */
+export default function App({ scenario: S, onExit }: { scenario: Scenario; onExit: () => void }) {
+  const RULES = S.resources.fleet!;
+  const CATALOGUE = useMemo(() => SHIPS.filter((c) => c.era === S.era && (c.serviceEntry ?? 0) <= S.year), [S]);
+  /** A stage is playable once every prompt kind it uses is supported by the stage engine. */
+  const playable = (i: number) => {
+    const st = S.stages[i];
+    if (!st) return false;
+    const kinds = [...(st.prompts ?? []), ...(st.events ?? []).flatMap((e) => e.prompts)].map((p) => p.kind);
+    return kinds.every((k) => ["free-text", "choice", "reinforcement", "ship-choice"].includes(k));
+  };
   const [state, setState] = useState<GameState>(() => newGame(S));
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -175,7 +175,7 @@ export default function App() {
     <div className="app">
       <header className="band top">
         <div className="top-inner">
-          <p className="kicker">You're the Admiral</p>
+          <p className="kicker">You're the Admiral <button type="button" className="btn ghost small menu-btn" onClick={onExit}>Main menu</button></p>
           <h1>{S.title}</h1>
           <p className="role">{S.playerRole.rank} · {S.playerRole.title} · {S.year}</p>
           <nav className="stages" aria-label="Scenario stages">
