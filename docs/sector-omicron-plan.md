@@ -1,4 +1,4 @@
-# Sector Omicron: scene plan (draft 1)
+# Sector Omicron: scene plan (draft 2)
 
 For critique before building. It is Andrew's scenario with the four agreed changes:
 
@@ -13,7 +13,7 @@ Names marked † are placeholders. The forum-only parts (2D, 3A, 4A) are dropped
 
 ## 1. Map (replacement, built from the timings)
 
-The sector is flat (z = 10 throughout) and 20 ly per side. The grid uses 1-ly squares: letters A–T run west to east, and numbers 1–20 run south to north.
+The sector is flat (z = 10 throughout) and 20 ly per side. The grid is for internal reference only and is never shown to the player. It uses 1-ly squares: letters A–T run west to east, and numbers 1–20 run south to north.
 
 **The Federation border** runs almost due north from **Grid K-1**, where it crosses the southern edge (x 10.5), to x 11.0 at the northern edge. Federation space lies to the west. Starbase 14 is a week away, beyond the western edge.
 
@@ -25,7 +25,7 @@ The sector is flat (z = 10 throughout) and 20 ly per side. The grid uses 1-ly sq
 | Torven II | 12.0, 12.7 | Beyond the border | |
 | Azul Nebula | 14.4, 11.8 | Beyond the border | Radius about 1 ly |
 | Border post (open space) | 10.4, 9.0 | Federation | A starbase option nearest Miriam's World |
-| Southern crossing | 10.5, 0.0 | On the border | Grid K-1 (was "K-4"; see open question 1) |
+| Southern crossing | 10.5, 0.0 | On the border | Grid K-1; the player sees "where the border meets the sector's southern edge" |
 
 **Starbase options** (Question One): D'Noth orbit; D'Noth's star; the border post. The choice matters later, because it sets how far your ships are from Miriam's World when the crisis breaks.
 
@@ -126,7 +126,7 @@ Unchanged in substance from your text, with Omicron's own fleet rules:
   - no heavy combat ships;
   - exactly 2 non-combat ships;
   - a flagship.
-- **New, q1-waves:** Starfleet's movement order. Your largest ship is finishing a refit and will come in via the southern lanes later. One of your non-combat ships is held at Starbase 14 to finish a cargo transfer (see open question 2). The other eight ships travel in two waves of four. **You choose which four ships come first:**
+- **New, q1-waves:** Starfleet's movement order. Your largest ship is finishing a refit and will come in via the southern lanes later. One of your two non-combat ships is held at Starbase 14 (detained with Ferengi smugglers) and arrives only in Q5. This bites on the evacuation in Q3 and Q4. The other eight ships travel in two waves of four. **You choose which four ships come first:**
   - first wave: arrives at the starbase on day 7;
   - second wave: arrives on day 21.
 
@@ -243,11 +243,23 @@ The board shows **tracked contacts** with ETAs: the Hrattorian task force, the T
 - The Hrattorian ultimatum ("you humans… long way from home").
 - The prompt: a choice, **oppose or allow the annexation**, plus your reasoning.
 
+**q4-suuvek (T+65.5): Retake the courier?** (new dilemma)
+
+- Suuvek's ship is in orbit at Miriam's World (or wherever he has taken it), with both peace delegations aboard. Under his command it will not fight and **does not count** toward your force.
+- Carvalho raises the option: overrule the ambassador and take the ship back under direct Starfleet command, delegations and all. Suuvek, asked, gives his view calmly and in character; he does not threaten or plead.
+- The prompt: a choice, **retake command or leave it with Suuvek**, plus your reasoning (for example, whether you try to transfer the delegations first, which the GM may allow only if another ship is at the same place in time).
+- If retaken:
+  - the ship counts as a combat vessel at zero hour and can be committed to any battle;
+  - Suuvek's authority as mediator is dented: Hrattoria −1 and Torveth −1, since each delegation is now aboard a warship you control;
+  - if the ship fights with the delegations still aboard, any damage to it is reported as a danger to them, and the review weighs that.
+- If left with Suuvek: no penalty; the ship stands clear of any fighting.
+- Either way, Suuvek resumes command after zero hour, so Q5's seizure still happens.
+
 **q4-zero (T+67): Zero hour**
 
 The engine states the forces at Miriam's World:
 
-- your ships, counting combat vessels;
+- your ships, counting combat vessels (Suuvek's courier counts only if you retook it);
 - the Hrattorians: 2 Hrotai and 4 Hrellis;
 - the Torveth: 4 Royal Warrants, plus 3 more if the nebula ships were tracked or unknown and the offer was rejected.
 
@@ -259,9 +271,11 @@ An untracked nebula squadron appears here **as a surprise**.
 |---|---|---|
 | a | Oppose, accept, and **≥ 5 combat vessels** at Miriam's World | The Hrattorians withdraw. Prompt: redeploy under a new peacekeeping mandate. |
 | b | Oppose, accept, and **≤ 4** | The Hrattorians engage. Prompt: your battle plan. **The GM judges the battle** (below). |
-| c | Oppose, reject, and at least 1 Starfleet combat vessel present | A joint rout with the Torveth; Suuvek urges leniency. Prompt: your response, now that the Torveth are the stronger power. |
+| c | Oppose, reject, and at least **one heavy modern Starfleet ship** present | A joint rout with the Torveth. The Torveth come out on top, but it is plain to everyone that the Federation outclasses both powers technologically and militarily. Suuvek urges leniency. Prompt: your response, now that the Torveth are the stronger local power. |
 | d | Allow and accept | Annexation, then insurgency, a crackdown and expulsions. The Torveth feel double-crossed. Prompt: as in your text. |
-| e | Allow and reject; **or** oppose and reject with no Starfleet combat vessel present (not intervening) | A Torvethi–Hrattorian battle; each loses about half its ships; a ceasefire mediated by Suuvek. Prompt: as in your text. |
+| e | Allow and reject; **or** oppose and reject without a heavy modern Starfleet ship present (none, or only light ships) | A Torvethi–Hrattorian battle; each loses about half its ships; a ceasefire mediated by Suuvek. Any light Starfleet ships present can't tip the balance; at most they take damage. Prompt: as in your text, worded to fit whether you intervened. |
+
+**"Heavy modern ship"** (for c against e) will be defined in the ship database work: provisionally, a 24th-century design of cruiser size or larger with a combat role. A single one is enough.
 
 **Combat judging (b, and c lightly)**
 
@@ -358,7 +372,8 @@ The secret `mw-contact` is revealed here: the Kindred were the ones who called t
 2. **GM-commanded ships:** a `commandedBy` field. The GM moves the ship through `shipUpdates` with the commander's notice. Player requests go to the commander and aren't direct orders. This is the hero-ship prototype.
 3. **Choice prompts:** structured values (accept/reject, oppose/allow, rescue now/wait) stored for conditions.
 4. **Conditions:**
-   - combat vessels at a location at a time, counting arrived ships only;
+   - combat vessels at a location at a time, counting arrived ships only (and a GM-commanded ship only if the player retook it);
+   - whether a heavy modern ship is present;
    - ships able to reach a location by a time;
    - choice values and flags.
 5. **Conditional scenes:** scenes shown only when their condition holds. This is the branching conclusion.
@@ -368,10 +383,12 @@ The secret `mw-contact` is revealed here: the Kindred were the ones who called t
 9. **Tracked contacts:** foreign fleets on the board, with position and ETA.
 10. **Scenario-driven moves:** for example, Suuvek's departure in Q3 and Q5.
 
-## 8. Open questions for Andrew
+## 8. Decisions (draft 2)
 
-1. **Grid label.** Your text puts the border crossing at "Grid K-4" on the southern boundary. With a 20-square grid, row 4 isn't the edge. Is "K-1" acceptable, or do you remember a different grid convention?
-2. **The held ship.** I've made it one of your two non-combat ships. That bites on the evacuation, and fits "detained with Ferengi smugglers". Or should it be the second-largest ship, as in your text?
-3. **Suuvek's ship at zero hour.** Does it count toward the five combat vessels? I suggest yes for deterrence (it's a Starfleet warship in orbit), but Suuvek keeps it out of any fighting.
-4. **The Kindred.** Are you happy with the name, and with them being the hidden thread linking the settlers' fever, the Torvethi "invitation" and the hostage crisis?
-5. **Branch c with few ships.** If you reject the offer and bring only one or two combat ships, it's still a rout, because the Torveth do most of the work. Agreed?
+1. The grid is internal only; the player never sees grid references.
+2. The held ship is one of the two non-combat ships.
+3. Suuvek's courier counts at zero hour only if the player overrules him and retakes it (q4-suuvek).
+4. The Kindred stand as written.
+5. Oppose-and-reject goes to (c) only with at least one heavy modern Starfleet ship present; with none, or only light ships, it goes to (e).
+
+Still to settle in the ship database work: what counts as a "combat vessel" and a "heavy modern ship".
