@@ -7,7 +7,10 @@ import type { ShipClass } from "./shipTypes";
  * works out when they arrive.
  */
 
-export interface Coords { x: number; y: number }
+/** A sector is a cube 20 light-years on a side (canon); coordinates run 0–20 on each axis. */
+export const SECTOR_LY = 20;
+
+export interface Coords { x: number; y: number; z?: number }
 
 /** Multiples of light speed by warp factor (TNG scale, after the TNG Technical Manual). */
 const WARP_TABLE: [number, number][] = [
@@ -26,7 +29,20 @@ export function warpToC(w: number): number {
 }
 
 export function distanceLy(a: Coords, b: Coords): number {
-  return Math.hypot(a.x - b.x, a.y - b.y);
+  // Depth defaults to the sector's mid-plane when not given.
+  return Math.hypot(a.x - b.x, a.y - b.y, (a.z ?? SECTOR_LY / 2) - (b.z ?? SECTOR_LY / 2));
+}
+
+/** Problems with a scenario's map: every location needs coordinates inside the 20-ly cube. */
+export function mapProblems(s: Scenario): string[] {
+  const out: string[] = [];
+  for (const l of s.locations) {
+    if (!l.coords) { out.push(`${l.id}: no coordinates`); continue; }
+    for (const [axis, v] of Object.entries({ x: l.coords.x, y: l.coords.y, z: l.coords.z ?? SECTOR_LY / 2 })) {
+      if (v < 0 || v > SECTOR_LY) out.push(`${l.id}: ${axis} = ${v} is outside the ${SECTOR_LY}-ly sector`);
+    }
+  }
+  return out;
 }
 
 export function travelHours(ly: number, warp: number): number {

@@ -8,7 +8,7 @@ import { AssignedFleet } from "./components/AssignedFleet";
 import type { GameState, Transmission } from "./engine/state";
 import { activeFactions, advanceClock, allocateFleet, applyEffects, arriveAll, boardShips, whereText, castSeen, checkAssignments, checkRequest, crewShips, migrate, newGame, postureTriggered, standingLabel } from "./engine/state";
 import { isDev, toggleDev } from "./engine/dev";
-import { stageTime } from "./engine/travel";
+import { mapProblems, stageTime } from "./engine/travel";
 import { campaignHtml, campaignText } from "./engine/exportCampaign";
 import { getSample, gradeStage, writeReply } from "./engine/gm";
 import { loadGame, saveLocal, saveRemote } from "./engine/storage";
@@ -38,6 +38,9 @@ export default function App() {
   const [boardOpen, setBoardOpen] = useState(() => { try { return localStorage.getItem("yata-board") !== "closed"; } catch { return true; } });
   const toggleBoard = () => setBoardOpen((o) => { try { localStorage.setItem("yata-board", o ? "closed" : "open"); } catch { /* unavailable */ } return !o; });
   const [exportNote, setExportNote] = useState("");
+
+  // Authoring check: every location must sit inside the 20-ly sector.
+  useEffect(() => { const p = mapProblems(S); if (p.length) console.warn("Sector map problems:", p); }, []);
 
   // Testing aids stay hidden unless switched on with Alt+Shift+D.
   useEffect(() => {

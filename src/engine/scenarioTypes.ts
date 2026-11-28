@@ -77,8 +77,8 @@ export interface Location {
   factionId?: string;
   description?: string;
   starbaseOptions?: ("planet-orbit" | "star-orbit" | "open-space")[];
-  /** Position on the sector map, in light-years. Travel times are worked out from these. */
-  coords?: { x: number; y: number };
+  /** Position in the sector, in light-years: 0–20 on each axis (a sector is a 20-ly cube). z defaults to 10, the mid-plane. */
+  coords?: { x: number; y: number; z?: number };
 }
 
 // ── Player resources ───────────────────────────────────

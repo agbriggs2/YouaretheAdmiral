@@ -85,7 +85,7 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 
 ## Time and travel (v0.7)
 - **The sector has a clock**, in hours since the posting began. Every stage has `atDay` (days since the posting began) and every scene `atHours` (hours after its stage opens). Opening a scene moves the clock to its time; the clock never runs backwards. The player isn't necessarily told the time; the scene text can carry it ("A week passes…") or not.
-- **Locations have coordinates** in light-years (`coords`). Distances, and so travel times, are worked out from them.
+- **A sector is a cube 20 light-years on a side**, as in canon. Locations have coordinates in light-years (`coords`: x, y and optional z, each 0–20; z defaults to 10, the mid-plane), and the game warns if any location falls outside the cube. Distances, and so travel times, are worked out from them.
 - **Speed is a warp factor**, converted to multiples of light speed with the TNG scale (warp 6 ≈ 392c, warp 9 ≈ 1,516c). Each class has a cruising speed (`cruiseWarp`, default warp 6, lower for slow classes) and a maximum (`maxWarp`).
 - **Ships travel on timed routes.** When the GM sends a ship somewhere, it names the destination and the speed (cruise, maximum or a warp factor); the engine works out the departure and arrival times. A ship diverted mid-journey sets off from wherever it has got to. When the clock passes a ship's arrival time, it arrives ("On station at Lysara").
 - **The GM is told** the sector time, how long since the previous scene, where every ship is or is heading and when it arrives, and the travel time from each ship's position to every location at cruise and maximum. It uses those times when characters talk about arrivals, and describes only what has happened by now.
@@ -100,7 +100,9 @@ The grading criteria also count balance: a warship-heavy request is graded down 
 | Question Three | day 120 | alert 0347, morning after 0900, Kestu note same day, a week later +7 days, then envoys, merchants, hotline, intel, report and Tekanan's navy over the following week |
 | Question Four | day 165 | war, reinforcements (arrive 48 hours later), mutual destruction +3 days, accusation, refugees, strike +10 days, new Kestu government +12 days, buoy +18 days, exploration, petition +40 days, handover +60 days |
 
-Map scale: Tekanan III to Lysara is 5.0 light-years (4.6 days at warp 6, 26 hours at warp 9.2); Tekanan III to Kestu IX 4.2; Lysara to Kestu IX 4.0; Tekanan III to the Class-L world 5.9.
+Map scale: the map spans the full 20 light-years across, with every location on the mid-plane. Tekanan III to Lysara is 6.9 light-years (6.5 days at warp 6, 1.7 days at warp 9); Tekanan III to Kestu IX 5.8; Lysara to Kestu IX 5.5; Tekanan III to the Class-L world 8.0; Lysara to the Class-L world 10.6.
+
+The timeline was checked against these distances: a ship sent from Tekanan III to Lysara at cruise during the Question Three alert arrives just before the "week later" scene; the Kestu fleet, leaving home two days before the Queen's death, reaches Lysaran orbit about three days after it; and in Question Four, ships at Tekanan III can reach Lysara before the battle only at high warp.
 
 ## Schema (TypeScript)
 ```ts
@@ -180,7 +182,7 @@ export interface Location {
   factionId?: string;
   description?: string;
   starbaseOptions?: ("planet-orbit" | "star-orbit" | "open-space")[];
-  coords?: { x: number; y: number };   // light-years
+  coords?: { x: number; y: number; z?: number };   // light-years, 0–20 on each axis; z defaults to 10
 }
 
 // ── Player resources ───────────────────────────────────

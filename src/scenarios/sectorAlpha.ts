@@ -100,13 +100,13 @@ export const sectorAlpha: Scenario = {
     },
   ],
   locations: [
-    { coords: { x: 3.2, y: 4.6 }, id: "nebula", name: "The Really Big Nebula", kind: "nebula", description: "Vast, mostly harmless, ideal for hiding.", starbaseOptions: ["open-space"] },
-    { coords: { x: 7.0, y: 2.1 }, id: "tekanan-iii", name: "Tekanan III", kind: "planet", factionId: "tekanan", starbaseOptions: ["planet-orbit", "star-orbit"] },
-    { coords: { x: 6.1, y: 7.0 }, id: "lysara", name: "Lysara (binary system)", kind: "planet", factionId: "lysara", starbaseOptions: ["planet-orbit", "star-orbit"] },
-    { coords: { x: 9.7, y: 5.3 }, id: "kestu-ix", name: "Kestu IX", kind: "planet", factionId: "kestu", starbaseOptions: ["planet-orbit", "star-orbit"] },
-    { coords: { x: 12.8, y: 3.2 }, id: "class-l", name: "The Class-L world", kind: "planet", description: "Unexplored, across the border." },
-    { coords: { x: 11.3, y: 7.0 }, id: "border", name: "The border", kind: "border", description: "Frontier with the isolated alien power.", starbaseOptions: ["open-space"] },
-    { coords: { x: 8.3, y: 3.8 }, id: "open-space", name: "Open space between the systems", kind: "open-space", starbaseOptions: ["open-space"] },
+    { coords: { x: 4.4, y: 6.3, z: 10 }, id: "nebula", name: "The Really Big Nebula", kind: "nebula", description: "Vast, mostly harmless, ideal for hiding.", starbaseOptions: ["open-space"] },
+    { coords: { x: 9.7, y: 2.9, z: 10 }, id: "tekanan-iii", name: "Tekanan III", kind: "planet", factionId: "tekanan", starbaseOptions: ["planet-orbit", "star-orbit"] },
+    { coords: { x: 8.4, y: 9.7, z: 10 }, id: "lysara", name: "Lysara (binary system)", kind: "planet", factionId: "lysara", starbaseOptions: ["planet-orbit", "star-orbit"] },
+    { coords: { x: 13.4, y: 7.4, z: 10 }, id: "kestu-ix", name: "Kestu IX", kind: "planet", factionId: "kestu", starbaseOptions: ["planet-orbit", "star-orbit"] },
+    { coords: { x: 17.6, y: 4.4, z: 10 }, id: "class-l", name: "The Class-L world", kind: "planet", description: "Unexplored, across the border." },
+    { coords: { x: 15.6, y: 9.7, z: 10 }, id: "border", name: "The border", kind: "border", description: "Frontier with the isolated alien power.", starbaseOptions: ["open-space"] },
+    { coords: { x: 11.5, y: 5.3, z: 10 }, id: "open-space", name: "Open space between the systems", kind: "open-space", starbaseOptions: ["open-space"] },
   ],
   resources: {
     fleet: {

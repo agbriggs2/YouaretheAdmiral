@@ -202,7 +202,8 @@ export function shipCoords(s: Scenario, state: GameState, f: FleetShip): Coords 
     if (!to || !f.route.from) return f.route.fromOutside ? undefined : to;
     const span = Math.max(1, f.route.arriveAt - f.route.departAt);
     const t = Math.min(1, Math.max(0, ((state.clock ?? 0) - f.route.departAt) / span));
-    return { x: f.route.from.x + (to.x - f.route.from.x) * t, y: f.route.from.y + (to.y - f.route.from.y) * t };
+    const fz = f.route.from.z ?? 10, tz = to.z ?? 10;
+    return { x: f.route.from.x + (to.x - f.route.from.x) * t, y: f.route.from.y + (to.y - f.route.from.y) * t, z: fz + (tz - fz) * t };
   }
   return locationCoords(s, f.location === TRANSIT ? undefined : f.location);
 }
